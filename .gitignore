@@ -4,6 +4,8 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+src/web/node_modules/
+src/web/.next/
 
 .idea
 *.iws
