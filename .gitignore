@@ -11,3 +11,4 @@ src/web/.next/
 *.iws
 *.iml
 *.ipr
+bun.lock
