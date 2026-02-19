@@ -161,6 +161,12 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 
 ---
 
+Enlaces de GitHub
+
+Lucas Fuentes: https://github.com/brewLux
+
+---
+
 ## Referencias
 
 Behroozi, M., Shirolkar, S., Barik, T., Parnin., & Parnin, C. (2020). Does stress impact technical interview performance? Recuperado de:  https://chrisparnin.me/pdf/stress_FSE_20.pdf
