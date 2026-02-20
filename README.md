@@ -80,7 +80,7 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 | Iván Santiago Lastra | Configuration Manager |  link a mi perfil: https://github.com/Ivan140809
 | Richard Castillo  https://github.com/RichardCastillo-jpg| Sprint Planner |
 | Iván Santiago Lastra | Configuration Manager |
-| Ana María Murcia | Quality Assurance Lead |
+| Ana María Murcia | Quality Assurance Lead | https://github.com/ana2320-ux
 | Lucas Fuentes | DevOps Engineer |
 
 ---
