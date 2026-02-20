@@ -13,6 +13,15 @@ public class UserService {
         this.userRepository=userRepository;
     }
 
+    public User register(User user) {
+
+    if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        throw new RuntimeException("El email ya está registrado");
+    }
+
+    return userRepository.save(user);
+}
+
     //crear usuarios, listarlos, actualizarlos, eliminarlos, etc
     //metodos para manejar la logica de negocio relacionada con los usuarios
     //para esto se hace uso de los metodos del repositorio, como save, findAll, findById, deleteById, etc
