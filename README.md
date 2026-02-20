@@ -78,6 +78,8 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 | Lorenzo Ramírez | Scrum Master |
 | Richard Castillo | Sprint Planner |
 | Iván Santiago Lastra | Configuration Manager |  link a mi perfil: https://github.com/Ivan140809
+| Richard Castillo  https://github.com/RichardCastillo-jpg| Sprint Planner |
+| Iván Santiago Lastra | Configuration Manager |
 | Ana María Murcia | Quality Assurance Lead |
 | Lucas Fuentes | DevOps Engineer |
 
