@@ -13,9 +13,9 @@ public class UserService {
         this.userRepository=userRepository;
     }
 
-    public User register(User user) {
+    public User register(User userRegister) {
 
-    if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+    if (userRepository.findByEmail(userRegister.getEmail()).isPresent()) {
         throw new RuntimeException("El email ya está registrado");
     }
 
