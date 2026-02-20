@@ -1,0 +1,5 @@
+Cadena para conectar la base de datos en Atlas con el backend:
+
+mongodb+srv://<db_username>:<db_password>@fundamentosmongo.3njrzqk.mongodb.net/?appName=FundamentosMongo
+
+Reemplazar db_username y db_password.
