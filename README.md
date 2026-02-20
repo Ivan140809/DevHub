@@ -77,8 +77,8 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 | Adam Kalel Ordoñez | Product Owner |
 | Lorenzo Ramírez | Scrum Master |
 | Richard Castillo | Sprint Planner |
-| Iván Santiago Lastra | Configuration Manager |  link a mi perfil: https://github.com/Ivan140809
-| Ana María Murcia | Quality Assurance Lead |
+| Iván Santiago Lastra | Configuration Manager |
+| Ana María Murcia | Quality Assurance Lead | https://github.com/ana2320-ux
 | Lucas Fuentes | DevOps Engineer |
 
 ---
