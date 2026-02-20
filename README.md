@@ -74,9 +74,13 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 
 | Integrante | Rol Scrum |
 |------------|-----------|
-| Adam Kalel Ordoñez | Product Owner |
+| Adam Kalel Ordoñez https://github.com/KALEL2006 | Product Owner |
 | Lorenzo Ramírez | Scrum Master |
+| Adam Kalel Ordoñez | Product Owner |
+| Lorenzo Ramírez https://github.com/lorenzoramirez-lrc | Scrum Master |
 | Richard Castillo | Sprint Planner |
+| Iván Santiago Lastra | Configuration Manager |  link a mi perfil: https://github.com/Ivan140809
+| Richard Castillo  https://github.com/RichardCastillo-jpg| Sprint Planner |
 | Iván Santiago Lastra | Configuration Manager |
 | Ana María Murcia | Quality Assurance Lead | https://github.com/ana2320-ux
 | Lucas Fuentes | DevOps Engineer |
@@ -141,7 +145,7 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
   - Asigna y da seguimiento a tareas durante cada sprint.
   - Asegura coherencia entre backlog, issues y sprints.
 
-- Iván Santiago Lastra — Configuration Manager
+- Iván Santiago Lastra — Configuration Manager- link a mi perfil: https://github.com/Ivan140809
   - Administra el repositorio del proyecto.
   - Define y controla el flujo de trabajo (Gitflow) para ramas.
   - Revisa y aprueba pull requests.
@@ -161,8 +165,24 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 
 ---
 
+Enlaces de GitHub
+
+Lucas Fuentes: https://github.com/brewLux
+
+---
+
 ## Referencias
 
 Behroozi, M., Shirolkar, S., Barik, T., Parnin., & Parnin, C. (2020). Does stress impact technical interview performance? Recuperado de:  https://chrisparnin.me/pdf/stress_FSE_20.pdf
 
 Universidad EAFIT. (2025). Educación superior y mercado laboral en Colombia: desafíos y oportunidades en un entorno de transformación. Recuperado de: https://universidadeafit.widen.net/s/cwqzrnfznb/reporte-tendencia-2025
+
+
+---
+## Contexto Académico
+- **Asignatura:** Fundamentos de Ingeniería de Software
+- **Docente:** Luis Gabriel Moreno Sandoval, PhD
+
+---
+## Licencia
+Proyecto desarrollado con fines académicos.
