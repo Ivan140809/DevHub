@@ -76,6 +76,8 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 |------------|-----------|
 | Adam Kalel Ordoñez | Product Owner |
 | Lorenzo Ramírez | Scrum Master |
+| Richard Castillo | Sprint Planner |
+| Iván Santiago Lastra | Configuration Manager |  link a mi perfil: https://github.com/Ivan140809
 | Richard Castillo  https://github.com/RichardCastillo-jpg| Sprint Planner |
 | Iván Santiago Lastra | Configuration Manager |
 | Ana María Murcia | Quality Assurance Lead |
@@ -141,7 +143,7 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
   - Asigna y da seguimiento a tareas durante cada sprint.
   - Asegura coherencia entre backlog, issues y sprints.
 
-- Iván Santiago Lastra — Configuration Manager
+- Iván Santiago Lastra — Configuration Manager- link a mi perfil: https://github.com/Ivan140809
   - Administra el repositorio del proyecto.
   - Define y controla el flujo de trabajo (Gitflow) para ramas.
   - Revisa y aprueba pull requests.
