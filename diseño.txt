@@ -1,0 +1,2 @@
+Mockup de la interfaz grafica desde la primera pantalla de login y registro de usuario en la plataforma Figma.
+Link: https://www.figma.com/design/V9CpID0b38bs1puENJIddN/ANA-%3C3?node-id=1343-1061&t=e1QjzVsGnIrWk90L-1
