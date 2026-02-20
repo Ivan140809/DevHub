@@ -75,7 +75,7 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 | Integrante | Rol Scrum |
 |------------|-----------|
 | Adam Kalel Ordoñez | Product Owner |
-| Lorenzo Ramírez | Scrum Master |
+| Lorenzo Ramírez https://github.com/lorenzoramirez-lrc | Scrum Master |
 | Richard Castillo | Sprint Planner |
 | Iván Santiago Lastra | Configuration Manager |
 | Ana María Murcia | Quality Assurance Lead |
