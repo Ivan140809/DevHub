@@ -24,6 +24,7 @@ export default function RegisterPage() {
           <Field label="Preferencias" />
         </div>
 
+
         <div style={{ marginTop: 50, display: "flex", justifyContent: "space-around" }}>
           <button
             style={{
@@ -44,6 +45,8 @@ export default function RegisterPage() {
   );
 }
 
+/*Especial components for the fields*/
+
 function Field({ label, type = "text" }: { label: string; type?: string }) {
   return (
     <label style={{ display: "flex", flexDirection: "column", gap: 20, color: "Black" }}>
@@ -61,3 +64,4 @@ function Field({ label, type = "text" }: { label: string; type?: string }) {
     </label>
   );
 }
+
