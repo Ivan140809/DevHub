@@ -1,4 +1,9 @@
+package com.skillstack.devhub.Service;
 
+import com.skillstack.devhub.Model.User;
+import com.skillstack.devhub.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 //aqui se manejara la logica de negocio, se llama a los repositorios 

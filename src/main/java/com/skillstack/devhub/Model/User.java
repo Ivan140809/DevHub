@@ -1,5 +1,7 @@
 package com.skillstack.devhub.Model;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 @Document(collection = "users") // Nombre de la colección en mongooo
                                    //revisar como se va a llamarrrrr
 public class User {
