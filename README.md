@@ -76,7 +76,6 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 |------------|-----------|
 | Adam Kalel Ordoñez https://github.com/KALEL2006 | Product Owner |
 | Lorenzo Ramírez https://github.com/lorenzoramirez-lrc | Scrum Master |
-| Richard Castillo | Sprint Planner |
 | Iván Santiago Lastra https://github.com/Ivan140809 | Configuration Manager |  link a mi perfil: https://github.com/Ivan140809
 | Richard Castillo  https://github.com/RichardCastillo-jpg| Sprint Planner |
 | Ana María Murcia | Quality Assurance Lead | https://github.com/ana2320-ux
