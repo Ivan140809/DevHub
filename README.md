@@ -75,8 +75,8 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 | Integrante | Rol Scrum |
 |------------|-----------|
 | Adam Kalel Ordoñez | Product Owner |
-| Lorenzo Ramírez | Scrum Master |
 | Richard Castillo  https://github.com/RichardCastillo-jpg| Sprint Planner |
+| Lorenzo Ramírez https://github.com/lorenzoramirez-lrc | Scrum Master |
 | Iván Santiago Lastra | Configuration Manager |
 | Ana María Murcia | Quality Assurance Lead |
 | Lucas Fuentes | DevOps Engineer |
@@ -166,3 +166,13 @@ De la misma manera se promueve la comunicación y colaboración a través de la 
 Behroozi, M., Shirolkar, S., Barik, T., Parnin., & Parnin, C. (2020). Does stress impact technical interview performance? Recuperado de:  https://chrisparnin.me/pdf/stress_FSE_20.pdf
 
 Universidad EAFIT. (2025). Educación superior y mercado laboral en Colombia: desafíos y oportunidades en un entorno de transformación. Recuperado de: https://universidadeafit.widen.net/s/cwqzrnfznb/reporte-tendencia-2025
+
+
+---
+## Contexto Académico
+- **Asignatura:** Fundamentos de Ingeniería de Software
+- **Docente:** Luis Gabriel Moreno Sandoval, PhD
+
+---
+## Licencia
+Proyecto desarrollado con fines académicos.
