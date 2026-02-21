@@ -1,29 +1,60 @@
 package com.skillstack.devhub.Model;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "users") // Nombre de la colección en mongooo
-                                   //revisar como se va a llamarrrrr
+import java.util.ArrayList;
+
+@Document(collection = "usuarios")
 public class User {
-
-    @id
+    @Id
     private String id;
-    private String name;
+
+    private String nombre;
+    private String apellido;
+    private String username;
     private String email;
-    private String password;
+    private String contraseña;
+    private ArrayList<String> preferencias;
 
-    public User(String name, String email, String password) {
-        this.name = name;
+    public User(){}
+
+    public User(String nombre, String apellido, String username, String email,
+                String contraseña, ArrayList<String> preferencias) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.username = username;
         this.email = email;
-        this.password = password;
+        this.contraseña = contraseña;
+        this.preferencias = preferencias;
     }
 
-    public String getName() {
-        return name;
+    public String getId(){
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -34,11 +65,19 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getContraseña() {
+        return contraseña;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setContraseña(String contraseña) {
+        this.contraseña = contraseña;
+    }
+
+    public ArrayList<String> getPreferencias() {
+        return preferencias;
+    }
+
+    public void setPreferencias(ArrayList<String> preferencias) {
+        this.preferencias = preferencias;
     }
 }
