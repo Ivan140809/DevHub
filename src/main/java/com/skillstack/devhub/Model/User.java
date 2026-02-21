@@ -1,29 +1,75 @@
 package com.skillstack.devhub.Model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "users") // Nombre de la colección en mongooo
-                                   //revisar como se va a llamarrrrr
+import java.util.ArrayList;
+
+@Document(collection = "usuarios")
 public class User {
 
-    @id
+    @Id
     private String id;
-    private String name;
+
+    @NotBlank(message = "El nombre es obligatorio")
+    private String nombre;
+    private String apellido;
+
+    @NotNull(message = "El usenname es obligatorio")
+    @Size(min = 4, max = 15, message = "El nombre debe tener entre 4 y 15 caracteres")
+    private String username;
+
+    @Email(message = "El correo no es válido, asegurese de tener la estructura correo@ejemplo.com")
+    @NotBlank(message = "El correo es obligatorio")
     private String email;
-    private String password;
 
-    public User(String name, String email, String password) {
-        this.name = name;
+    @NotBlank(message = "La contrasena es obligatoria")
+    @Size(min = 8, message = "La contraseña debe contener al menos 8 caracteres")
+    private String contraseña;
+    private ArrayList<String> preferencias;
+
+    public User(){}
+
+    public User(String nombre, String apellido, String username, String email,
+                String contraseña, ArrayList<String> preferencias) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.username = username;
         this.email = email;
-        this.password = password;
+        this.contraseña = contraseña;
+        this.preferencias = preferencias;
     }
 
-    public String getName() {
-        return name;
+    public String getId(){
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -34,11 +80,19 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getContraseña() {
+        return contraseña;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setContraseña(String contraseña) {
+        this.contraseña = contraseña;
+    }
+
+    public ArrayList<String> getPreferencias() {
+        return preferencias;
+    }
+
+    public void setPreferencias(ArrayList<String> preferencias) {
+        this.preferencias = preferencias;
     }
 }
