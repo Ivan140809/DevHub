@@ -7,10 +7,11 @@ export default function RegisterPage() {
       {/* Creation of the register header */}
       <header style={{ background: "#4d1cb5", color: "white", padding: "18px 24px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontWeight: 500 }}><User size={40} /></span>
           <span style={{ fontWeight: 700 }}>DEVHUB</span>
-          <span style={{ fontWeight: 600 }}>FAQ</span>
-          <span style={{ fontWeight: 500 }}><LogOut size={20} /></span>
-          <span style={{ fontWeight: 500 }}><User size={20} /></span>
+          <span style={{ fontWeight: 700 }}>FAQ</span>
+          <span style={{ fontWeight: 700 }}><LogOut size={40} /></span>
+  
         </div>
       </header>
     <section style={{ maxWidth: 1000, margin: "60px auto", background: "white", padding: 50, borderRadius: 32 }}>
@@ -22,6 +23,7 @@ export default function RegisterPage() {
           <Field label="Contraseña" type="password" />
           <Field label="Preferencias" />
         </div>
+
 
         <div style={{ marginTop: 50, display: "flex", justifyContent: "space-around" }}>
           <button
@@ -43,6 +45,8 @@ export default function RegisterPage() {
   );
 }
 
+/*Especial components for the fields*/
+
 function Field({ label, type = "text" }: { label: string; type?: string }) {
   return (
     <label style={{ display: "flex", flexDirection: "column", gap: 20, color: "Black" }}>
@@ -60,3 +64,4 @@ function Field({ label, type = "text" }: { label: string; type?: string }) {
     </label>
   );
 }
+

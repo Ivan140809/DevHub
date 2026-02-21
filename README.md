@@ -2,177 +2,193 @@
   <img src="./assets/devhub-logo.png" alt="DevHub Logo" width="640">
 </p>
 
-> "Entrena con propósito, destaca con confianza."  
-
 # DEVHUB 💻
 
-**Plataforma web de práctica para entrevistas técnicas en ingeniería de sistemas desarollada por SkillStack Technologies**
+> "Entrena con propósito, destaca con confianza."
+> 
+## 📖 Descripción
+- DEVHUB es una plataforma web especializada en preparación de entrevistas técnicas para ingeniería de sistemas y tecnologías de la información.
 
----
+- La plataforma facilita la práctica de preguntas técnicas, el fortalecimiento de fundamentos y la familiarización con dinámicas reales de procesos de selección laboral.
 
-<div align="center">
-  <strong>Índice</strong> • <a href="#-problemática">Problemática</a> • <a href="#-proyecto">Proyecto</a> • <a href="#-características-del-sistema">Características</a> • <a href="#-propuesta-de-valor">Propuesta de Valor</a> • <a href="#equipo">Equipo</a>
-</div>
+- Además, proporciona un entorno digital de entrenamiento que promueve la práctica constante, la autoevaluación y el aprendizaje colaborativo entre estudiantes y profesionales.
 
----
+- DEVHUB surge como respuesta a la brecha existente entre la formación universitaria y las competencias que exige el mercado laboral, donde las entrevistas técnicas representan un filtro determinante para acceder a oportunidades profesionales.
 
-## ⛔ Problemática
-En Colombia existe una brecha significativa entre la formación universitaria y las competencias que demanda el mercado laboral, lo que dificulta la empleabilidad de muchos jóvenes recién graduados o en formación.
+- La plataforma busca fortalecer las habilidades técnicas de los usuarios y mejorar su empleabilidad en el sector tecnológico, contribuyendo a una preparación integral alineada con procesos reales de selección.
+## 👥 Equipo del Proyecto
 
-- 2 de cada 10 jóvenes en Colombia presentan dificultades para encontrar empleo (Universidad EAFIT, 2025).
-- 22% de los empleadores reporta problemas para cubrir vacantes en tecnologías de la información y datos (Universidad EAFIT, 2025).
-- 19% de los empleadores reporta las mismas problematicas para el área de ingeniería (Universidad EAFIT, 2025).
+| Nombre | Rol Scrum | GitHub |
+|--------|-----------|--------|
+| Lorenzo Ramírez | Scrum Master | https://github.com/lorenzoramirez-lrc |
+| Adam Kalel Ordoñez | Product Owner | https://github.com/KALEL2006 |
+| Richard Castillo | Sprint Planner | https://github.com/RichardCastillo-jpg |
+| Iván Santiago Lastra | Configuration Manager | https://github.com/Ivan140809 |
+| Ana María Murcia | QA Lead | https://github.com/ana2320-ux |
+| Lucas Fuentes | DevOps Engineer | https://github.com/brewLux |
 
-Una causa clave de esta situación son las entrevistas técnicas, especialmente en el área de ingeniería de sistemas, donde los distintos entrevistados afirmaron sentirse ansiosos, presionados y apresurados por entregar las soluciones/respuestas a preguntas en el menor tiempo posible (Behroozi et al., 2020).
+## 🛠 Tecnologías Utilizadas
 
----
+- **Frontend:** Next.js 16 + Bun
+- **Backend:** Java 17 – Spring Boot
+- **Base de Datos:** MongoDB
+- **Contenerización:** Docker + Docker Compose
+- **CI/CD:** GitHub Actions
+- **Control de versiones:** Git (GitFlow).
+- **Arquitectura de repositorio:** Monorepo Fullstack
 
-## 💡 Proyecto 
-La preparación para entrevistas es crucial especialmente para el contexto colombiano, DEVHUB nace como una propuesta a esta problemática 
-siendo una plataforma digital práctica, orientada a personas interesadas en ingresar o consolidarse en el sector tecnológico, 
-que requieran fortalecer sus habilidades técnicas y prepararse para procesos de selección laboral. El objetivo principal es mejorar 
-la empleabilidad de estudiantes y profesionales mediante una preparación integral para entrevistas de trabajo.
+## 🏗 Arquitectura del Sistema
 
----
+- Cliente web desarrollado en Next.js
+- API REST desarrollada en Spring Boot
+- Persistencia de datos en MongoDB
+- Contenerización completa mediante Docker
+- Orquestación de servicios con Docker Compose
 
-## 📑 Características del Sistema 
+## 📂 Estructura del Proyecto
 
-- Banco de preguntas técnicas.
-- Sistemas de práctica y retroalimentación.
-- Sección de experiencias de usuario e interacción.
+```
+FIS_2610_3513_G1/
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── workflows/
+│       ├── ci.yml
+│       └── cd.yml
+├── conf/
+├── docs/
+│   ├── api/
+│   ├── architecture/
+│   └── user_guide/
+├── jupyter/
+│   ├── notebooks/
+│   │   ├── exploration.ipynb
+│   │   └── analysis.ipynb
+│   └── datasets/
+│       ├── data1.csv
+│       └── data2.csv
+├── scripts/
+│   ├── setup.sh
+│   ├── deploy.sh
+│   └── test.sh
+├── src/
+│   ├── main/                # Backend (Spring Boot)
+│   │   ├── java/
+│   │   └── resources/
+│   │       └── application.properties
+│   ├── test/
+│   └── web/                 # Frontend (Next.js + Bun)
+│       ├── app/
+│       ├── public/
+│       │   ├── file.svg
+│       │   ├── globe.svg
+│       │   ├── next.svg
+│       │   ├── vercel.svg
+│       │   └── window.svg
+│       ├── package.json
+│       ├── next.config.ts
+│       ├── tsconfig.json
+│       ├── eslint.config.mjs
+│       ├── postcss.config.mjs
+│       ├── bun.lock
+├── assets/
+├── temp/
+├── .mvn/
+├── .gitattributes
+├── .gitignore
+├── README.md
+├── LICENSE
+├── pom.xml
+├── docker-compose.yml
+├── env.example
+├── mvnw
+├── mvnw.cmd
+```
 
----
+## 🚀 Instalación y Ejecución
 
-## 📈 Propuesta de Valor
+### 🔹 Requisitos
 
-DEVHUB se enfoca en un aprendizaje completo y multidisciplinar permitiendo al usuario enfocarse a aquellas preguntas que le interesen con base a su perfil y aspiraciones.  
-De la misma manera se promueve la comunicación y colaboración a través de la interacción y experiencias de otros usuarios. A diferencia de otras plataformas no nos enfocamos en problemas individuales o de una sola área del conocimiento sino en un aprendizaje holístico y colaborativo que lo acerque al contexto real del mercado.
+- Docker y Docker Compose
+- Git
+- Java 17+
+- Next.js instalado
+- Bun (para desarrollo local frontend)
 
----
+### 🔹 Clonar el repositorio
 
-## 👨‍💻 Segmento de Usuarios
+```bash
+git clone https://github.com/organizacion/proyecto.git
+cd proyecto
+```
 
-- Estudiantes de ingeniería de sistemas en semestres avanzados.
-- Recién graduados en áreas TI.
-- Personas preparándose para entrevistas técnicas.
-- Profesionales que buscan reforzar fundamentos.
+### 🔹 Ejecución con Docker
 
----
+```bash
+docker-compose up --build
+```
 
-## Equipo
+**Servicios disponibles:**
+- Frontend → http://localhost:3000
+- Backend → http://localhost:8080
+- MongoDB → puerto 27017
 
-| Integrante | Rol |
-|------------|-----|
-| Iván Santiago Lastra | PM y Coordinador Frontend |
-| Lucas Fuentes | Desarollador Base de Datos |
-| Lorenzo Ramírez | Coordinador Backend |
-| Richard Castillo | Desarollador Base de Datos |
-| Ana María Murcia | Desarrolladora Frontend y Diseño |
-| Adam Kalel Ordoñez | Desarrollador Backend |
+### 🔹 Ejecución de pruebas
 
-## Roles según Metodología Scrum
-
-| Integrante | Rol Scrum |
-|------------|-----------|
-| Adam Kalel Ordoñez | Product Owner |
-| Richard Castillo  https://github.com/RichardCastillo-jpg| Sprint Planner |
-| Lorenzo Ramírez https://github.com/lorenzoramirez-lrc | Scrum Master |
-| Iván Santiago Lastra | Configuration Manager |
-| Ana María Murcia | Quality Assurance Lead |
-| Lucas Fuentes | DevOps Engineer |
-
----
-
-## 📌 Responsabilidades
-
-- Iván Santiago Lastra — PM y Coordinador Frontend
-  - Dirección y planificación del proyecto.
-  - Coordinación del equipo frontend y revisión de interfaces.
-  - Gestión de backlog, priorización de tareas y seguimiento de sprints.
-  - Revisión de PRs y validación de entregables frontend.
-
-- Lucas Fuentes — Desarollador Base de Datos
-  - Diseño y modelado del esquema de la base de datos.
-  - Creación de migraciones y scripts de inicialización.
-  - Optimización de consultas y mantenimiento de índices.
-  - Asegurar integridad y backups de datos.
-
-- Lorenzo Ramírez — Coordinador Backend
-  - Arquitectura y coordinación del desarrollo backend.
-  - Definición de APIs, autenticación y seguridad.
-  - Revisión de PRs backend y mentoría del equipo.
-  - Coordinación de despliegues e integracion.
-
-- Richard Castillo — Desarollador Base de Datos
-  - Implementación de esquemas, relaciones y procedimientos.
-  - Optimización y tuning de consultas complejas.
-  - Soporte en ETL, pruebas y generación de datos de prueba.
-  - Colaboración en tareas de replicación y respaldo.
-
-- Ana María Murcia — Desarrolladora Frontend y Diseño
-  - Diseño de interfaces y prototipos (UX/UI).
-  - Implementación de componentes responsivos y accesibles.
-  - Consistencia visual y guías de estilo.
-  - Colaboración en pruebas de usabilidad y ajustes de diseño.
-
-- Adam Kalel Ordoñez — Desarrollador Backend
-  - Implementación de endpoints y lógica de negocio.
-  - Desarrollo de pruebas automatizadas (unitarias / integración).
-  - Manejo de errores, validaciones y performance.
-  - Integración con la base de datos y servicios externos.
-
-  ## 📌 Responsabilidades (Metodología Scrum)
-
-- Lorenzo Ramírez — Scrum Master
-  - Organiza el trabajo del equipo por sprint.
-  - Facilita la comunicación y las ceremonias Scrum.
-  - Da seguimiento al avance general del proyecto.
-  - Identifica y gestiona impedimentos del equipo.
-
-- Adam Kalel Ordoñez — Product Owner
-  - Lidera la recolección y análisis de requerimientos.
-  - Define historias de usuario, casos de uso y criterios de aceptación.
-  - Prioriza el Product Backlog según valor y dependencias.
-  - Valida entregables y realiza el cierre de issues.
-
-- Richard Castillo — Sprint Planner
-  - Descompone historias de usuario en tareas técnicas.
-  - Organiza y mantiene el backlog del sprint.
-  - Asigna y da seguimiento a tareas durante cada sprint.
-  - Asegura coherencia entre backlog, issues y sprints.
-
-- Iván Santiago Lastra — Configuration Manager
-  - Administra el repositorio del proyecto.
-  - Define y controla el flujo de trabajo (Gitflow) para ramas.
-  - Revisa y aprueba pull requests.
-  - Supervisa commits, fusiones y versionado del sistema.
-
-- Ana María Murcia — Quality Assurance Lead (QA Lead)
-  - Verifica que las entregas cumplan los criterios de evaluación.
-  - Controla el cumplimiento de tareas definidas en cada sprint.
-  - Revisa la calidad funcional, técnica y documental.
-  - Reporta defectos, desviaciones y riesgos del proyecto.
-
-- Lucas Fuentes — DevOps Engineer
-  - Diseña y mantiene los pipelines de integración y despliegue continuo (CI/CD).
-  - Automatiza pruebas y procesos de integración de módulos.
-  - Gestiona el despliegue del sistema utilizando Docker.
-  - Configura y mantiene los entornos de desarrollo, pruebas y producción.
-
----
-
-## Referencias
-
-Behroozi, M., Shirolkar, S., Barik, T., Parnin., & Parnin, C. (2020). Does stress impact technical interview performance? Recuperado de:  https://chrisparnin.me/pdf/stress_FSE_20.pdf
-
-Universidad EAFIT. (2025). Educación superior y mercado laboral en Colombia: desafíos y oportunidades en un entorno de transformación. Recuperado de: https://universidadeafit.widen.net/s/cwqzrnfznb/reporte-tendencia-2025
+**Backend:**
+```bash
+mvn test
+```
+**Frontend:**
+```bash
+bun run dev
+```
 
 
----
-## Contexto Académico
+**Con Docker:**
+```bash
+docker-compose run backend mvn test
+```
+
+## 📚 Contexto Académico
+
+Proyecto desarrollado en el marco de la asignatura:
+
 - **Asignatura:** Fundamentos de Ingeniería de Software
 - **Docente:** Luis Gabriel Moreno Sandoval, PhD
+- **Contacto**: morenoluis@javeriana.edu.co
 
----
-## Licencia
-Proyecto desarrollado con fines académicos.
+## 📩 Contacto
+### Equipo de desarrollo 
+
+**Iván Santiago Lastra**  
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana. 
+
+📧 ivan.lastra@javeriana.edu.co  
+
+**Ana Maria Murcia Gomez**  
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana.
+
+📧 murcia-ana@javeriana.edu.co
+
+**Richard Manuel Castillo Pesca**  
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana.
+
+📧 r-castillo@javeriana.edu.co
+
+**Lorenzo Ramirez Calderon**  
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana.
+
+📧 lorenzo.ramirezc@javeriana.edu.co
+
+**Adam Kalel Ordoñez Herrera**  
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana. 
+
+📧 adordonez@javeriana.edu.co
+
+**Lucas Fuentes Sanchez**  
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana. 
+
+📧 lucas.fuentes@javeriana.edu.co
+
+
