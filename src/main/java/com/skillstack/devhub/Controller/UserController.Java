@@ -1,7 +1,6 @@
 package com.skillstack.devhub.Controller;
 
 
-
 import com.skillstack.devhub.Model.User;
 import com.skillstack.devhub.Service.UserService;
 import jakarta.validation.Valid;
