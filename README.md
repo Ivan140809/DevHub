@@ -192,7 +192,3 @@ Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana.
 📧 lucas.fuentes@javeriana.edu.co
 
 
-
----
-## Licencia
-Proyecto desarrollado con fines académicos.
