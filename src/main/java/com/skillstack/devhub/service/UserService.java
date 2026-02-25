@@ -1,5 +1,6 @@
 package com.skillstack.devhub.service;
 
+import com.skillstack.devhub.dto.UserLoginDto;
 import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
@@ -48,33 +49,43 @@ public class UserService {
 
     public void register(UserRegisterDTO user) {
 
-        User u = new User(user.getNombre(), user.getApellido(), user.getUsername(), user.getEmail(),
-                user.getContrasena(), user.getPreferencias());
-
-        if (userRepository.findByEmail(u.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "El email ya está en uso"
             );
         }
 
-        if(userRepository.findByUsername(u.getUsername()).isPresent()) {
+        if(userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "El username ya está en uso"
             );
         }
-        String respuesta=validarContrasena(u.getContrasena());
-
-
+        String respuesta=validarContrasena(user.getContrasena());
         if(!respuesta.equals("OK")){
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     respuesta
             );
         }
-
+        User u = new User(user.getNombre(), user.getApellido(), user.getUsername(), user.getEmail(),
+                user.getContrasena(), user.getPreferencias());
         userRepository.save(u);
+    }
+
+
+    public String login(UserLoginDto user){
+
+        User u = userRepository.findByEmail(user.getEmail())
+                .orElseThrow( ()->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Usuario no encontrado"
+                ));
+
+        //Logica Password Encoder una vez implementada
+
+        return "Login Exitoso";
     }
 
 }
