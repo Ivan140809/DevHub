@@ -1,13 +1,10 @@
-package com.skillstack.devhub.service;
+package com.skillstack.devhub.Service;
 
-import com.skillstack.devhub.dto.UserLoginDto;
-import com.skillstack.devhub.dto.UserRegisterDTO;
-import com.skillstack.devhub.model.User;
-import com.skillstack.devhub.repository.UserRepository;
+import com.skillstack.devhub.Model.User;
+import com.skillstack.devhub.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 //aqui se manejara la logica de negocio, se llama a los repositorios 
@@ -19,11 +16,14 @@ public class UserService {
     //metodos para manejar la logica de negocio relacionada con los usuarios
     //para esto se hace uso de los metodos del repositorio, como save, findAll, findById, deleteById, etc
 
-    private final UserRepository userRepository;
-
     @Autowired
-    public UserService(UserRepository userRepository){
+    private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository=userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String validarContrasena(String password){
@@ -36,7 +36,7 @@ public class UserService {
             return "Debe contener al menos una minúscula";
         }
 
-        if (!password.matches(".*\\d.*")) {
+        if (!password.matches(".*[0-9].*")) {
             return "Debe contener al menos un número";
         }
 
@@ -47,45 +47,25 @@ public class UserService {
         return "OK";
     }
 
-    public void register(UserRegisterDTO user) {
+    public User register(User user) {
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "El email ya está en uso"
-            );
+            throw new RuntimeException("El email ya está registrado");
         }
 
         if(userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "El username ya está en uso"
-            );
+            throw new RuntimeException("El username ya está en uso");
         }
-        String respuesta=validarContrasena(user.getContrasena());
+        String respuesta=validarContrasena(user.getContraseña());
+
         if(!respuesta.equals("OK")){
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    respuesta
-            );
+            throw new RuntimeException(respuesta);
         }
-        User u = new User(user.getNombre(), user.getApellido(), user.getUsername(), user.getEmail(),
-                user.getContrasena(), user.getPreferencias());
-        userRepository.save(u);
-    }
 
+        //basicamente aca ya queda hasheada dentro de user
+        user.setContraseña(passwordEncoder.encode(user.getContraseña()));
 
-    public String login(UserLoginDto user){
-
-        User u = userRepository.findByEmail(user.getEmail())
-                .orElseThrow( ()->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Usuario no encontrado"
-                ));
-
-        //Logica Password Encoder una vez implementada
-
-        return "Login Exitoso";
+        return userRepository.save(user);
     }
 
 }
