@@ -19,7 +19,7 @@ public class User {
     private String nombre;
     private String apellido;
 
-    @NotNull(message = "El usenname es obligatorio")
+    @NotNull(message = "El username es obligatorio")
     @Size(min = 4, max = 15, message = "El nombre debe tener entre 4 y 15 caracteres")
     private String username;
 
@@ -27,7 +27,7 @@ public class User {
     @NotBlank(message = "El correo es obligatorio")
     private String email;
 
-    @NotBlank(message = "La contrasena es obligatoria")
+    @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 8, message = "La contraseña debe contener al menos 8 caracteres")
     private String contraseña;
     private ArrayList<String> preferencias;
