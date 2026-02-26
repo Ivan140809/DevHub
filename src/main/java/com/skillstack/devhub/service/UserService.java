@@ -1,28 +1,24 @@
-package com.skillstack.devhub.Service;
+package com.skillstack.devhub.service;
 
-import com.skillstack.devhub.Model.User;
-import com.skillstack.devhub.Repository.UserRepository;
+import com.skillstack.devhub.dto.UserLoginDto;
+import com.skillstack.devhub.dto.UserRegisterDTO;
+import com.skillstack.devhub.model.User;
+import com.skillstack.devhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
-//aqui se manejara la logica de negocio, se llama a los repositorios 
-//y se hacen las operaciones necesarias para cumplir con los 
-//requerimientos de la aplicacion
 public class UserService {
 
-    //crear usuarios, listarlos, actualizarlos, eliminarlos, etc
-    //metodos para manejar la logica de negocio relacionada con los usuarios
-    //para esto se hace uso de los metodos del repositorio, como save, findAll, findById, deleteById, etc
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository=userRepository;
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -47,25 +43,52 @@ public class UserService {
         return "OK";
     }
 
-    public User register(User user) {
+    public void register(UserRegisterDTO user) {
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("El email ya está registrado");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "El email ya está en uso"
+            );
         }
 
         if(userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new RuntimeException("El username ya está en uso");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "El username ya está en uso"
+            );
         }
-        String respuesta=validarContrasena(user.getContraseña());
-
+        String respuesta=validarContrasena(user.getContrasena());
         if(!respuesta.equals("OK")){
-            throw new RuntimeException(respuesta);
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    respuesta
+            );
+        }
+        User u = new User(user.getNombre(), user.getApellido(), user.getUsername(), user.getEmail(),
+                user.getContrasena(), user.getPreferencias());
+
+        u.setContrasena(passwordEncoder.encode(user.getContrasena()));
+
+        userRepository.save(u);
+    }
+
+
+    public String login(UserLoginDto request){
+
+        User u = userRepository.findByEmail(request.getEmail())
+                .orElseThrow( ()->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Usuario o contraseña incorrectas"
+                        ));
+
+        if (!passwordEncoder.matches(request.getPassword(), u.getContrasena())) {
+            throw  new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Usuario o contraseña incorrectas"
+            );
         }
 
-        //basicamente aca ya queda hasheada dentro de user
-        user.setContraseña(passwordEncoder.encode(user.getContraseña()));
-
-        return userRepository.save(user);
+        return "Login Exitoso";
     }
 
 }
