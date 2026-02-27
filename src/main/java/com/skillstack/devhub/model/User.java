@@ -1,4 +1,4 @@
-package com.skillstack.devhub.Model;
+package com.skillstack.devhub.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "usuarios")
 public class User {
@@ -29,18 +29,18 @@ public class User {
 
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 8, message = "La contraseña debe contener al menos 8 caracteres")
-    private String contraseña;
-    private ArrayList<String> preferencias;
+    private String contrasena;
+    private List<String> preferencias;
 
     public User(){}
 
     public User(String nombre, String apellido, String username, String email,
-                String contraseña, ArrayList<String> preferencias) {
+                String contrasena, List<String> preferencias) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.username = username;
         this.email = email;
-        this.contraseña = contraseña;
+        this.contrasena = contrasena;
         this.preferencias = preferencias;
     }
 
@@ -80,19 +80,19 @@ public class User {
         this.email = email;
     }
 
-    public String getContraseña() {
-        return contraseña;
+    public String getContrasena() {
+        return contrasena;
     }
 
-    public void setContraseña(String contraseña) {
-        this.contraseña = contraseña;
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
     }
 
-    public ArrayList<String> getPreferencias() {
+    public List<String> getPreferencias() {
         return preferencias;
     }
 
-    public void setPreferencias(ArrayList<String> preferencias) {
+    public void setPreferencias(List<String> preferencias) {
         this.preferencias = preferencias;
     }
 }

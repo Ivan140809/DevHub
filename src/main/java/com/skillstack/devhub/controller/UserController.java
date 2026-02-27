@@ -1,8 +1,9 @@
-package com.skillstack.devhub.Controller;
+package com.skillstack.devhub.controller;
 
 
-import com.skillstack.devhub.Model.User;
-import com.skillstack.devhub.Service.UserService;
+import com.skillstack.devhub.dto.UserRegisterDTO;
+import com.skillstack.devhub.model.User;
+import com.skillstack.devhub.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/registro")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
+    public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegisterDTO user) {
 
         try {
             userService.register(user);
