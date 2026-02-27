@@ -78,12 +78,12 @@ public class UserService {
 
         User u = userRepository.findByEmail(request.getEmail())
                 .orElseThrow( ()->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                                 "Usuario o contraseña incorrectas"
                         ));
 
         if (!passwordEncoder.matches(request.getPassword(), u.getContrasena())) {
-            throw  new ResponseStatusException(HttpStatus.NOT_FOUND,
+            throw  new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Usuario o contraseña incorrectas"
             );
         }
