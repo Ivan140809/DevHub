@@ -27,18 +27,16 @@ public class UserController {
 
     @PostMapping("/registro")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegisterDTO user) {
+        userService.register(user);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("Usuario registrado correctamente");
+       
+    }
 
-        try {
-            userService.register(user);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body("Usuario registrado correctamente");
-
-        } catch (RuntimeException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(e.getMessage());
-        }
+    @PostMapping ("/login")
+    public ResponseEntity<String> loginUser(@Valid @RequestBody UserLoginDto request){
+            String respuesta = userService.login(request);
+            return ResponseEntity.ok(respuesta);
     }
 }
