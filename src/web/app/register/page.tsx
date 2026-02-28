@@ -5,14 +5,44 @@ export default function RegisterPage() {
   return (
     <main style={{ minHeight: "100vh", background: "#f5f5f5" }}>
       {/* Creation of the register header */}
-      <header style={{ background: "#4d1cb5", color: "white", padding: "18px 24px" }}>
+       <header
+        style={{
+          position: "relative",
+          background: "#4d1cb5",
+          color: "white",
+          padding: "16px 24px",
+          boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontWeight: 500 }}><User size={40} /></span>
-          <span style={{ fontWeight: 700 }}>DEVHUB</span>
-          <span style={{ fontWeight: 700 }}>FAQ</span>
-          <span style={{ fontWeight: 700 }}><LogOut size={40} /></span>
-  
+          
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <LogOut size={34} style={{ cursor: "pointer" }} />
+          </div>
+      
+          
+          <div
+            style={{
+              fontFamily: "'Times New Roman', serif",
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontWeight: 800,
+              letterSpacing: 2,
+              fontSize: 20,
+            }}
+          >
+            DEVHUB
+          </div>
+      
+          {/* Right */}
+          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+            <span style={{ fontWeight: 700, cursor: "pointer" }}>FAQ</span>
+            <User size={34} style={{ cursor: "pointer" }} />
+          </div>
         </div>
+      
+        <div style={{ height: 8, marginTop: 14, background: "#3b1590", borderRadius: 999 }} />
       </header>
     <section style={{ maxWidth: 1000, margin: "60px auto", background: "white", padding: 50, borderRadius: 32 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 40 }}>
@@ -21,7 +51,7 @@ export default function RegisterPage() {
           <Field label="Correo Electrónico" />
           <Field label="Username" />
           <Field label="Contraseña" type="password" />
-          <Field label="Preferencias" />
+          <Field label="Telefono" />
         </div>
 
 
@@ -35,6 +65,7 @@ export default function RegisterPage() {
               borderRadius: 999,
               cursor: "pointer",
               fontWeight: 700,
+              fontFamily: "'Times New Roman', serif",
             }}
           >
             Registrar
@@ -54,6 +85,7 @@ function Field({ label, type = "text" }: { label: string; type?: string }) {
       <input
         type={type}
         style={{
+          fontFamily:"'Times New Roman', serif",
           height: 35,
           border: "2px solid #222",
           borderRadius: 1000,
