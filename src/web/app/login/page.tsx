@@ -97,7 +97,10 @@ export default function LoginPage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              // Backend connection logic 
+              const r await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                 
             }}
             style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center", color: "black", fontFamily:"time" }}
           >
