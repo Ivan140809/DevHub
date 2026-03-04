@@ -8,16 +8,14 @@ public class UserRegisterDTO {
     private String username;
     private String email;
     private String contrasena;
-    private List<String> preferencias;
 
 
-    public UserRegisterDTO(String nombre, String apellido, String username, String email, String contrasena, List<String> preferencias) {
+    public UserRegisterDTO(String nombre, String apellido, String username, String email, String contrasena) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.username = username;
         this.email = email;
         this.contrasena = contrasena;
-        this.preferencias = preferencias;
     }
 
     public String getNombre() {
@@ -60,11 +58,5 @@ public class UserRegisterDTO {
         this.contrasena = contrasena;
     }
 
-    public List<String> getPreferencias() {
-        return preferencias;
-    }
 
-    public void setPreferencias(List<String> preferencias) {
-        this.preferencias = preferencias;
-    }
 }
