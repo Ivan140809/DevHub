@@ -2,6 +2,7 @@ package com.skillstack.devhub.service;
 
 import com.skillstack.devhub.dto.UserLoginDto;
 import com.skillstack.devhub.dto.UserRegisterDTO;
+import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class UserService {
             return "Debe contener al menos una minúscula";
         }
 
-        if (!password.matches(".*[0-9].*")) {
+        if (!password.matches(".*\\d.*")) {
             return "Debe contener al menos un número";
         }
 
@@ -66,7 +67,7 @@ public class UserService {
             );
         }
         User u = new User(user.getNombre(), user.getApellido(), user.getUsername(), user.getEmail(),
-                user.getContrasena(), user.getPreferencias());
+                user.getContrasena(), Role.USER);
 
         u.setContrasena(passwordEncoder.encode(user.getContrasena()));
 

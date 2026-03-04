@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+
+
 @Document(collection = "usuarios")
 public class User {
 
@@ -30,18 +32,21 @@ public class User {
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 8, message = "La contraseña debe contener al menos 8 caracteres")
     private String contrasena;
+
     private List<String> preferencias;
+
+    private Role rol;
 
     public User(){}
 
     public User(String nombre, String apellido, String username, String email,
-                String contrasena, List<String> preferencias) {
+                String contrasena, Role rol) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.username = username;
         this.email = email;
         this.contrasena = contrasena;
-        this.preferencias = preferencias;
+        this.rol = rol;
     }
 
     public String getId(){
@@ -84,8 +89,10 @@ public class User {
         return contrasena;
     }
 
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
+    public void setContrasena(String contrasena) { this.contrasena = contrasena;}
+
+    public Role getRol() {
+        return rol;
     }
 
     public List<String> getPreferencias() {
