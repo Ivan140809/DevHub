@@ -1,4 +1,4 @@
-package com.skillstack.devhub.Model;
+package com.skillstack.devhub.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +7,9 @@ import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
+import java.util.List;
+
+
 
 @Document(collection = "usuarios")
 public class User {
@@ -19,7 +21,7 @@ public class User {
     private String nombre;
     private String apellido;
 
-    @NotNull(message = "El usenname es obligatorio")
+    @NotNull(message = "El username es obligatorio")
     @Size(min = 4, max = 15, message = "El nombre debe tener entre 4 y 15 caracteres")
     private String username;
 
@@ -27,21 +29,24 @@ public class User {
     @NotBlank(message = "El correo es obligatorio")
     private String email;
 
-    @NotBlank(message = "La contrasena es obligatoria")
+    @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 8, message = "La contraseña debe contener al menos 8 caracteres")
-    private String contraseña;
-    private ArrayList<String> preferencias;
+    private String contrasena;
+
+    private List<String> preferencias;
+
+    private Role rol;
 
     public User(){}
 
     public User(String nombre, String apellido, String username, String email,
-                String contraseña, ArrayList<String> preferencias) {
+                String contrasena, Role rol) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.username = username;
         this.email = email;
-        this.contraseña = contraseña;
-        this.preferencias = preferencias;
+        this.contrasena = contrasena;
+        this.rol = rol;
     }
 
     public String getId(){
@@ -80,19 +85,21 @@ public class User {
         this.email = email;
     }
 
-    public String getContraseña() {
-        return contraseña;
+    public String getContrasena() {
+        return contrasena;
     }
 
-    public void setContraseña(String contraseña) {
-        this.contraseña = contraseña;
+    public void setContrasena(String contrasena) { this.contrasena = contrasena;}
+
+    public Role getRol() {
+        return rol;
     }
 
-    public ArrayList<String> getPreferencias() {
+    public List<String> getPreferencias() {
         return preferencias;
     }
 
-    public void setPreferencias(ArrayList<String> preferencias) {
+    public void setPreferencias(List<String> preferencias) {
         this.preferencias = preferencias;
     }
 }
