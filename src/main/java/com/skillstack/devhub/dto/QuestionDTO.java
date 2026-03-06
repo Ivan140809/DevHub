@@ -5,9 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class QuestionDTO {
+
+    @NotBlank(message = "La pregunta debe llevar un titulo")
+    private String titulo;
 
     @NotBlank(message = "El enunciado es obligatorio")
     private String enunciado;
@@ -19,9 +22,17 @@ public class QuestionDTO {
     private Dificultad dificultad;
 
     @NotEmpty(message = "Debe haber al menos una opción")
-    private ArrayList<OpcionDTO> opciones;
+    private List<OptionDTO> opciones;
 
     public QuestionDTO() {}
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 
     public String getEnunciado() {
         return enunciado;
@@ -47,11 +58,11 @@ public class QuestionDTO {
         this.dificultad = dificultad;
     }
 
-    public ArrayList<OpcionDTO> getOpciones() {
+    public List<OptionDTO> getOpciones() {
         return opciones;
     }
 
-    public void setOpciones(ArrayList<OpcionDTO> opciones) {
+    public void setOpciones(List<OptionDTO> opciones) {
         this.opciones = opciones;
     }
 

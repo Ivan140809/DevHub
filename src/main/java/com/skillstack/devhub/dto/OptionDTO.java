@@ -3,7 +3,7 @@ package com.skillstack.devhub.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class OpcionDTO {
+public class OptionDTO {
 
     @NotBlank(message = "El texto de la opción es obligatorio")
     private String texto;
@@ -11,10 +11,10 @@ public class OpcionDTO {
     @NotNull(message = "Debe indicarse si la opción es correcta")
     private Boolean esCorrecta;
 
-    public OpcionDTO() {
+    public OptionDTO() {
     }
 
-    public OpcionDTO(String texto, Boolean esCorrecta) {
+    public OptionDTO(String texto, Boolean esCorrecta) {
         this.texto = texto;
         this.esCorrecta = esCorrecta;
     }

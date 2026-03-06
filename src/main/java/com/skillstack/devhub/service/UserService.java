@@ -1,6 +1,6 @@
 package com.skillstack.devhub.service;
 
-import com.skillstack.devhub.dto.UserLoginDto;
+import com.skillstack.devhub.dto.UserLoginDTO;
 import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
@@ -75,7 +75,7 @@ public class UserService {
     }
 
 
-    public String login(UserLoginDto request){
+    public String login(UserLoginDTO request){
 
         User u = userRepository.findByEmail(request.getEmail())
                 .orElseThrow( ()->

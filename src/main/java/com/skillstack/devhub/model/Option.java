@@ -3,7 +3,7 @@ package com.skillstack.devhub.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class Opcion {
+public class Option {
 
     @NotBlank(message = "El texto de la opción no puede estar vacío")
     private String texto;
@@ -11,10 +11,10 @@ public class Opcion {
     @NotNull(message = "Debe indicarse si es correcta o no")
     private Boolean esCorrecta;
 
-    public Opcion() {
+    public Option() {
     }
 
-    public Opcion(String texto, Boolean esCorrecta) {
+    public Option(String texto, Boolean esCorrecta) {
         this.texto = texto;
         this.esCorrecta = esCorrecta;
     }
