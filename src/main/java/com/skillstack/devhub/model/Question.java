@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 @Document(collection = "preguntas")
@@ -27,12 +27,13 @@ public class Question {
     private Dificultad dificultad;
 
     @NotEmpty(message = "Debe existir al menos una opción")
-    private List<Option> opciones = new ArrayList<>();
+    private List<Option> opciones;
 
     public Question() {
     }
 
     public Question(String title, String enunciado, String categoria, Dificultad dificultad, List<Option> opciones) {
+        this.title = title;
         this.enunciado = enunciado;
         this.categoria = categoria;
         this.dificultad = dificultad;
@@ -90,7 +91,7 @@ public class Question {
         return opciones;
     }
 
-    public void setOpciones(ArrayList<Option> opciones) {
+    public void setOpciones(List<Option> opciones) {
         this.opciones = opciones;
     }
 
