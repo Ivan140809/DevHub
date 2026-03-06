@@ -1,9 +1,8 @@
 package com.skillstack.devhub.controller;
 
 
-import com.skillstack.devhub.dto.UserLoginDto;
+import com.skillstack.devhub.dto.UserLoginDTO;
 import com.skillstack.devhub.dto.UserRegisterDTO;
-import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class UserController {
     }
 
     @PostMapping ("/login")
-    public ResponseEntity<String> loginUser(@Valid @RequestBody UserLoginDto request){
+    public ResponseEntity<String> loginUser(@Valid @RequestBody UserLoginDTO request){
             String respuesta = userService.login(request);
             return ResponseEntity.ok(respuesta);
     }

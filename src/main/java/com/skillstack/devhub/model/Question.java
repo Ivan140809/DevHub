@@ -15,6 +15,8 @@ public class Question {
     @Id
     private String id;
 
+    private String title;
+
     @NotBlank(message = "El enunciado no puede estar vacío")
     private String enunciado;
 
@@ -25,23 +27,33 @@ public class Question {
     private Dificultad dificultad;
 
     @NotEmpty(message = "Debe existir al menos una opción")
-    private ArrayList<Opcion> opciones = new ArrayList<>();
+    private List<Option> opciones = new ArrayList<>();
 
     public Question() {
     }
 
-    public Question(String enunciado, String categoria, Dificultad dificultad, ArrayList<Opcion> opciones) {
+    public Question(String title, String enunciado, String categoria, Dificultad dificultad, List<Option> opciones) {
         this.enunciado = enunciado;
         this.categoria = categoria;
         this.dificultad = dificultad;
         this.opciones = opciones;
     }
 
-    public void agregarOpcion(Opcion opcion) {
+    public void agregarOpcion(Option opcion) {
         this.opciones.add(opcion);
     }
 
     //getters yyy setters
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getId() {
         return id;
     }
@@ -74,11 +86,11 @@ public class Question {
         this.dificultad = dificultad;
     }
 
-    public ArrayList<Opcion> getOpciones() {
+    public List<Option> getOpciones() {
         return opciones;
     }
 
-    public void setOpciones(ArrayList<Opcion> opciones) {
+    public void setOpciones(ArrayList<Option> opciones) {
         this.opciones = opciones;
     }
 
