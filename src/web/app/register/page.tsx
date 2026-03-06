@@ -8,7 +8,7 @@ export default function RegisterPage() {
        <header
         style={{
           position: "relative",
-          background: "#4d1cb5",
+          background: "#4d1cb5e6",
           color: "white",
           padding: "16px 24px",
           boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
@@ -35,7 +35,6 @@ export default function RegisterPage() {
             DEVHUB
           </div>
       
-          {/* Right */}
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
             <span style={{ fontWeight: 700, cursor: "pointer" }}>FAQ</span>
             <User size={34} style={{ cursor: "pointer" }} />
