@@ -2,8 +2,12 @@
 import React from "react";
 import Link from "next/link";
 import { LogOut, User } from "lucide-react";
-
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 export default function LoginPage() {
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   return (
     <main style={{ minHeight: "100vh", background: "#f5f5f5" }}>
       {/* Header with icons and other elements */}
@@ -95,14 +99,20 @@ export default function LoginPage() {
           </div>
           
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              // Backend connection logic 
+              const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuario/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: username, password: password }),
+              });
+              if (r.ok) router.push("/profile");
+              else alert("Credenciales incorrectas"); 
             }}
             style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center", color: "black", fontFamily:"time" }}
           >
-            <input type="text" placeholder="Username" style={inputStyle} />
-            <input type="password"  color="black" placeholder="Password" style={inputStyle} />
+            <input type="text" placeholder="Email" value={username} onChange={(e) => setUsername(e.target.value)} style={inputStyle} />
+            <input type="password"  color="black" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
 
             <span style={{ fontSize: 15, color: "black", cursor: "pointer" }}>
               Olvidaste la contraseña?

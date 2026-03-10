@@ -8,14 +8,16 @@ public class UserRegisterDTO {
     private String username;
     private String email;
     private String contrasena;
+    private String phone;
 
 
-    public UserRegisterDTO(String nombre, String apellido, String username, String email, String contrasena) {
+    public UserRegisterDTO(String nombre, String apellido, String username, String email, String contrasena,String phone) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.username = username;
         this.email = email;
         this.contrasena = contrasena;
+        this.phone = phone;
     }
 
     public String getNombre() {
