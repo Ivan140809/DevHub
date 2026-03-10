@@ -34,8 +34,8 @@ export default function AddQuestionPage() {
         <div style={{ height: 8, marginTop: 14, background: "#3b1590", borderRadius: 999 }} />
       </header>
 
-      <section style={{ padding: "24px 32px" }}>
-        <p style={{ fontFamily: "'Times New Roman', serif", fontSize: 15, color: "#222", marginBottom: 24 }}>
+      <section style={{ padding: "24px 32px",  justifyContent: "center"}}>
+        <p style={{ fontFamily: "'Times New Roman', serif", fontSize: 15, color: "#222", marginBottom: 24, justifyContent: "center" }}>
           
         </p>
 
@@ -44,9 +44,9 @@ export default function AddQuestionPage() {
             e.preventDefault();
             // Backend connection logic
           }}
-          style={{ fontFamily: "'Times New Roman', serif", color: "#222" }}
+          style={{ fontFamily: "'Times New Roman', serif", color: "#222",  justifyContent: "center" }}
         >
-          <div style={{ marginBottom: 32 }}>
+          <div style={{ marginBottom: 32, display: "flex", flexDirection: "column", alignItems: "center" }}>
             <label style={labelStyle}>   
               <span style={{ fontWeight: 700 }}>Pregunta</span>
              <span style={{ display: "block", fontSize: 13, color: "#313030", fontWeight: 400 }}>
@@ -60,7 +60,7 @@ export default function AddQuestionPage() {
             />
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-start", flexWrap: "wrap", gap: 120 }}>
+          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 120 }}>
             <div>
               
               <label style={labelStyle}>Escribe las opciones de respuesta para la pregunta:</label>
