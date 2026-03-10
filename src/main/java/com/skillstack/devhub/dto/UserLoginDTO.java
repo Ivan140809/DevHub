@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UserLoginDTO {
 
-public class UserLoginDto {
-    
     private String email;
     private String password;
 
@@ -28,4 +26,5 @@ public class UserLoginDto {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }
