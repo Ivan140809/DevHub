@@ -1,7 +1,11 @@
 package com.skillstack.devhub.dto;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 public class UserLoginDTO {
 
+public class UserLoginDto {
+    
     private String email;
     private String password;
 
@@ -16,5 +20,12 @@ public class UserLoginDTO {
 
     public String getPassword() {
         return password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
