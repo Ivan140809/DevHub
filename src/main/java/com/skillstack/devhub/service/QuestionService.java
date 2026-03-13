@@ -2,6 +2,7 @@ package com.skillstack.devhub.service;
 
 import com.skillstack.devhub.dto.OptionDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
+import com.skillstack.devhub.model.Category;
 import com.skillstack.devhub.model.Option;
 import com.skillstack.devhub.model.Question;
 import com.skillstack.devhub.repository.QuestionRepository;
@@ -39,5 +40,18 @@ public class QuestionService {
         Question q = new Question(question.getTitulo(), question.getEnunciado(), question.getCategoria(), question.getDificultad(), options);
 
         questionRepository.save(q);
+    }
+
+    public List<QuestionDTO> getQuestionByCategory(Category category){
+
+        List<Question> questions = questionRepository.findByCategory(category);
+
+        return questions.stream().map(q -> new QuestionDTO(
+                q.getTitle(),
+                null,
+                q.getCategoria(),
+                q.getDificultad(),
+                null
+        )).toList();
     }
 }
