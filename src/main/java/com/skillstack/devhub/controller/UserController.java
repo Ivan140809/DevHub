@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/usuario")
 @CrossOrigin
 public class UserController {
-
     //aqui se definen los endpoints para manejar las solicitudes relacionadas con los usuarios,
     // como crear un usuario, listar usuarios, actualizar un usuario, eliminar un usuario, etc
 
