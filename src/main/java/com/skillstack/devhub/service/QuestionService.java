@@ -46,9 +46,19 @@ public class QuestionService {
     }
 
 
-    public Page<Question> getQuestions(int page){
+    public List<QuestionDTO> getQuestions(int page){
         Pageable pageable = PageRequest.of(page, 10);
-        return questionRepository.findAll(pageable);
+        Page<Question> questionPage = questionRepository.findAll(pageable);
+
+        return questionPage.getContent().stream().map(q ->
+                new QuestionDTO(
+                        q.getTitle(),
+                        null,
+                        q.getCategoria(),
+                        q.getDificultad(),
+                        null
+                )
+        ).toList();
     }
   
     public List<QuestionDTO> getQuestionByCategory(Category category){
