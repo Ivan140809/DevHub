@@ -42,7 +42,13 @@ export default function QuestionListPage() {
             Preguntas disponibles
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {/* aca va el boton de filtrat >:/ */}
+            <button style={{
+              fontFamily: "'Times New Roman', serif",
+              background: "#5B2BBF", color: "white", border: "none",
+              padding: "8px 24px", borderRadius: 999, cursor: "pointer", fontWeight: 700, fontSize: 14,
+            }}>
+              Filtrar
+            </button>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <Search size={18} style={{ position: "absolute", left: 10, color: "#232323" }} />
               <input
