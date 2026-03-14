@@ -29,8 +29,8 @@ public class QuestionController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<QuestionDTO>> getAllQuestions() {
-        List<QuestionDTO> questions = questionService.getAllQuestions();
+    public ResponseEntity<List<QuestionDTO>> getAllQuestions(@RequestParam(defaultValue = "0") int page) {
+        List<QuestionDTO> questions = questionService.getQuestions(page);
 
         if (questions.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questions);
