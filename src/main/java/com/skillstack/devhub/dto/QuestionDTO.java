@@ -16,7 +16,7 @@ public class QuestionDTO {
     @NotBlank(message = "El enunciado es obligatorio")
     private String enunciado;
 
-    @NotBlank(message = "La categoría es obligatoria")
+    @NotNull(message = "La categoría es obligatoria")
     private Category category;
 
     @NotNull(message = "La dificultad es obligatoria")
