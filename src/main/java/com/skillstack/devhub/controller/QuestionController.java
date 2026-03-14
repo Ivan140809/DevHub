@@ -1,6 +1,5 @@
 package com.skillstack.devhub.controller;
 
-
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.model.Category;
 import com.skillstack.devhub.service.QuestionService;
@@ -19,17 +18,29 @@ public class QuestionController {
     private final QuestionService questionService;
 
     @Autowired
-    QuestionController(QuestionService questionService){this.questionService = questionService;}
+    QuestionController(QuestionService questionService) {
+        this.questionService = questionService;
+    }
 
-   @PostMapping("/add")
-    public ResponseEntity<String> createQuestion(QuestionDTO question){
+    @PostMapping("/add")
+    public ResponseEntity<String> createQuestion(QuestionDTO question) {
         questionService.addQuestion(question);
-       return ResponseEntity.status(HttpStatus.CREATED).body("Pregunta Creada Exitosamente");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Pregunta Creada Exitosamente");
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<QuestionDTO>> getAllQuestions() {
+        List<QuestionDTO> questions = questionService.getAllQuestions();
+
+        if (questions.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questions);
+        }
+
+        return ResponseEntity.ok(questions);
     }
 
     @GetMapping("/category/{category}")
     public ResponseEntity<List<QuestionDTO>> filterQuestion(@PathVariable Category category) {
-        //se debe implementar este metodo
         List<QuestionDTO> questions = questionService.getQuestionByCategory(category);
 
         if (questions.isEmpty()) {
@@ -40,8 +51,7 @@ public class QuestionController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<Category[]> getCategories(){
+    public ResponseEntity<Category[]> getCategories() {
         return ResponseEntity.ok(Category.values());
     }
-
 }
