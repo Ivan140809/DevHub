@@ -2,6 +2,7 @@ package com.skillstack.devhub.service;
 
 import com.skillstack.devhub.dto.OptionDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
+import com.skillstack.devhub.model.Category;
 import com.skillstack.devhub.model.Option;
 import com.skillstack.devhub.model.Question;
 import com.skillstack.devhub.repository.QuestionRepository;
@@ -48,5 +49,18 @@ public class QuestionService {
     public Page<Question> getQuestions(int page){
         Pageable pageable = PageRequest.of(page, 10);
         return questionRepository.findAll(pageable);
+    }
+  
+    public List<QuestionDTO> getQuestionByCategory(Category category){
+
+        List<Question> questions = questionRepository.findByCategory(category);
+
+        return questions.stream().map(q -> new QuestionDTO(
+                q.getTitle(),
+                null,
+                q.getCategoria(),
+                q.getDificultad(),
+                null
+        )).toList();
     }
 }

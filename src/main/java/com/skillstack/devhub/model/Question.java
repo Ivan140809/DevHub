@@ -21,7 +21,7 @@ public class Question {
     private String enunciado;
 
     @NotBlank(message = "La categoría no puede estar vacía")
-    private String categoria;
+    private Category category;
 
     @NotNull(message = "La dificultad es obligatoria")
     private Dificultad dificultad;
@@ -32,10 +32,10 @@ public class Question {
     public Question() {
     }
 
-    public Question(String title, String enunciado, String categoria, Dificultad dificultad, List<Option> opciones) {
+    public Question(String title, String enunciado, Category category, Dificultad dificultad, List<Option> opciones) {
         this.title = title;
         this.enunciado = enunciado;
-        this.categoria = categoria;
+        this.category = category;
         this.dificultad = dificultad;
         this.opciones = opciones;
     }
@@ -71,12 +71,12 @@ public class Question {
         this.enunciado = enunciado;
     }
 
-    public String getCategoria() {
-        return categoria;
+    public Category getCategoria() {
+        return category;
     }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
+    public void setCategoria(Category category) {
+        this.category = category;
     }
 
     public Dificultad getDificultad() {

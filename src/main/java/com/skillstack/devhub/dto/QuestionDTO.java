@@ -1,5 +1,6 @@
 package com.skillstack.devhub.dto;
 
+import com.skillstack.devhub.model.Category;
 import com.skillstack.devhub.model.Dificultad;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -15,8 +16,8 @@ public class QuestionDTO {
     @NotBlank(message = "El enunciado es obligatorio")
     private String enunciado;
 
-    @NotBlank(message = "La categoría es obligatoria")
-    private String categoria;
+    @NotNull(message = "La categoría es obligatoria")
+    private Category category;
 
     @NotNull(message = "La dificultad es obligatoria")
     private Dificultad dificultad;
@@ -24,7 +25,13 @@ public class QuestionDTO {
     @NotEmpty(message = "Debe haber al menos una opción")
     private List<OptionDTO> opciones;
 
-    public QuestionDTO() {}
+    public QuestionDTO(String titulo, String enunciado, Category category, Dificultad dificultad, List<OptionDTO> opciones) {
+        this.titulo = titulo;
+        this.enunciado = enunciado;
+        this.category = category;
+        this.dificultad = dificultad;
+        this.opciones = opciones;
+    }
 
     public String getTitulo() {
         return titulo;
@@ -42,12 +49,12 @@ public class QuestionDTO {
         this.enunciado = enunciado;
     }
 
-    public String getCategoria() {
-        return categoria;
+    public Category getCategoria() {
+        return category;
     }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
+    public void setCategoria(Category category) {
+        this.category = category;
     }
 
     public Dificultad getDificultad() {
