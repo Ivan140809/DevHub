@@ -120,8 +120,13 @@ export default function LoginPage() {
               headers:{ "Content-Type":"application/json" },
               body: JSON.stringify({ email: username, password }),
             });
-            if (r.ok) router.push("/profile");
-            else alert("Credenciales incorrectas");
+            if (r.ok) {
+  const data = await r.json();
+  localStorage.setItem("devhub_user", JSON.stringify(data));
+  router.push("/profile");
+} else {
+  alert("Credenciales incorrectas");
+}
           }}>
 
             <label style={lbl}>Email</label>
@@ -132,7 +137,7 @@ export default function LoginPage() {
             <input className="dh-inp" type="password" placeholder="••••••••"
               value={password} onChange={(e) => setPassword(e.target.value)} style={inp} />
 
-            <div className="dh-forgot" style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgba(140,100,255,0.5)", cursor:"pointer", transition:"color .2s", centered:"true" }}>
+            <div className="dh-forgot" style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgba(140,100,255,0.5)", cursor:"pointer", transition:"color .2s" }}>
               ¿Olvidaste la contraseña?
             </div>
 
