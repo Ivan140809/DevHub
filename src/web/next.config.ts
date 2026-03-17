@@ -1,10 +1,6 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = { 
-// redirection to springboot java backend API
-  /* config options here */
-
-   async rewrites() {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  async rewrites() {
     return [
       {
         source: "/api/:path*",
@@ -13,6 +9,5 @@ const nextConfig: NextConfig = {
     ];
   },
 };
-
 
 export default nextConfig;
