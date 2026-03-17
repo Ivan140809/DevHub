@@ -1,126 +1,137 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { LogOut, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+
+const PARTICLES = [
+  {l:"5%",d:"12s",dl:"0s",s:3},{l:"15%",d:"9s",dl:"-2s",s:2},
+  {l:"25%",d:"14s",dl:"-4s",s:4},{l:"35%",d:"10s",dl:"-1s",s:2},
+  {l:"45%",d:"11s",dl:"-6s",s:3},{l:"55%",d:"16s",dl:"-3s",s:5},
+  {l:"65%",d:"8s",dl:"-7s",s:2},{l:"72%",d:"13s",dl:"-5s",s:3},
+  {l:"80%",d:"10s",dl:"-2s",s:4},{l:"88%",d:"15s",dl:"-8s",s:2},
+  {l:"93%",d:"9s",dl:"-1s",s:3},{l:"10%",d:"12s",dl:"-4s",s:2},
+];
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [name, setName]         = useState("");
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail]       = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone]       = useState("");
+  const [mounted, setMounted]   = useState(false);
 
+  useEffect(() => { setMounted(true); }, []);
   return (
-    <main style={{ minHeight: "100vh", background: "#f5f5f5" }}>
-      {/* Creation of the register header */}
-       <header
-        style={{
-          position: "relative",
-          background: "#4d1cb5e6",
-          color: "white",
-          padding: "16px 24px",
-          boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <LogOut size={34} style={{ cursor: "pointer" }} />
-          </div>
-      
-          
-          <div
-            style={{
-              fontFamily: "'Times New Roman', serif",
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
-              fontWeight: 800,
-              letterSpacing: 2,
-              fontSize: 20,
-            }}
-          >
-            DEVHUB
-          </div>
-      
-          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            <span style={{ fontWeight: 700, cursor: "pointer" }}>FAQ</span>
-            <User size={34} style={{ cursor: "pointer" }} />
-          </div>
+    <main style={{ minHeight:"100vh", background:"#07070f", fontFamily:"'Syne',sans-serif", position:"relative", overflow:"hidden", display:"flex", flexDirection:"column" }}>
+
+      {mounted && <>
+        {/* Orbes */}
+        <div style={{ position:"absolute", borderRadius:"50%", width:500, height:500, background:"radial-gradient(circle,rgba(90,30,200,.25) 0%,transparent 70%)", top:-150, left:-150, animation:"orbFloat 10s ease-in-out infinite alternate", pointerEvents:"none" }} />
+        <div style={{ position:"absolute", borderRadius:"50%", width:400, height:400, background:"radial-gradient(circle,rgba(110,50,255,.2) 0%,transparent 70%)", bottom:-100, right:-100, animation:"orbFloat 10s ease-in-out infinite alternate", animationDelay:"-5s", pointerEvents:"none" }} />
+        <div style={{ position:"absolute", borderRadius:"50%", width:250, height:250, background:"radial-gradient(circle,rgba(80,20,180,.18) 0%,transparent 70%)", top:"40%", left:"55%", animation:"orbFloat 12s ease-in-out infinite alternate", animationDelay:"-3s", pointerEvents:"none" }} />
+
+        {/* Partículas */}
+        <div style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:1 }}>
+          {PARTICLES.map((p, i) => (
+            <div key={i} style={{ position:"absolute", borderRadius:"50%", width:p.s, height:p.s, background:"rgba(160,100,255,.7)", left:p.l, bottom:-10, animation:`floatUp ${p.d} linear ${p.dl} infinite` }} />
+          ))}
         </div>
-      
-        <div style={{ height: 8, marginTop: 14, background: "#3b1590", borderRadius: 999 }} />
+      </>}
+
+      {/* Header */}
+      <header style={{ position:"relative", zIndex:5, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.7)", backdropFilter:"blur(10px)" }}>
+        <div style={iconBtn}><LogOut size={15} color="#b8a0ff" /></div>
+        <span style={{ fontFamily:"'Space Mono',monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
+        <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+          <span style={{ fontSize:11, fontWeight:700, letterSpacing:3, color:"rgba(180,160,255,.5)", cursor:"pointer", textTransform:"uppercase" }}>FAQ</span>
+          <div style={iconBtn}><User size={15} color="#b8a0ff" /></div>
+        </div>
       </header>
-      <form onSubmit={async (e) => {
-        e.preventDefault();
-        const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuario/registro`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nombre: name, apellido: lastName, email: email, username: username, contrasena: password , phone: phone }),
-        });
-        if (r.ok) router.push("/login");
-        else alert("Error al registrar el usuario");
-      }}>
-      <section style={{ maxWidth: 1000, margin: "60px auto", background: "white", padding: 50, borderRadius: 32 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 40 }}>
-         <Field label="Nombre" value={name} onChange={setName} />
-        <Field label="Apellido" value={lastName} onChange={setLastName} />
-      <Field label="Correo Electrónico" value={email} onChange={setEmail} />
-      <Field label="Username" value={username} onChange={setUsername} />
-      <Field label="Contraseña" type="password" value={password} onChange={setPassword} />
-      <Field label="Telefono" value={phone} onChange={setPhone} />
-        </div>
 
+      {/* Body */}
+      <section style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"30px 20px", position:"relative", zIndex:5 }}>
+        <div style={{ width:"100%", maxWidth:700, background:"rgba(14,10,28,.9)", border:"1px solid rgba(100,60,255,.22)", borderRadius:22, padding:"38px 38px 34px", backdropFilter:"blur(20px)", boxShadow:"0 0 0 1px rgba(255,255,255,.03) inset,0 30px 80px rgba(80,40,200,.2)", animation: mounted ? "slideUp .7s cubic-bezier(.16,1,.3,1) both" : "none" }}>
 
-        <div style={{ marginTop: 50, display: "flex", justifyContent: "space-around" }}>
-          <button
-            style={{
-              background: "#5B2BBF",
-              color: "white",
-              border: "none",
-              padding: "10px 24px",
-              borderRadius: 999,
-              cursor: "pointer",
-              fontWeight: 700,
-              fontFamily: "'Times New Roman', serif",
-            }}
-          >
-            Registrar
-          </button>
+          {/* Avatar */}
+          <div style={{ width:60, height:60, borderRadius:"50%", margin:"0 auto 14px", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgba(140,90,255,.4)", animation: mounted ? "avatarGlow 3s ease-in-out infinite" : "none" }}>
+            <User size={26} color="rgba(255,255,255,.9)" strokeWidth={1.8} />
+          </div>
+
+          <h2 style={{ textAlign:"center", color:"#ddd0ff", fontSize:18, fontWeight:800, marginBottom:4 }}>Crea tu cuenta</h2>
+          <p style={{ textAlign:"center", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:3, textTransform:"uppercase", color:"rgba(160,130,255,.4)", marginBottom:28 }}>Únete a DevHub</p>
+
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuario/registro`, {
+              method:"POST",
+              headers:{"Content-Type":"application/json"},
+              body: JSON.stringify({ nombre: name, apellido: lastName, email, username, contrasena: password, phone }),
+            });
+            if (r.ok) router.push("/login");
+            else alert("Error al registrar el usuario");
+          }}>
+            
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18 }}>
+              <Field label="Nombre"             placeholder="Pepe"              value={name}      onChange={setName} />
+              <Field label="Apellido"           placeholder="Malo"             value={lastName}  onChange={setLastName} />
+              <Field label="Correo electrónico" placeholder="pepeelmalo@example.com"      value={email}     onChange={setEmail}    type="email" />
+              <Field label="Username"           placeholder="@pepeelmalo"          value={username}  onChange={setUsername} />
+              <Field label="Contraseña"         placeholder="••••••••"          value={password}  onChange={setPassword} type="password" />
+              <Field label="Teléfono"           placeholder="+57 ...."  value={phone}     onChange={setPhone}    type="tel" />
+            </div>
+
+            {/* Divider */}
+            <div style={{ display:"flex", alignItems:"center", gap:12, margin:"26px 0 20px" }}>
+              <div style={{ flex:1, height:1, background:"rgba(100,60,255,.12)" }} />
+              <span style={{ fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:2, textTransform:"uppercase", color:"rgba(140,110,200,.3)" }}>¿ya tienes cuenta?</span>
+              <div style={{ flex:1, height:1, background:"rgba(100,60,255,.12)" }} />
+            </div>
+
+            {/* Actions */}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <p style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(140,120,200,.45)" }}>
+                ¿Ya tienes cuenta?{" "}
+                <Link href="/login" style={{ color:"#9070e0", textDecoration:"none" }}>Inicia sesión</Link>
+              </p>
+              <button type="submit" style={{ height:46, padding:"0 40px", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:11, color:"white", fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, letterSpacing:4, textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 24px rgba(90,40,220,.4)" }}>
+                Registrar
+              </button>
+            </div>
+          </form>
         </div>
       </section>
-      </form>
     </main>
   );
 }
 
-/*Especial components for the fields*/
-
-function Field({ label, type = "text", value, onChange }: { 
-  label: string; 
-  type?: string;
-  value: string;
-  onChange: (v: string) => void;
+/* ── Subcomponente Field ── */
+function Field({ label, type="text", placeholder, value, onChange }: {
+  label: string; type?: string; placeholder?: string;
+  value: string; onChange: (v: string) => void;
 }) {
   return (
-    <label style={{ display: "flex", flexDirection: "column", gap: 20, color: "Black" }}>
-      <span style={{ fontWeight: 600 }}>{label}:</span>
+    <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+      <label style={{ fontFamily:"'Space Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase", color:"rgba(160,130,255,.45)" }}>
+        {label}
+      </label>
       <input
         type={type}
+        placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        style={{
-          fontFamily:"'Times New Roman', serif",
-          height: 35,
-          border: "2px solid #222",
-          borderRadius: 1000,
-          padding: "0 10px",
-          outline: "yellow",
-        }}
+        style={{ height:44, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.18)", borderRadius:10, padding:"0 14px", fontFamily:"'Space Mono',monospace", fontSize:13, color:"#ddd0ff", outline:"none" }}
       />
-    </label>
+    </div>
   );
 }
+
+/* ── Estilos compartidos ── */
+const iconBtn: React.CSSProperties = {
+  width:34, height:34, borderRadius:"50%",
+  border:"1px solid rgba(100,60,255,.35)",
+  display:"flex", alignItems:"center", justifyContent:"center",
+  cursor:"pointer", background:"rgba(100,60,255,.05)",
+};
