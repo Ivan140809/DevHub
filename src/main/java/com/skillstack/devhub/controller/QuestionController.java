@@ -40,8 +40,8 @@ public class QuestionController {
     }
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<QuestionDTO>> filterCategory(@PathVariable Category category) {
-        List<QuestionDTO> questions = questionService.getQuestionByCategory(category);
+    public ResponseEntity<List<QuestionDTO>> filterCategory(@PathVariable Category category, @RequestParam(defaultValue = "0") int page) {
+        List<QuestionDTO> questions = questionService.getQuestionByCategory(category, page);
 
         if (questions.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questions);

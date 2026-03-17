@@ -61,19 +61,19 @@ public class QuestionService {
         ).toList();
     }
   
-    public List<QuestionDTO> getQuestionByCategory(Category category){
+    public List<QuestionDTO> getQuestionByCategory(Category category, int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Question> questionPage = questionRepository.findByCategory(category, pageable);
 
-        List<Question> questions = questionRepository.findByCategory(category);
-
-        return questions.stream().map(q -> new QuestionDTO(
-                q.getTitle(),
-                null,
-                q.getCategoria(),
-                q.getDificultad(),
-                null
-        )).toList();
+        return questionPage.getContent().stream().map(q ->
+                new QuestionDTO(
+                    q.getTitle(),
+                    null,
+                    q.getCategoria(),
+                    q.getDificultad(),
+                    null
+            )).toList();
     }
-
 
     public QuestionDTO getQuestionByTitle(String title){
         Question question = questionRepository.findByTitle(title)
