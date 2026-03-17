@@ -24,7 +24,7 @@ public class Question {
     private Category category;
 
     @NotNull(message = "La dificultad es obligatoria")
-    private Dificultad dificultad;
+    private Difficulty difficulty;
 
     @NotEmpty(message = "Debe existir al menos una opción")
     private List<Option> opciones;
@@ -32,11 +32,11 @@ public class Question {
     public Question() {
     }
 
-    public Question(String title, String enunciado, Category category, Dificultad dificultad, List<Option> opciones) {
+    public Question(String title, String enunciado, Category category, Difficulty difficulty, List<Option> opciones) {
         this.title = title;
         this.enunciado = enunciado;
         this.category = category;
-        this.dificultad = dificultad;
+        this.difficulty = difficulty;
         this.opciones = opciones;
     }
 
@@ -79,12 +79,12 @@ public class Question {
         this.category = category;
     }
 
-    public Dificultad getDificultad() {
-        return dificultad;
+    public Difficulty getDificultad() {
+        return difficulty;
     }
 
-    public void setDificultad(Dificultad dificultad) {
-        this.dificultad = dificultad;
+    public void setDificultad(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 
     public List<Option> getOpciones() {

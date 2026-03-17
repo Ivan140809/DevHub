@@ -2,6 +2,7 @@ package com.skillstack.devhub.controller;
 
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.model.Category;
+import com.skillstack.devhub.model.Difficulty;
 import com.skillstack.devhub.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -50,8 +51,8 @@ public class QuestionController {
         return ResponseEntity.ok(questions);
     }
 
-    @GetMapping("/dificultad/{dificultad}")
-    public ResponseEntity<List<QuestionDTO>> filterDifficulty(@PathVariable Dificultad dificultad, @RequestParam(defaultValue = "0") int page){
+    @GetMapping("/difficulty/{difficulty}")
+    public ResponseEntity<List<QuestionDTO>> filterDifficulty(@PathVariable Difficulty difficulty, @RequestParam(defaultValue = "0") int page){
         List<QuestionDTO> questions = questionService.getQuestionByDifficulty(difficulty, page);
 
         if (questions.isEmpty()){
