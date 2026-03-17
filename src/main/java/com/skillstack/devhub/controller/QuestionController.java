@@ -40,10 +40,21 @@ public class QuestionController {
     }
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<QuestionDTO>> filterQuestion(@PathVariable Category category) {
-        List<QuestionDTO> questions = questionService.getQuestionByCategory(category);
+    public ResponseEntity<List<QuestionDTO>> filterCategory(@PathVariable Category category, @RequestParam(defaultValue = "0") int page) {
+        List<QuestionDTO> questions = questionService.getQuestionByCategory(category, page);
 
         if (questions.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questions);
+        }
+
+        return ResponseEntity.ok(questions);
+    }
+
+    @GetMapping("/dificultad/{dificultad}")
+    public ResponseEntity<List<QuestionDTO>> filterDifficulty(@PathVariable Dificultad dificultad, @RequestParam(defaultValue = "0") int page){
+        List<QuestionDTO> questions = questionService.getQuestionByDificultad(dificultad, page);
+
+        if (questions.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questions);
         }
 
