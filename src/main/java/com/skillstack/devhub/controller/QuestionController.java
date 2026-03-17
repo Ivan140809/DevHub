@@ -52,7 +52,7 @@ public class QuestionController {
 
     @GetMapping("/dificultad/{dificultad}")
     public ResponseEntity<List<QuestionDTO>> filterDifficulty(@PathVariable Dificultad dificultad, @RequestParam(defaultValue = "0") int page){
-        List<QuestionDTO> questions = questionService.getQuestionByDifficulty(dificultad, page);
+        List<QuestionDTO> questions = questionService.getQuestionByDifficulty(difficulty, page);
 
         if (questions.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questions);
