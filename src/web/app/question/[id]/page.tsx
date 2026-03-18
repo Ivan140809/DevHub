@@ -71,7 +71,7 @@ export default function QuestionDetailPage() {
 
   function optStyle(i: number): React.CSSProperties {
     if (!answered) return selected === i
-      ? { background:"rgba(100,60,255,.2)", borderColor:"rgba(140,80,255,.6)" }
+      ? { background:"rgba(100,60,255,.2)", borderColor:"rgba(140,80,255,.6)", transform:"translateX(6px) scale(1.01)", boxShadow:"0 0 20px rgba(120,60,255,.3), inset 0 0 20px rgba(100,60,255,.08)" }
       : { background:"rgba(255,255,255,.03)", borderColor:"rgba(100,60,255,.2)" };
     if (i === pregunta?.correcta) return { background:"rgba(30,160,100,.15)", borderColor:"rgba(80,200,130,.5)" };
     if (i === selected)           return { background:"rgba(200,40,40,.1)",   borderColor:"rgba(220,80,80,.4)"  };
@@ -95,6 +95,7 @@ export default function QuestionDetailPage() {
         @keyframes popIn    { 0%{opacity:0;transform:scale(.92)} 100%{opacity:1;transform:scale(1)} }
         @keyframes pulse    { 0%,100%{opacity:.3} 50%{opacity:.7} }
         .dh-particle { position:fixed; border-radius:50%; background:rgba(160,100,255,.7); bottom:-10px; animation:floatUp linear infinite; pointer-events:none; z-index:0; }
+        .opt-btn { transition: all .2s cubic-bezier(.34,1.56,.64,1) !important; }
         .opt-btn:hover:not(:disabled) { transform: translateX(4px); }
       `}</style>
 
@@ -157,7 +158,7 @@ export default function QuestionDetailPage() {
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             {pregunta.opciones.map((opt, i) => (
               <button key={i} className="opt-btn" disabled={answered} onClick={() => setSelected(i)}
-                style={{ width:"100%", display:"flex", alignItems:"center", gap:16, padding:"14px 20px", border:"1px solid", borderRadius:14, cursor: answered ? "default" : "pointer", transition:"all .2s", textAlign:"left", animation:`popIn .3s ease ${i*0.07}s both`, ...optStyle(i) }}>
+                style={{ width:"100%", display:"flex", alignItems:"center", gap:16, padding:"14px 20px", border:"1px solid", borderRadius:14, cursor: answered ? "default" : "pointer", textAlign:"left", animation:`popIn .3s ease ${i*0.07}s both`, ...optStyle(i) }}>
                 <div style={{ width:36, height:36, borderRadius:"50%", border:"1.5px solid", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Space Mono', monospace", fontSize:13, fontWeight:700, flexShrink:0, ...letterStyle(i) }}>
                   {letters[i]}
                 </div>
