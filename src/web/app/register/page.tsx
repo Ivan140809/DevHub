@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { LogOut, User } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -21,27 +21,28 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone]       = useState("");
-  const [mounted, setMounted]   = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
   return (
     <main style={{ minHeight:"100vh", background:"#07070f", fontFamily:"'Syne',sans-serif", position:"relative", overflow:"hidden", display:"flex", flexDirection:"column" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
+        @keyframes orbFloat   { 0%{transform:translate(0,0)} 100%{transform:translate(20px,20px)} }
+        @keyframes floatUp    { 0%{transform:translateY(0);opacity:.7} 100%{transform:translateY(-100vh);opacity:0} }
+        @keyframes slideUp    { 0%{opacity:0;transform:translateY(28px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes avatarGlow { 0%,100%{box-shadow:0 0 0 0 rgba(112,64,255,0)} 50%{box-shadow:0 0 24px 6px rgba(112,64,255,.35)} }
+      `}</style>
 
-      {mounted && <>
-        {/* Orbes */}
-        <div style={{ position:"absolute", borderRadius:"50%", width:500, height:500, background:"radial-gradient(circle,rgba(90,30,200,.25) 0%,transparent 70%)", top:-150, left:-150, animation:"orbFloat 10s ease-in-out infinite alternate", pointerEvents:"none" }} />
-        <div style={{ position:"absolute", borderRadius:"50%", width:400, height:400, background:"radial-gradient(circle,rgba(110,50,255,.2) 0%,transparent 70%)", bottom:-100, right:-100, animation:"orbFloat 10s ease-in-out infinite alternate", animationDelay:"-5s", pointerEvents:"none" }} />
-        <div style={{ position:"absolute", borderRadius:"50%", width:250, height:250, background:"radial-gradient(circle,rgba(80,20,180,.18) 0%,transparent 70%)", top:"40%", left:"55%", animation:"orbFloat 12s ease-in-out infinite alternate", animationDelay:"-3s", pointerEvents:"none" }} />
-
-        {/* Partículas */}
-        <div style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:1 }}>
+      <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}>
+        <div style={{ position:"absolute", borderRadius:"50%", width:500, height:500, background:"radial-gradient(circle,rgba(90,30,200,.25) 0%,transparent 70%)", top:-150, left:-150, animation:"orbFloat 10s ease-in-out infinite alternate" }} />
+        <div style={{ position:"absolute", borderRadius:"50%", width:400, height:400, background:"radial-gradient(circle,rgba(110,50,255,.2) 0%,transparent 70%)", bottom:-100, right:-100, animation:"orbFloat 10s ease-in-out infinite alternate", animationDelay:"-5s" }} />
+        <div style={{ position:"absolute", borderRadius:"50%", width:250, height:250, background:"radial-gradient(circle,rgba(80,20,180,.18) 0%,transparent 70%)", top:"40%", left:"55%", animation:"orbFloat 12s ease-in-out infinite alternate", animationDelay:"-3s" }} />
+        <div style={{ position:"absolute", inset:0, zIndex:1 }}>
           {PARTICLES.map((p, i) => (
             <div key={i} style={{ position:"absolute", borderRadius:"50%", width:p.s, height:p.s, background:"rgba(160,100,255,.7)", left:p.l, bottom:-10, animation:`floatUp ${p.d} linear ${p.dl} infinite` }} />
           ))}
         </div>
-      </>}
+      </div>
 
-      {/* Header */}
       <header style={{ position:"relative", zIndex:5, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.7)", backdropFilter:"blur(10px)" }}>
         <div style={iconBtn}><LogOut size={15} color="#b8a0ff" /></div>
         <span style={{ fontFamily:"'Space Mono',monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
@@ -51,12 +52,10 @@ export default function RegisterPage() {
         </div>
       </header>
 
-      {/* Body */}
       <section style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"30px 20px", position:"relative", zIndex:5 }}>
-        <div style={{ width:"100%", maxWidth:700, background:"rgba(14,10,28,.9)", border:"1px solid rgba(100,60,255,.22)", borderRadius:22, padding:"38px 38px 34px", backdropFilter:"blur(20px)", boxShadow:"0 0 0 1px rgba(255,255,255,.03) inset,0 30px 80px rgba(80,40,200,.2)", animation: mounted ? "slideUp .7s cubic-bezier(.16,1,.3,1) both" : "none" }}>
+        <div style={{ width:"100%", maxWidth:700, background:"rgba(14,10,28,.9)", border:"1px solid rgba(100,60,255,.22)", borderRadius:22, padding:"38px 38px 34px", backdropFilter:"blur(20px)", boxShadow:"0 0 0 1px rgba(255,255,255,.03) inset,0 30px 80px rgba(80,40,200,.2)", animation:"slideUp .7s cubic-bezier(.16,1,.3,1) both" }}>
 
-          {/* Avatar */}
-          <div style={{ width:60, height:60, borderRadius:"50%", margin:"0 auto 14px", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgba(140,90,255,.4)", animation: mounted ? "avatarGlow 3s ease-in-out infinite" : "none" }}>
+          <div style={{ width:60, height:60, borderRadius:"50%", margin:"0 auto 14px", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgba(140,90,255,.4)", animation:"avatarGlow 3s ease-in-out infinite" }}>
             <User size={26} color="rgba(255,255,255,.9)" strokeWidth={1.8} />
           </div>
 
@@ -73,24 +72,21 @@ export default function RegisterPage() {
             if (r.ok) router.push("/login");
             else alert("Error al registrar el usuario");
           }}>
-            
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18 }}>
-              <Field label="Nombre"             placeholder="Pepe"              value={name}      onChange={setName} />
-              <Field label="Apellido"           placeholder="Malo"             value={lastName}  onChange={setLastName} />
-              <Field label="Correo electrónico" placeholder="pepeelmalo@example.com"      value={email}     onChange={setEmail}    type="email" />
-              <Field label="Username"           placeholder="@pepeelmalo"          value={username}  onChange={setUsername} />
-              <Field label="Contraseña"         placeholder="••••••••"          value={password}  onChange={setPassword} type="password" />
-              <Field label="Teléfono"           placeholder="+57 ...."  value={phone}     onChange={setPhone}    type="tel" />
+              <Field label="Nombre"             placeholder="Pepe"                    value={name}      onChange={setName} />
+              <Field label="Apellido"           placeholder="Malo"                    value={lastName}  onChange={setLastName} />
+              <Field label="Correo electrónico" placeholder="pepeelmalo@example.com"  value={email}     onChange={setEmail}    type="email" />
+              <Field label="Username"           placeholder="@pepeelmalo"             value={username}  onChange={setUsername} />
+              <Field label="Contraseña"         placeholder="••••••••"               value={password}  onChange={setPassword} type="password" />
+              <Field label="Teléfono"           placeholder="+57 ...."               value={phone}     onChange={setPhone}    type="tel" />
             </div>
 
-            {/* Divider */}
             <div style={{ display:"flex", alignItems:"center", gap:12, margin:"26px 0 20px" }}>
               <div style={{ flex:1, height:1, background:"rgba(100,60,255,.12)" }} />
               <span style={{ fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:2, textTransform:"uppercase", color:"rgba(140,110,200,.3)" }}>¿ya tienes cuenta?</span>
               <div style={{ flex:1, height:1, background:"rgba(100,60,255,.12)" }} />
             </div>
 
-            {/* Actions */}
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
               <p style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(140,120,200,.45)" }}>
                 ¿Ya tienes cuenta?{" "}
@@ -107,7 +103,6 @@ export default function RegisterPage() {
   );
 }
 
-/* ── Subcomponente Field ── */
 function Field({ label, type="text", placeholder, value, onChange }: {
   label: string; type?: string; placeholder?: string;
   value: string; onChange: (v: string) => void;
@@ -128,7 +123,6 @@ function Field({ label, type="text", placeholder, value, onChange }: {
   );
 }
 
-/* ── Estilos compartidos ── */
 const iconBtn: React.CSSProperties = {
   width:34, height:34, borderRadius:"50%",
   border:"1px solid rgba(100,60,255,.35)",

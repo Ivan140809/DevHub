@@ -1,140 +1,176 @@
 "use client";
-import React from "react";
-import { LogOut, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+ 
 
-export default function AddQuestionPage() {
-  const [pregunta, setPregunta] = React.useState<string>("");
-  const [opcionA, setOpcionA] = React.useState<string>("");
-  const [opcionB, setOpcionB] = React.useState<string>("");
-  const [opcionC, setOpcionC] = React.useState<string>("");
-  const [categoria, setCategoria] = React.useState<string>("");
-  const [dificultad, setDificultad] = React.useState<string>("");
-
+type Pregunta = {
+  id: string;
+  pregunta: string;
+  categoria: string;
+  dificultad: "Fácil" | "Media" | "Difícil";
+};
+ 
+// ── Datos de ejemplo (falta hacer logica de backend)
+const MOCK: Pregunta[] = [
+  { id: "1", pregunta: "¿Cuáles son las principales características de Docker?", categoria: "Backend", dificultad: "Media" },
+  { id: "2", pregunta: "¿Qué lenguaje se usa principalmente en machine learning?", categoria: "Backend", dificultad: "Fácil" },
+];
+ 
+const PARTICLES = [
+  { l: "5%", d: "12s", dl: "0s", s: 3 }, { l: "15%", d: "9s", dl: "-2s", s: 2 },
+  { l: "25%", d: "14s", dl: "-4s", s: 4 }, { l: "55%", d: "16s", dl: "-3s", s: 5 },
+  { l: "65%", d: "8s", dl: "-7s", s: 2 }, { l: "80%", d: "10s", dl: "-2s", s: 4 },
+];
+ 
+function diffStyle(d: string): React.CSSProperties {
+  if (d === "Fácil")   return { background: "rgba(30,160,100,.12)",  color: "rgba(80,220,150,.8)",   border: "1px solid rgba(30,160,100,.2)"  };
+  if (d === "Difícil") return { background: "rgba(200,40,40,.1)",    color: "rgba(240,100,100,.8)",  border: "1px solid rgba(200,40,40,.2)"   };
+  return                      { background: "rgba(200,140,20,.1)",   color: "rgba(240,190,60,.8)",   border: "1px solid rgba(200,140,20,.2)"  };
+}
+ 
+const tagBase: React.CSSProperties = {
+  fontFamily: "'Space Mono', monospace", fontSize: 10,
+  letterSpacing: "1.5px", textTransform: "uppercase" as const,
+  padding: "3px 12px", borderRadius: 999, fontWeight: 700,
+};
+ 
+export default function QuestionListPage() {
+  const router = useRouter();
+  const [preguntas, setPreguntas] = useState<Pregunta[]>(MOCK);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState<string | null>(null);
+  const [search, setSearch]       = useState("");
+  useEffect(() => {
+    // cambiar esto si es diferente el endpoint
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+    const ENDPOINT = `${BASE_URL}/api/questions`;
+ 
+ 
+    fetch(ENDPOINT)
+      .then(res => {
+        if (!res.ok) throw new Error(`Error ${res.status}`);
+        return res.json();
+      })
+      .then((data: Pregunta[]) => {
+        setPreguntas(data);
+        setError(null);
+      })
+      .catch(() => {
+        // Si el backend no está listo, se usan los datos mock
+        setPreguntas(MOCK);
+        setError("Backend no disponible — mostrando datos de ejemplo.");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+ 
+  const filtered = preguntas.filter(p =>
+    p.pregunta.toLowerCase().includes(search.toLowerCase()) ||
+    p.categoria.toLowerCase().includes(search.toLowerCase())
+  );
+ 
   return (
-    <main style={{ minHeight: "100vh", background: "#f5f5f5" }}>
-
-      <header style={{
-        position: "relative", background: "#4d1cb5", color: "white",
-        padding: "16px 24px", boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <LogOut size={34} style={{ cursor: "pointer" }} />
-          </div>
-          <div style={{
-            fontFamily: "'Times New Roman', serif", position: "absolute",
-            left: "50%", transform: "translateX(-50%)",
-            fontWeight: 800, letterSpacing: 2, fontSize: 20,
-          }}>DEVHUB</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            <span style={{ fontWeight: 700, cursor: "pointer" }}>FAQ</span>
-            <User size={34} style={{ cursor: "pointer" }} />
+    <main style={{ minHeight: "100vh", background: "#07070f", fontFamily: "'Syne', sans-serif", position: "relative", overflow: "hidden" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
+        @keyframes orbFloat  { 0%{transform:translate(0,0)} 100%{transform:translate(20px,20px)} }
+        @keyframes floatUp   { 0%{transform:translateY(0);opacity:.7} 100%{transform:translateY(-100vh);opacity:0} }
+        @keyframes slideIn   { 0%{opacity:0;transform:translateY(28px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes pulse     { 0%,100%{opacity:.3} 50%{opacity:.7} }
+        .dh-particle { position:fixed; border-radius:50%; background:rgba(160,100,255,.7); bottom:-10px; animation:floatUp linear infinite; pointer-events:none; z-index:0; }
+        .q-row:hover { background: rgba(100,60,255,.08) !important; }
+        .fab:hover   { transform: scale(1.08) !important; }
+      `}</style>
+ 
+      <>
+        <div style={{ position:"fixed", borderRadius:"50%", width:500, height:500, background:"radial-gradient(circle,rgba(90,30,200,.22) 0%,transparent 70%)", top:-150, left:-150, animation:"orbFloat 10s ease-in-out infinite alternate", pointerEvents:"none", zIndex:0 }} />
+        <div style={{ position:"fixed", borderRadius:"50%", width:400, height:400, background:"radial-gradient(circle,rgba(110,50,255,.18) 0%,transparent 70%)", bottom:-100, right:-100, animation:"orbFloat 10s ease-in-out infinite alternate", animationDelay:"-5s", pointerEvents:"none", zIndex:0 }} />
+        {PARTICLES.map((p, i) => <div key={i} className="dh-particle" style={{ width:p.s, height:p.s, left:p.l, animationDuration:p.d, animationDelay:p.dl }} />)}
+      </>
+ 
+      <header style={{ position:"relative", zIndex:10, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.8)", backdropFilter:"blur(10px)" }}>
+        <div style={{ width:34, height:34, visibility:"hidden" }} />
+        <span style={{ fontFamily:"'Space Mono', monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
+        <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+          <span onClick={() => router.push("/question/add")} style={{ fontSize:11, fontWeight:700, letterSpacing:3, color:"rgba(180,160,255,.6)", cursor:"pointer", textTransform:"uppercase" }}>+ Agregar</span>
+          <div style={{ width:34, height:34, borderRadius:"50%", border:"1px solid rgba(100,60,255,.35)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", background:"rgba(100,60,255,.05)" }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8a0ff" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           </div>
         </div>
-        <div style={{ height: 8, marginTop: 14, background: "#3b1590", borderRadius: 999 }} />
       </header>
-
-      <section style={{ padding: "24px 32px",  justifyContent: "center"}}>
-        <p style={{ fontFamily: "'Times New Roman', serif", fontSize: 15, color: "#222", marginBottom: 24, justifyContent: "center" }}>
-          
-        </p>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            // Backend connection logic
-          }}
-          style={{ fontFamily: "'Times New Roman', serif", color: "#222",  justifyContent: "center" }}
-        >
-          <div style={{ marginBottom: 32, display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <label style={labelStyle}>   
-              <span style={{ fontWeight: 700 }}>Pregunta</span>
-             <span style={{ display: "block", fontSize: 13, color: "#313030", fontWeight: 400 }}>
-              Escribe la pregunta que deseas agregar a la plataforma.
-             </span>
-            </label>
-            <textarea
-              value={pregunta}
-              onChange={(e) => setPregunta(e.target.value)}
-              style={textareaStyle}
-            />
+ 
+      <section style={{ position:"relative", zIndex:5, padding:"28px 24px", display:"flex", flexDirection:"column", gap:20, animation:"slideIn .35s ease" }}>
+ 
+        
+        {error && (
+          <div style={{ background:"rgba(200,140,20,.08)", border:"1px solid rgba(200,140,20,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"1px", color:"rgba(240,190,60,.7)" }}>
+            {error}
           </div>
-
-          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 120 }}>
-            <div>
-              
-              <label style={labelStyle}>Escribe las opciones de respuesta para la pregunta:</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 25 }}>
-                <span style={{ fontWeight: 700 }}>Opción A</span>
-                <input type="text" value={opcionA} onChange={(e) => setOpcionA(e.target.value)} style={smallInputStyle} />
+        )}
+         <button style={{
+  height: 36, padding: "0 20px",
+  background: "linear-gradient(135deg,#7040ff,#5020e0)",
+  border: "none", borderRadius: 10, color: "white",
+  fontFamily: "'Syne', sans-serif", fontSize: 11,
+  fontWeight: 800, letterSpacing: "3px",
+  textTransform: "uppercase" as const,
+  cursor: "pointer",
+  boxShadow: "0 4px 16px rgba(90,40,220,.35)",
+   alignSelf: "flex-start",}}>
+   Filtrar
+  </button>
+ 
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+          <span style={{ color:"#ddd0ff", fontSize:16, fontWeight:800 }}>Preguntas disponibles</span>
+          <div style={{ position:"relative", display:"flex", alignItems:"center" }}>
+            <svg style={{ position:"absolute", left:11, width:14, height:14, color:"rgba(160,130,255,.5)", pointerEvents:"none" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar pregunta "
+              style={{ height:36, width:220, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.2)", borderRadius:10, padding:"0 14px 0 34px", fontFamily:"'Space Mono', monospace", fontSize:12, color:"#ddd0ff", outline:"none" }} />
+          </div>
+        </div>
+ 
+        <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(160,130,255,.35)" }}>
+          {loading ? "Cargando" : `${filtered.length} pregunta${filtered.length !== 1 ? "s" : ""}`}
+        </span>
+ 
+        <div style={{ background:"rgba(14,10,28,.88)", border:"1px solid rgba(100,60,255,.2)", borderRadius:16, overflow:"hidden", backdropFilter:"blur(16px)" }}>
+          {loading ? (
+            
+            [1,2,3].map(i => (
+              <div key={i} style={{ display:"flex", alignItems:"stretch", borderBottom:"1px solid rgba(100,60,255,.1)", padding:"20px" }}>
+                <div style={{ width:40, height:16, borderRadius:4, background:"rgba(100,60,255,.1)", animation:"pulse 1.5s infinite", marginRight:20 }} />
+                <div style={{ flex:1, display:"flex", flexDirection:"column", gap:8 }}>
+                  <div style={{ width:"70%", height:14, borderRadius:4, background:"rgba(100,60,255,.1)", animation:"pulse 1.5s infinite" }} />
+                  <div style={{ width:"30%", height:10, borderRadius:4, background:"rgba(100,60,255,.07)", animation:"pulse 1.5s infinite" }} />
+                </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 30 }}>
-                <span style={{ fontWeight: 700 }}>Opción B</span>
-                <input type="text" value={opcionB} onChange={(e) => setOpcionB(e.target.value)} style={smallInputStyle} />
+            ))
+          ) : filtered.length === 0 ? (
+            <div style={{ padding:48, textAlign:"center", fontFamily:"'Space Mono', monospace", fontSize:12, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(140,110,200,.3)" }}>Sin resultados</div>
+          ) : filtered.map((p, i) => (
+            <div key={p.id} className="q-row" onClick={() => router.push(`/question/${p.id}`)}
+              style={{ display:"flex", alignItems:"stretch", borderBottom: i < filtered.length - 1 ? "1px solid rgba(100,60,255,.1)" : "none", cursor:"pointer", transition:"background .15s" }}>
+              <div style={{ minWidth:56, borderRight:"1px solid rgba(100,60,255,.1)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Space Mono', monospace", fontSize:14, fontWeight:700, color:"rgba(140,100,255,.5)" }}>
+                {String(i + 1).padStart(2, "0")}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 30 }}>
-                <span style={{ fontWeight: 700 }}>Opción C</span>
-                <input type="text" value={opcionC} onChange={(e) => setOpcionC(e.target.value)} style={smallInputStyle} />
+              <div style={{ flex:1, padding:"16px 20px", display:"flex", flexDirection:"column", gap:8 }}>
+                <p style={{ color:"#e0d4ff", fontSize:14, fontWeight:700, lineHeight:1.5 }}>{p.pregunta}</p>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                  <span style={{ ...tagBase, background:"rgba(100,60,255,.15)", color:"rgba(180,150,255,.7)", border:"1px solid rgba(100,60,255,.2)" }}>{p.categoria}</span>
+                  <span style={{ ...tagBase, ...diffStyle(p.dificultad) }}>{p.dificultad}</span>
+                </div>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", padding:"0 16px", color:"rgba(120,80,255,.35)" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
               </div>
             </div>
-                    
-            <div style={{ display: "flex", flexDirection: "column",  gap: 25, marginTop: 10 }}>
-              <div>
-                  <label style={labelStyle}>   
-                     <span style={{ fontWeight: 700 }}>Categoria</span>
-                      <span style={{ display: "block", fontSize: 13, color: "#303030", fontWeight: 400 }}>
-                      Ej: JavaScript, Python, Bases de datos
-                        </span>
-                       </label>
-                <input type="text" value={categoria} onChange={(e) => setCategoria(e.target.value)} style={{ ...smallInputStyle, marginTop: 8 }} />
-              </div>
-              <div>
-                <label style={labelStyle}>  
-                  <span style={{ fontWeight: 700 }}>Dificultad</span>
-                  <span style={{ display: "block", fontSize: 13, color: "#303030", fontWeight: 400 }}>
-                    Fácil, Media o Difícil
-                    </span>
-                </label>
-                <input type="text" value={dificultad} onChange={(e) => setDificultad(e.target.value)} style={{ ...smallInputStyle, marginTop: 8 }} />
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 36 }}>
-            <button type="submit" style={{
-              fontFamily: "'Times New Roman', serif",
-              background: "#5B2BBF", color: "white", border: "none",
-              padding: "10px 36px", borderRadius: 999, cursor: "pointer",
-              fontWeight: 700, fontSize: 15,
-            }}>
-              Agregar
-            </button>
-          </div>
-        </form>
+          ))}
+        </div>
       </section>
+ 
+      <button className="fab" title="Agregar pregunta" onClick={() => router.push("/question/add")}
+        style={{ position:"fixed", bottom:28, right:28, zIndex:20, width:52, height:52, borderRadius:"50%", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 6px 24px rgba(90,40,220,.5)", transition:"transform .15s" }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
     </main>
   );
 }
-
-const labelStyle: React.CSSProperties = {
-  fontFamily: "'Times New Roman', serif",
-  fontWeight: 700, fontSize: 15, color: "#222",
-  display: "block", marginBottom: 4,
-};
-
-const textareaStyle: React.CSSProperties = {
-  fontFamily: "'Times New Roman', serif",
-  width: "100%", maxWidth: 640, height: 80,
-  border: "2px solid #222", borderRadius: 16,
-  padding: "10px 14px", outline: "none",
-  background: "white", color: "black", fontSize: 14,
-  resize: "vertical", display: "block", marginTop: 6,
-};
-
-const smallInputStyle: React.CSSProperties = {
-  fontFamily: "'Times New Roman', serif",
-  width: 180, height: 38,
-  border: "2px solid #222", borderRadius: 999,
-  padding: "0 14px", outline: "none",
-  background: "white", color: "black", fontSize: 14,
-};
