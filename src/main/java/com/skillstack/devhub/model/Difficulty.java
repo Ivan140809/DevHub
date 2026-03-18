@@ -1,6 +1,6 @@
 package com.skillstack.devhub.model;
 
-public enum Dificultad {
+public enum Difficulty {
     FACIL,
     MEDIA,
     DIFICIL
