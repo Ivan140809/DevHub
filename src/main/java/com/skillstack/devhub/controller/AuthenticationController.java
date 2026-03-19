@@ -4,7 +4,7 @@ package com.skillstack.devhub.controller;
 import com.skillstack.devhub.dto.LoginResponseDTO;
 import com.skillstack.devhub.dto.UserLoginDTO;
 import com.skillstack.devhub.dto.UserRegisterDTO;
-import com.skillstack.devhub.service.UserService;
+import com.skillstack.devhub.service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,22 +12,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/usuario")
+@RequestMapping("/auth")
 @CrossOrigin
-public class UserController {
-    //aqui se definen los endpoints para manejar las solicitudes relacionadas con los usuarios,
-    // como crear un usuario, listar usuarios, actualizar un usuario, eliminar un usuario, etc
+public class AuthenticationController {
 
-    private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public AuthenticationController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/registro")
+    @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegisterDTO user) {
-        userService.register(user);
+        authenticationService.register(user);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("Usuario registrado correctamente");
@@ -36,6 +34,6 @@ public class UserController {
 
     @PostMapping("/login")
     public LoginResponseDTO login(@RequestBody UserLoginDTO request) {
-        return userService.login(request);
+        return authenticationService.login(request);
     }
 }
