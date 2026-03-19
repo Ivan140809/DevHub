@@ -1,6 +1,7 @@
 package com.skillstack.devhub.controller;
 
 
+import com.skillstack.devhub.dto.LoginResponseDTO;
 import com.skillstack.devhub.dto.UserLoginDTO;
 import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.service.UserService;
@@ -33,9 +34,8 @@ public class UserController {
        
     }
 
-    @PostMapping ("/login")
-    public ResponseEntity<String> loginUser(@Valid @RequestBody UserLoginDTO request){
-            String respuesta = userService.login(request);
-            return ResponseEntity.ok(respuesta);
+    @PostMapping("/login")
+    public LoginResponseDTO login(@RequestBody UserLoginDTO request) {
+        return userService.login(request);
     }
 }

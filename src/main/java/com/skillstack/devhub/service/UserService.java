@@ -1,10 +1,12 @@
 package com.skillstack.devhub.service;
 
+import com.skillstack.devhub.dto.LoginResponseDTO;
 import com.skillstack.devhub.dto.UserLoginDTO;
 import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
+import com.skillstack.devhub.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,11 +18,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     public String validarContrasena(String password){
@@ -74,22 +78,18 @@ public class UserService {
         userRepository.save(u);
     }
 
+    public LoginResponseDTO login(UserLoginDTO request) {
 
-    public String login(UserLoginDTO request){
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        User u = userRepository.findByEmail(request.getEmail())
-                .orElseThrow( ()->
-                        new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                                "Usuario o contraseña incorrectas"
-                        ));
-
-        if (!passwordEncoder.matches(request.getPassword(), u.getContrasena())) {
-            throw  new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Usuario o contraseña incorrectas"
-            );
+        if (!passwordEncoder.matches(request.getPassword(), user.getContrasena())) {
+            throw new RuntimeException("Contraseña incorrecta");
         }
 
-        return "Login Exitoso";
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return new LoginResponseDTO(token, user.getEmail());
     }
 
 }
