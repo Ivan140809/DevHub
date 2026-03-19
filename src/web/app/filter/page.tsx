@@ -14,11 +14,23 @@ function diffStyle(d: string): React.CSSProperties {
   return                      { background: "rgba(200,140,20,.1)",   color: "rgba(240,190,60,.8)",   border: "1px solid rgba(200,140,20,.3)"  };
 }
 
+function catStyle(c: string): React.CSSProperties {
+  if (c === "FrontEnd")      return { background: "rgba(160, 60, 30, 0.12)",  color: "rgba(220, 150, 80, 0.8)",   border: "1px solid rgba(160, 99, 30, 0.3)"  };
+  if (c === "BackEnd")       return { background: "rgba(179, 200, 40, 0.1)",    color: "rgba(240, 226, 100, 0.8)",  border: "1px solid rgba(168, 200, 40, 0.3)"   };
+  if (c === "DB")     return { background: "rgba(100,100,200,.1)",  color: "rgba(128, 246, 112, 0.8)",  border: "1px solid rgba(100,100,200,.3)"  };
+  if (c === "IA")            return { background: "rgba(200,100,200,.1)",  color: "rgba(106, 223, 250, 0.8)",  border: "1px solid rgba(200,100,200,.3)"  };
+  if (c === "Ciberseguridad") return {background: "rgba(160, 60, 30, 0.12)",  color: "rgba(115, 1, 255, 0.8)",   border: "1px solid rgba(160, 99, 30, 0.3)"  };
+  if (c === "Estructuras")   return { background: "rgba(160, 60, 30, 0.12)",  color: "rgba(249, 90, 238, 0.8)",   border: "1px solid rgba(160, 99, 30, 0.3)" };
+  return                      { background: "rgba(2₀₀,₁₄₀,₂₀,.₁)",   color: "rgba(₂₄₀,₁₉₀,₆₀,.8)",   border: "1px solid rgba(₂₀₀,₁₄₀,₂₀,.3)"  };
+}
+
 export default function FilterPage() {
   const router = useRouter();
   const [selected, setSelected] = React.useState<string | null>(null);
+  const [selectedCat, setSelectedCat] = React.useState<string | null>(null);
 
   const opciones = ["Fácil", "Media", "Difícil"];
+  const categoria = ["FrontEnd", "BackEnd", "DB", "IA", "Ciberseguridad", "Estructuras"];
 
   return (
     <main style={{ minHeight: "100vh", background: "#07070f", fontFamily: "'Syne', sans-serif", position: "relative", overflow: "hidden" }}>
@@ -52,19 +64,28 @@ export default function FilterPage() {
       </header>
 
       {/* Contenido */}
-      <section style={{ position:"relative", zIndex:5, padding:"40px 24px", display:"flex", flexDirection:"column", alignItems:"center", gap:32, animation:"slideIn .35s ease" }}>
+      <section style={{ position:"relative", zIndex:5, padding:"40px 24px", display:"flex", flexDirection:"column",  gap:32, animation:"slideIn .35s ease" }}>
 
         <div style={{ textAlign:"center" }}>
           <p style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"3px", textTransform:"uppercase", color:"rgba(183, 163, 248, 0.95)", marginBottom:8 }}>
             Filtrar por
           </p>
-          <h2 style={{ color:"#ddd0ff", fontSize:22, fontWeight:800, letterSpacing:1 }}>
-            Dificultad
-          </h2>
         </div>
 
-        {/* opciones */}
-        <div style={{ display:"flex", flexDirection:"column", gap:14, width:"100%", maxWidth:300 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", width:"100%" }}>
+          
+          <h2 style={{ marginLeft:80, textAlign:"start" ,color:"#ddd0ff", fontSize:22, fontWeight:800, letterSpacing:1 }}>
+            Dificultad
+          </h2>
+          <h2 style={{ marginRight:80, textAlign:"end",color:"#ddd0ff", fontSize:22, fontWeight:800, letterSpacing:1 }}>
+            Categoria
+          </h2>
+
+        </div>
+
+        <div style={{ display:"flex", justifyContent:"space-between", width:"100%" }}>
+{/* Columna izquierda — Dificultad */}
+        <div style={{marginLeft:10, textAlign:"start", display:"flex", flexDirection:"column", gap:14, width:"100%", maxWidth:300 }}>
           {opciones.map((op) => {
             const isSelected = selected === op;
             const ds = diffStyle(op);
@@ -99,16 +120,55 @@ export default function FilterPage() {
               </div>
             );
           })}
+          
+        </div>          
+          
+{/* Columna derecha — Categoría */}
+          <div style={{ marginRight:10, textAlign:"end", display:"flex", flexDirection:"column", gap:14, width:300 }}>
+            {categoria.map((cat) => {
+              const isCatSelected = selectedCat === cat;
+              const cl = catStyle(cat);
+              return (
+                <div
+                  key={cat}
+                  className="opt-card"
+                  onClick={() => setSelectedCat(isCatSelected ? null : cat)}
+                  style={{
+                    display:"flex", alignItems:"center", justifyContent:"space-between",
+                    padding:"18px 24px", borderRadius:14, cursor:"pointer",
+                    transition:"all .2s ease",
+                    background: isCatSelected ? "rgba(100,60,255,.15)" : "rgba(14,10,28,.88)",
+                    border: isCatSelected ? "1px solid rgba(100,60,255,.5)" : "1px solid rgba(100,60,255,.2)",
+                    backdropFilter:"blur(16px)",
+                  }}
+                >
+                  <span style={{ fontWeight:800, fontSize:15, color: isCatSelected ? "#b8a0ff" : "#ddd0ff" }}>
+                    {cat}
+                  </span>
+                  {/* Círculo de la opcion*/}
+                  <div style={{
+                  width:20, height:20, borderRadius:"50%",
+                  border: isCatSelected  ? `2px solid ${cl.color}` : "2px solid rgba(100,60,255,.3)",
+                  background: isCatSelected  ? (cl.color as string) : "transparent",
+                  transition:"all .2s",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                }}>
+                  {isCatSelected  && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#07070f" strokeWidth="3.5"><path d="M5 13l4 4L19 7"/></svg>}
+                </div>
+              </div>
+              );
+            })}
+          </div>
         </div>
 
-        
-        <button
+<div style={{ textAlign:"center" }}>
+        <button 
           onClick={() => {
             // Backend connection logic — pasar el filtro seleccionado
             router.back();
           }}
           style={{
-            marginTop:8, height:44, padding:"0 48px", width:"100%", maxWidth:300,
+            textAlign:"center", marginTop:8, height:44, padding:"0 48px", width:"100%", maxWidth:300,
             background: selected ? "linear-gradient(135deg,#7040ff,#5020e0)" : "rgba(100,60,255,.1)",
             border: selected ? "none" : "1px solid rgba(100,60,255,.2)",
             borderRadius:12, color: selected ? "white" : "rgba(160,130,255,.4)",
@@ -121,7 +181,7 @@ export default function FilterPage() {
         >
           {selected ? `Filtrar` : "Selecciona una opción"}
         </button>
-
+</div>
       </section>
     </main>
   );
