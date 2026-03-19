@@ -24,6 +24,8 @@ const MOCK: Pregunta = {
 const PARTICLES = [
   { l:"5%", d:"12s", dl:"0s", s:3 }, { l:"15%", d:"9s", dl:"-2s", s:2 },
   { l:"25%", d:"14s", dl:"-4s", s:4 }, { l:"65%", d:"8s", dl:"-7s", s:2 },
+   { l:"5%", d:"12s", dl:"0s", s:3 }, { l:"15%", d:"9s", dl:"-2s", s:2 },
+  { l:"25%", d:"14s", dl:"-4s", s:4 }, { l:"65%", d:"8s", dl:"-7s", s:2 },
 ];
 
 function diffStyle(d: string): React.CSSProperties {
@@ -146,14 +148,14 @@ export default function QuestionDetailPage() {
             </div>
             <div style={{ height:1, background:"rgba(100,60,255,.15)" }} />
             <div style={{ display:"flex", gap:10, flexWrap:"wrap", alignItems:"center" }}>
-              <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(160,130,255,.4)" }}>Categoría</span>
+              <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(186, 166, 250, 0.4)" }}>Categoría</span>
               <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", padding:"3px 12px", borderRadius:999, fontWeight:700, background:"rgba(100,60,255,.15)", color:"rgba(180,150,255,.7)", border:"1px solid rgba(100,60,255,.2)" }}>{pregunta.categoria}</span>
-              <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(160,130,255,.4)", marginLeft:8 }}>Dificultad</span>
+              <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(186, 166, 250, 0.4)", marginLeft:8 }}>Dificultad</span>
               <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", padding:"3px 12px", borderRadius:999, fontWeight:700, ...diffStyle(pregunta.dificultad) }}>{pregunta.dificultad}</span>
             </div>
           </div>
 
-          <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"3px", textTransform:"uppercase", color:"rgba(160,130,255,.4)" }}>Selecciona la respuesta correcta</span>
+          <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"3px", textTransform:"uppercase", color:"rgba(231, 224, 255, 0.4)" }}>Selecciona la respuesta correcta</span>
 
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             {pregunta.opciones.map((opt, i) => (
@@ -175,7 +177,7 @@ export default function QuestionDetailPage() {
                 {selected === pregunta.correcta ? "¡Correcto!" : "Incorrecto"}
               </span>
               <span style={{ fontSize:13, color:"rgba(200,180,255,.65)", lineHeight:1.6 }}>
-                {selected === pregunta.correcta ? "Excelente. Has seleccionado la respuesta correcta." : `La respuesta correcta era la opción ${letters[pregunta.correcta]}: ${pregunta.opciones[pregunta.correcta]}`}
+                {selected === pregunta.correcta ? "Muy bien! Respodiste correctamente" : `La respuesta correcta era la opción ${letters[pregunta.correcta]}: ${pregunta.opciones[pregunta.correcta]}`}
               </span>
             </div>
           )}

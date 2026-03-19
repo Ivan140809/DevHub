@@ -254,7 +254,7 @@ export default function ProfilePage() {
                 fontSize: 10,
                 letterSpacing: 3,
                 textTransform: "uppercase",
-                color: "rgba(160,130,255,.45)",
+                color: "rgba(189, 178, 237, 0.45)",
                 background: "rgba(100,60,255,.1)",
                 border: "1px solid rgba(100,60,255,.2)",
                 padding: "4px 14px",
@@ -267,9 +267,10 @@ export default function ProfilePage() {
 
           <div style={{ height: 1, background: "rgba(100,60,255,.12)", marginBottom: 28 }} />
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18  }}>
             <Field label="Usuario" value={user.username || ""} placeholder="@usuario" />
             <Field
+            
               label="Preferencias"
               value={user.preferencias || ""}
               placeholder="Frontend, Backend..."
