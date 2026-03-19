@@ -33,6 +33,8 @@ public class User {
     @Size(min = 8, message = "La contraseña debe contener al menos 8 caracteres")
     private String contrasena;
 
+    private String phone;
+
     private List<String> preferencias;
 
     private Role rol;
@@ -90,6 +92,9 @@ public class User {
     }
 
     public void setContrasena(String contrasena) { this.contrasena = contrasena;}
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
 
     public Role getRol() {
         return rol;

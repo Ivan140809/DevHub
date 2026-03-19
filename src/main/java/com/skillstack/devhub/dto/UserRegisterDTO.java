@@ -60,5 +60,8 @@ public class UserRegisterDTO {
         this.contrasena = contrasena;
     }
 
+    public String getPhone() {
+        return phone;
+    }
 
 }
