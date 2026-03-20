@@ -106,18 +106,7 @@ export default function QuestionListPage() {
             {error}
           </div>
         )}
-         <button style={{
-  height: 36, padding: "0 20px",
-  background: "linear-gradient(135deg,#7040ff,#5020e0)",
-  border: "none", borderRadius: 10, color: "white",
-  fontFamily: "'Syne', sans-serif", fontSize: 11,
-  fontWeight: 800, letterSpacing: "3px",
-  textTransform: "uppercase" as const,
-  cursor: "pointer",
-  boxShadow: "0 4px 16px rgba(90,40,220,.35)",
-   alignSelf: "flex-start",}}>
-   Filtrar
-  </button>
+         
  
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
           <span style={{ color:"#ddd0ff", fontSize:16, fontWeight:800 }}>Preguntas disponibles</span>
@@ -126,7 +115,26 @@ export default function QuestionListPage() {
             <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar pregunta "
               style={{ height:36, width:220, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.2)", borderRadius:10, padding:"0 14px 0 34px", fontFamily:"'Space Mono', monospace", fontSize:12, color:"#ddd0ff", outline:"none" }} />
           </div>
+
+          
         </div>
+
+          <div style={{ display:"flex", alignItems:"end", justifyContent:"end", flexWrap:"wrap", gap:12 }}>
+
+<button onClick={() => router.push("/filter")} style={{
+  height: 36, padding: "0 20px", alignItems:"end",
+  background: "linear-gradient(135deg,#7040ff,#5020e0)",
+  border: "none", borderRadius: 10, color: "white",
+  fontFamily: "'Syne', sans-serif", fontSize: 11,
+  fontWeight: 800, letterSpacing: "3px",
+  textTransform: "uppercase" as const,
+  cursor: "pointer",
+  boxShadow: "0 4px 16px rgba(90,40,220,.35)",
+  width: "fit-content",  
+}}>
+  Filtrar
+</button>
+    </div>
  
         <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(160,130,255,.35)" }}>
           {loading ? "Cargando" : `${filtered.length} pregunta${filtered.length !== 1 ? "s" : ""}`}
