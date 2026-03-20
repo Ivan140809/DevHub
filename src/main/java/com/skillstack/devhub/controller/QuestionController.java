@@ -62,6 +62,12 @@ public class QuestionController {
         return ResponseEntity.ok(questions);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable String id) {
+        QuestionDTO question = questionService.getQuestionById(id);
+        return ResponseEntity.ok(question);
+    }
+
     @GetMapping("/categories")
     public ResponseEntity<Category[]> getCategories() {
         return ResponseEntity.ok(Category.values());

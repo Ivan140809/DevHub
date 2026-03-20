@@ -76,6 +76,30 @@ public class QuestionService {
             )).toList();
     }
 
+    public QuestionDTO getQuestionById(String id) {
+        Question question = questionRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Pregunta no encontrada"
+                ));
+
+        List<OptionDTO> options = new ArrayList<>();
+
+        for (Option option : question.getOpciones()) {
+            options.add(new OptionDTO(
+                    option.getTexto(),
+                    option.getEsCorrecta()
+            ));
+        }
+
+        return new QuestionDTO(
+                question.getTitle(),
+                question.getEnunciado(),
+                question.getCategoria(),
+                question.getDificultad(),
+                options
+        );
+    }
+
     public QuestionDTO getQuestionByTitle(String title){
         Question question = questionRepository.findByTitle(title)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pregunta no encontrada")
