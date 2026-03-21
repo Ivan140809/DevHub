@@ -64,7 +64,7 @@ public class QuestionService {
         ).toList();
     }
 
-    public List<QuestionDTO> getQuestionDTOByCategory(Category category, int page){
+    public List<QuestionDTO> getQuestionByCategory(Category category, int page){
         Pageable pageable = PageRequest.of(page, 10);
         Page<Question> questionPage = questionRepository.findByCategory(category, pageable);
 
@@ -102,7 +102,7 @@ public class QuestionService {
         );
     }
 
-    public QuestionDTO getQuestionDTOByTitle(String title){
+    public QuestionDTO getQuestionByTitle(String title){
         Question question = questionRepository.findByTitle(title)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pregunta no encontrada")
                 );
@@ -123,7 +123,7 @@ public class QuestionService {
                 ));
     }
 
-    public List<QuestionDTO> getQuestionDTOByDifficulty (Difficulty difficulty, int page){
+    public List<QuestionDTO> getQuestionByDifficulty (Difficulty difficulty, int page){
         Pageable pageable = PageRequest.of(page, 10);
         Page<Question> questionPage = questionRepository.findByDifficulty(difficulty, pageable);
 
