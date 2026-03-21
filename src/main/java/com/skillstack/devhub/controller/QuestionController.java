@@ -1,9 +1,11 @@
 package com.skillstack.devhub.controller;
 
+import com.skillstack.devhub.dto.AnswerDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.model.Category;
 import com.skillstack.devhub.model.Difficulty;
 import com.skillstack.devhub.service.QuestionService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,12 +66,20 @@ public class QuestionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable String id) {
-        QuestionDTO question = questionService.getQuestionById(id);
+        QuestionDTO question = questionService.getQuestionDTOById(id);
         return ResponseEntity.ok(question);
     }
 
     @GetMapping("/categories")
     public ResponseEntity<Category[]> getCategories() {
         return ResponseEntity.ok(Category.values());
+    }
+
+    @GetMapping("/{id}/answer")
+    public ResponseEntity<Boolean> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer){
+
+        boolean response = questionService.verifyAnswer(answer);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
     }
 }
