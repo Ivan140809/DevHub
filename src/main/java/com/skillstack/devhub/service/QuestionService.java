@@ -1,5 +1,6 @@
 package com.skillstack.devhub.service;
 
+import com.skillstack.devhub.dto.AnswerDTO;
 import com.skillstack.devhub.dto.OptionDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.model.Category;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QuestionService {
@@ -61,8 +63,8 @@ public class QuestionService {
                 )
         ).toList();
     }
-  
-    public List<QuestionDTO> getQuestionByCategory(Category category, int page){
+
+    public List<QuestionDTO> getQuestionDTOByCategory(Category category, int page){
         Pageable pageable = PageRequest.of(page, 10);
         Page<Question> questionPage = questionRepository.findByCategory(category, pageable);
 
@@ -76,7 +78,7 @@ public class QuestionService {
             )).toList();
     }
 
-    public QuestionDTO getQuestionById(String id) {
+    public QuestionDTO getQuestionDTOById(String id) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Pregunta no encontrada"
@@ -100,10 +102,10 @@ public class QuestionService {
         );
     }
 
-    public QuestionDTO getQuestionByTitle(String title){
+    public QuestionDTO getQuestionDTOByTitle(String title){
         Question question = questionRepository.findByTitle(title)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pregunta no encontrada")
-        );
+                );
 
         List<OptionDTO> options = question.getOpciones().stream().map(o-> new OptionDTO(
                 o.getTexto(),
@@ -114,7 +116,14 @@ public class QuestionService {
                 question.getDificultad(), options);
     }
 
-    public List<QuestionDTO> getQuestionByDifficulty (Difficulty difficulty, int page){
+    public Question getQuestionById(String id){
+        return questionRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Pregunta no encontrada"
+                ));
+    }
+
+    public List<QuestionDTO> getQuestionDTOByDifficulty (Difficulty difficulty, int page){
         Pageable pageable = PageRequest.of(page, 10);
         Page<Question> questionPage = questionRepository.findByDifficulty(difficulty, pageable);
 
@@ -127,5 +136,18 @@ public class QuestionService {
                         null
                 )
         ).toList();
+    }
+
+    public boolean verifyAnswer (AnswerDTO answer){
+        Question question = getQuestionById(answer.getQuestionId());
+        for (Option option : question.getOpciones()){
+            if (option.getTexto().equals(answer.getSelectedOption())){
+                return option.getEsCorrecta();
+            }
+        }
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "Respuesta no válida"
+        );
     }
 }
