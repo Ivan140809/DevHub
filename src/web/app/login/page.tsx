@@ -63,11 +63,11 @@ export default function LoginPage() {
         .dh-reg-link:hover { color:#b8a0ff !important; }
       `}</style>
 
-      {/* ── Orbes de fondo ── */}
+      
       <div style={{ position:"absolute", borderRadius:"50%", width:500, height:500, background:"radial-gradient(circle, rgba(90,30,200,0.22) 0%, transparent 70%)", top:-150, left:-150, animation:"orbFloat 10s ease-in-out infinite alternate", pointerEvents:"none" }} />
       <div style={{ position:"absolute", borderRadius:"50%", width:400, height:400, background:"radial-gradient(circle, rgba(110,50,255,0.18) 0%, transparent 70%)", bottom:-100, right:-100, animation:"orbFloat 10s ease-in-out infinite alternate", animationDelay:"-5s", pointerEvents:"none" }} />
 
-      {/* ── Partículas flotantes ── */}
+      
       <div style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:1 }}>
         {particles.map((p, i) => (
           <div key={i} style={{
@@ -81,7 +81,7 @@ export default function LoginPage() {
         ))}
       </div>
 
-      {/* ── Header ── */}
+      
       <header style={{ position:"relative", zIndex:5, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,0.15)", background:"rgba(7,7,15,0.6)", backdropFilter:"blur(10px)" }}>
         <div className="dh-icon" style={iconBtn}>
           <LogOut size={15} color="#b8a0ff" />
@@ -97,11 +97,11 @@ export default function LoginPage() {
         </div>
       </header>
 
-      {/* ── Body ── */}
+      
       <section style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"30px 16px", position:"relative", zIndex:5 }}>
         <div style={{ width:"100%", maxWidth:380, background:"rgba(14,10,28,0.88)", border:"1px solid rgba(100,60,255,0.2)", borderRadius:22, padding:"38px 34px 32px", backdropFilter:"blur(20px)", boxShadow:"0 0 0 1px rgba(255,255,255,0.03) inset, 0 30px 80px rgba(80,40,200,0.18), 0 2px 8px rgba(0,0,0,0.5)", animation:"slideUp .7s cubic-bezier(.16,1,.3,1) both" }}>
 
-          {/* Avatar */}
+          
           <div style={{ width:68, height:68, borderRadius:"50%", margin:"0 auto 18px", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgba(140,90,255,0.4)", animation:"avatarGlow 3s ease-in-out infinite" }}>
             <User size={28} color="rgba(255,255,255,0.9)" strokeWidth={1.8} />
           </div>
@@ -115,18 +115,18 @@ export default function LoginPage() {
 
           <form onSubmit={async (e) => {
             e.preventDefault();
-            const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuario/login`, {
+            const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/login`, {
               method:"POST",
               headers:{ "Content-Type":"application/json" },
               body: JSON.stringify({ email: username, password }),
             });
             if (r.ok) {
-  const data = await r.json();
-  localStorage.setItem("devhub_user", JSON.stringify(data));
-  router.push("/profile");
-} else {
-  alert("Credenciales incorrectas");
-}
+          const data = await r.json();
+          localStorage.setItem("devhub_user", JSON.stringify(data));
+          router.push("/profile"); 
+          } else {
+          alert("Credenciales incorrectas");
+         }
           }}>
 
             <label style={lbl}>Email</label>
@@ -179,7 +179,7 @@ const lbl: React.CSSProperties = {
 const inp: React.CSSProperties = {
   width:"100%", height:44,
   background:"rgba(255,255,255,0.04)",
-  border:"1px solid rgba(100,60,255,0.18)",
+  border:"1px solid rgba(100,60,255,0.15)",
   borderRadius:10, padding:"0 14px",
   fontFamily:"'Space Mono',monospace", fontSize:13,
   color:"#ddd0ff", outline:"none",

@@ -74,6 +74,7 @@ public class AuthenticationService {
                 user.getContrasena(), Role.USER);
 
         u.setContrasena(passwordEncoder.encode(user.getContrasena()));
+        u.setPhone(user.getPhone());
 
         userRepository.save(u);
     }
@@ -89,7 +90,7 @@ public class AuthenticationService {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return new LoginResponseDTO(token, user.getEmail());
+        return new LoginResponseDTO(token, user.getEmail(), user.getNombre(), user.getApellido(), user.getUsername(), user.getPhone());
     }
 
 }

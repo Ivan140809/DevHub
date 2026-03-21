@@ -64,7 +64,7 @@ export default function RegisterPage() {
 
           <form onSubmit={async (e) => {
             e.preventDefault();
-            const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuario/registro`, {
+            const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/register`, {
               method:"POST",
               headers:{"Content-Type":"application/json"},
               body: JSON.stringify({ nombre: name, apellido: lastName, email, username, contrasena: password, phone }),
