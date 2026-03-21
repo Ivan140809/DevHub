@@ -115,7 +115,7 @@ export default function LoginPage() {
 
           <form onSubmit={async (e) => {
             e.preventDefault();
-            const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuario/login`, {
+            const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/login`, {
               method:"POST",
               headers:{ "Content-Type":"application/json" },
               body: JSON.stringify({ email: username, password }),

@@ -1,6 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { LogOut, User, Search, ChevronRight } from "lucide-react";
+import React, { useState } from "react";
+import { LogOut, Search, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 
 const Particles = [
   {l:"5%",d:"12s",dl:"0s",s:3},{l:"15%",d:"9s",dl:"-2s",s:2},
@@ -29,9 +31,13 @@ function diffStyle(d: string): React.CSSProperties {
 }
 
 export default function QuestionListPage() {
+  const router = useRouter();
+  const nombre = useCurrentUser();
+  function handleProfile() {
+    const raw = localStorage.getItem("devhub_user");
+    router.push(raw ? "/profile" : "/login");
+  }
   const [search, setSearch]   = useState("");
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
 
   const filtered = PREGUNTAS.filter(p =>
     p.pregunta.toLowerCase().includes(search.toLowerCase()) ||
@@ -41,7 +47,7 @@ export default function QuestionListPage() {
   return (
     <main style={{ minHeight:"100vh", background:"#07070f", fontFamily:"'Syne',sans-serif", position:"relative", overflow:"hidden", display:"flex", flexDirection:"column" }}>
 
-      {mounted && <>
+      <>
         <div style={{ position:"absolute", borderRadius:"50%", width:500, height:500, background:"radial-gradient(circle,rgba(90,30,200,.22) 0%,transparent 70%)", top:-150, left:-150, animation:"orbFloat 10s ease-in-out infinite alternate", pointerEvents:"none" }} />
         <div style={{ position:"absolute", borderRadius:"50%", width:400, height:400, background:"radial-gradient(circle,rgba(110,50,255,.18) 0%,transparent 70%)", bottom:-100, right:-100, animation:"orbFloat 10s ease-in-out infinite alternate", animationDelay:"-5s", pointerEvents:"none" }} />
         <div style={{ position:"absolute", borderRadius:"50%", width:280, height:280, background:"radial-gradient(circle,rgba(70,20,160,.18) 0%,transparent 70%)", top:"35%", left:"52%", animation:"orbFloat 14s ease-in-out infinite alternate", animationDelay:"-3s", pointerEvents:"none" }} />
@@ -50,15 +56,19 @@ export default function QuestionListPage() {
             <div key={i} style={{ position:"absolute", borderRadius:"50%", width:p.s, height:p.s, background:"rgba(160,100,255,.7)", left:p.l, bottom:-10, animation:`floatUp ${p.d} linear ${p.dl} infinite` }} />
           ))}
         </div>
-      </>}
+      </>
 
       {/* Header */}
       <header style={{ position:"relative", zIndex:5, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.7)", backdropFilter:"blur(10px)" }}>
         <div style={iconBtn}><LogOut size={15} color="#b8a0ff" /></div>
         <span style={{ fontFamily:"'Space Mono',monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
         <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-          <span style={{ fontSize:11, fontWeight:700, letterSpacing:3, color:"rgba(180,160,255,.5)", cursor:"pointer", textTransform:"uppercase" }}>FAQ</span>
-          <div style={iconBtn}><User size={15} color="#b8a0ff" /></div>
+          <div onClick={handleProfile} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding: nombre ? "4px 12px 4px 4px" : "4px", borderRadius:999, border:"1px solid rgba(100,60,255,.35)", background:"rgba(100,60,255,.05)", transition:"background .2s" }}>
+            <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            {nombre && <span style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(200,180,255,.8)", whiteSpace:"nowrap" }}>{nombre}</span>}
+          </div>
         </div>
       </header>
 

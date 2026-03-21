@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 type Dificultad = "Fácil" | "Media" | "Difícil";
 
@@ -11,6 +12,11 @@ const PARTICLES = [
 
 export default function AddQuestionPage() {
   const router = useRouter();
+  const nombre = useCurrentUser();
+  function handleProfile() {
+    const raw = localStorage.getItem("devhub_user");
+    router.push(raw ? "/profile" : "/login");
+  }
   const [pregunta, setPregunta]   = useState("");
   const [opciones, setOpciones]   = useState(["", "", ""]);
   const [correcta, setCorrecta]   = useState<number | null>(null);
@@ -31,9 +37,8 @@ export default function AddQuestionPage() {
       alert("Completa todos los campos y selecciona la respuesta correcta."); return;
     }
 
-    // cambiar esto para conexion a backend
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-    const ENDPOINT = `${BASE_URL}/api/questions`;
+    const ENDPOINT = `${BASE_URL}/question/add`;
     
 
     const body = { pregunta, opciones, correcta, categoria, dificultad };
@@ -83,8 +88,11 @@ export default function AddQuestionPage() {
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8a0ff" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </div>
         <span style={{ fontFamily:"'Space Mono', monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
-        <div style={{ width:34, height:34, borderRadius:"50%", border:"1px solid rgba(100,60,255,.35)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", background:"rgba(100,60,255,.05)" }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8a0ff" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <div onClick={handleProfile} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding: nombre ? "4px 12px 4px 4px" : "4px", borderRadius:999, border:"1px solid rgba(100,60,255,.35)", background:"rgba(100,60,255,.05)", transition:"background .2s" }}>
+          <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          {nombre && <span style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(200,180,255,.8)", whiteSpace:"nowrap" }}>{nombre}</span>}
         </div>
       </header>
 

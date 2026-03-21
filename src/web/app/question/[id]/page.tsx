@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 
 type Pregunta = {
@@ -37,6 +38,11 @@ function diffStyle(d: string): React.CSSProperties {
 export default function QuestionDetailPage() {
   const router   = useRouter();
   const { id }   = useParams();
+  const nombre = useCurrentUser();
+  function handleProfile() {
+    const raw = localStorage.getItem("devhub_user");
+    router.push(raw ? "/profile" : "/login");
+  }
   const [pregunta, setPregunta] = useState<Pregunta | null>(null);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string | null>(null);
@@ -46,7 +52,7 @@ export default function QuestionDetailPage() {
   useEffect(() => {
     if (!id) return;
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-    const ENDPOINT = `${BASE_URL}/api/questions/${id}`;
+    const ENDPOINT = `${BASE_URL}/question/${id}`;
 
     fetch(ENDPOINT)
       .then(res => {
@@ -114,8 +120,11 @@ export default function QuestionDetailPage() {
         <span style={{ fontFamily:"'Space Mono', monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
         <div style={{ display:"flex", alignItems:"center", gap:14 }}>
           <span onClick={() => router.push("/question/add")} style={{ fontSize:11, fontWeight:700, letterSpacing:3, color:"rgba(180,160,255,.6)", cursor:"pointer", textTransform:"uppercase" }}>+ Agregar</span>
-          <div style={{ width:34, height:34, borderRadius:"50%", border:"1px solid rgba(100,60,255,.35)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", background:"rgba(100,60,255,.05)" }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8a0ff" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <div onClick={handleProfile} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding: nombre ? "4px 12px 4px 4px" : "4px", borderRadius:999, border:"1px solid rgba(100,60,255,.35)", background:"rgba(100,60,255,.05)", transition:"background .2s" }}>
+            <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            {nombre && <span style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(200,180,255,.8)", whiteSpace:"nowrap" }}>{nombre}</span>}
           </div>
         </div>
       </header>
@@ -128,7 +137,7 @@ export default function QuestionDetailPage() {
 
         {error && (
           <div style={{ background:"rgba(200,140,20,.08)", border:"1px solid rgba(200,140,20,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono', monospace", fontSize:11, color:"rgba(240,190,60,.7)" }}>
-            ⚠ {error}
+            {error}
           </div>
         )}
 
