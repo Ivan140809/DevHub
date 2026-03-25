@@ -63,7 +63,7 @@ public class AuthenticationService {
                     "El username ya está en uso"
             );
         }
-        String respuesta=validarContrasena(user.getContrasena());
+        String respuesta=validarContrasena(user.getPassword());
         if(!respuesta.equals("OK")){
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -71,9 +71,9 @@ public class AuthenticationService {
             );
         }
         User u = new User(user.getNombre(), user.getApellido(), user.getUsername(), user.getEmail(),
-                user.getContrasena(), Role.USER);
+                user.getPassword(), Role.USER);
 
-        u.setContrasena(passwordEncoder.encode(user.getContrasena()));
+        u.setContrasena(passwordEncoder.encode(user.getPassword()));
         u.setPhone(user.getPhone());
 
         userRepository.save(u);
