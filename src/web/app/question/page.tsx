@@ -6,16 +6,21 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 
 type Pregunta = {
   id: string;
-  pregunta: string;
-  categoria: string;
-  dificultad: "Fácil" | "Media" | "Difícil";
+  titulo: string;
+  category: string;
+  difficulty: "FACIL" | "MEDIA" | "DIFICIL";
 };
- 
-// ── Datos de ejemplo (falta hacer logica de backend)
+
 const MOCK: Pregunta[] = [
-  { id: "1", pregunta: "¿Cuáles son las principales características de Docker?", categoria: "Backend", dificultad: "Media" },
-  { id: "2", pregunta: "¿Qué lenguaje se usa principalmente en machine learning?", categoria: "Backend", dificultad: "Fácil" },
+  { id: "1", titulo: "¿Cuáles son las principales características de Docker?", category: "BACKEND", difficulty: "MEDIA" },
+  { id: "2", titulo: "¿Qué lenguaje se usa principalmente en machine learning?", category: "BACKEND", difficulty: "FACIL" },
 ];
+
+function diffLabel(d: string) {
+  if (d === "FACIL")   return "Fácil";
+  if (d === "DIFICIL") return "Difícil";
+  return "Media";
+}
  
 const PARTICLES = [
   { l: "5%", d: "12s", dl: "0s", s: 3 }, { l: "15%", d: "9s", dl: "-2s", s: 2 },
@@ -24,8 +29,8 @@ const PARTICLES = [
 ];
  
 function diffStyle(d: string): React.CSSProperties {
-  if (d === "Fácil")   return { background: "rgba(30,160,100,.12)",  color: "rgba(80,220,150,.8)",   border: "1px solid rgba(30,160,100,.2)"  };
-  if (d === "Difícil") return { background: "rgba(200,40,40,.1)",    color: "rgba(240,100,100,.8)",  border: "1px solid rgba(200,40,40,.2)"   };
+  if (d === "FACIL")   return { background: "rgba(30,160,100,.12)",  color: "rgba(80,220,150,.8)",   border: "1px solid rgba(30,160,100,.2)"  };
+  if (d === "DIFICIL") return { background: "rgba(200,40,40,.1)",    color: "rgba(240,100,100,.8)",  border: "1px solid rgba(200,40,40,.2)"   };
   return                      { background: "rgba(200,140,20,.1)",   color: "rgba(240,190,60,.8)",   border: "1px solid rgba(200,140,20,.2)"  };
 }
  
@@ -70,8 +75,8 @@ export default function QuestionListPage() {
   }, []);
  
   const filtered = preguntas.filter(p =>
-    p.pregunta.toLowerCase().includes(search.toLowerCase()) ||
-    p.categoria.toLowerCase().includes(search.toLowerCase())
+    p.titulo.toLowerCase().includes(search.toLowerCase()) ||
+    p.category.toLowerCase().includes(search.toLowerCase())
   );
  
   return (
@@ -170,10 +175,10 @@ export default function QuestionListPage() {
                 {String(i + 1).padStart(2, "0")}
               </div>
               <div style={{ flex:1, padding:"16px 20px", display:"flex", flexDirection:"column", gap:8 }}>
-                <p style={{ color:"#e0d4ff", fontSize:14, fontWeight:700, lineHeight:1.5 }}>{p.pregunta}</p>
+                <p style={{ color:"#e0d4ff", fontSize:14, fontWeight:700, lineHeight:1.5 }}>{p.titulo}</p>
                 <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-                  <span style={{ ...tagBase, background:"rgba(100,60,255,.15)", color:"rgba(180,150,255,.7)", border:"1px solid rgba(100,60,255,.2)" }}>{p.categoria}</span>
-                  <span style={{ ...tagBase, ...diffStyle(p.dificultad) }}>{p.dificultad}</span>
+                  <span style={{ ...tagBase, background:"rgba(100,60,255,.15)", color:"rgba(180,150,255,.7)", border:"1px solid rgba(100,60,255,.2)" }}>{p.category}</span>
+                  <span style={{ ...tagBase, ...diffStyle(p.difficulty) }}>{diffLabel(p.difficulty)}</span>
                 </div>
               </div>
               <div style={{ display:"flex", alignItems:"center", padding:"0 16px", color:"rgba(120,80,255,.35)" }}>

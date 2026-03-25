@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 
-type Dificultad = "Fácil" | "Media" | "Difícil";
+type Dificultad = "FACIL" | "MEDIA" | "DIFICIL";
 
 const PARTICLES = [
   { l:"5%", d:"12s", dl:"0s", s:3 }, { l:"15%", d:"9s", dl:"-2s", s:2 },
@@ -17,10 +17,10 @@ export default function AddQuestionPage() {
     const raw = localStorage.getItem("devhub_user");
     router.push(raw ? "/profile" : "/login");
   }
-  const [pregunta, setPregunta]   = useState("");
+  const [titulo, setTitulo]       = useState("");
+  const [enunciado, setEnunciado] = useState("");
   const [opciones, setOpciones]   = useState(["", "", ""]);
   const [correcta, setCorrecta]   = useState<number | null>(null);
-  const [categoria, setCategoria] = useState("");
   const [dificultad, setDificultad] = useState<Dificultad | null>(null);
   const [loading, setLoading]     = useState(false);
   const [mounted, setMounted]     = useState(false);
@@ -33,19 +33,23 @@ export default function AddQuestionPage() {
   }
 
   async function submit() {
-    if (!pregunta.trim() || opciones.some(o => !o.trim()) || correcta === null || !categoria.trim() || !dificultad) {
+    if (!titulo.trim() || !enunciado.trim() || opciones.some(o => !o.trim()) || correcta === null || !dificultad) {
       alert("Completa todos los campos y selecciona la respuesta correcta."); return;
     }
 
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-    const ENDPOINT = `${BASE_URL}/question/add`;
-    
 
-    const body = { pregunta, opciones, correcta, categoria, dificultad };
+    const body = {
+      titulo,
+      enunciado,
+      category: "BACKEND",
+      difficulty: dificultad,
+      opciones: opciones.map((texto, i) => ({ texto, esCorrecta: i === correcta })),
+    };
 
     setLoading(true);
     try {
-      const res = await fetch(ENDPOINT, {
+      const res = await fetch(`${BASE_URL}/question/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -60,9 +64,9 @@ export default function AddQuestionPage() {
   }
 
   const difColors: Record<Dificultad, React.CSSProperties> = {
-    "Fácil":   { background:"rgba(30,160,100,.15)",  borderColor:"rgba(80,200,130,.4)",  color:"rgba(80,220,150,.9)"   },
-    "Media":   { background:"rgba(100,60,255,.25)",  borderColor:"rgba(140,80,255,.6)",  color:"#e0d4ff"               },
-    "Difícil": { background:"rgba(200,40,40,.1)",    borderColor:"rgba(220,80,80,.35)",  color:"rgba(240,100,100,.85)" },
+    "FACIL":   { background:"rgba(30,160,100,.15)",  borderColor:"rgba(80,200,130,.4)",  color:"rgba(80,220,150,.9)"   },
+    "MEDIA":   { background:"rgba(100,60,255,.25)",  borderColor:"rgba(140,80,255,.6)",  color:"#e0d4ff"               },
+    "DIFICIL": { background:"rgba(200,40,40,.1)",    borderColor:"rgba(220,80,80,.35)",  color:"rgba(240,100,100,.85)" },
   };
 
   return (
@@ -105,10 +109,19 @@ export default function AddQuestionPage() {
         <div style={{ background:"rgba(14,10,28,.88)", border:"1px solid rgba(100,60,255,.2)", borderRadius:20, padding:28, backdropFilter:"blur(16px)", display:"flex", flexDirection:"column", gap:24 }}>
           <div>
             <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:6 }}>
-              Pregunta
-              <span style={{ display:"block", fontSize:12, color:"rgba(160,130,255,.5)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Escribe la pregunta que deseas agregar a la plataforma.</span>
+              Título
+              <span style={{ display:"block", fontSize:12, color:"rgba(160,130,255,.5)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Título corto de la pregunta.</span>
             </label>
-            <textarea className="fta" value={pregunta} onChange={e => setPregunta(e.target.value)} placeholder="¿Cuál es la salida de console.log(typeof null)?"
+            <input className="finp" type="text" value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Características de Docker"
+              style={{ width:"100%", height:38, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.2)", borderRadius:12, padding:"0 16px", fontFamily:"'Syne', sans-serif", fontSize:14, color:"#e0d4ff" }} />
+          </div>
+
+          <div>
+            <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:6 }}>
+              Enunciado
+              <span style={{ display:"block", fontSize:12, color:"rgba(160,130,255,.5)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Escribe la pregunta completa que deseas agregar.</span>
+            </label>
+            <textarea className="fta" value={enunciado} onChange={e => setEnunciado(e.target.value)} placeholder="¿Cuál es la salida de console.log(typeof null)?"
               style={{ width:"100%", height:80, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.2)", borderRadius:12, padding:"12px 16px", fontFamily:"'Syne', sans-serif", fontSize:14, color:"#e0d4ff", resize:"vertical", lineHeight:1.6 }} />
           </div>
 
@@ -136,17 +149,16 @@ export default function AddQuestionPage() {
               <div>
                 <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:6 }}>
                   Categoría
-                  <span style={{ display:"block", fontSize:12, color:"rgba(160,130,255,.5)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Ej: JavaScript, Python, Bases de datos</span>
+                  <span style={{ display:"block", fontSize:12, color:"rgba(160,130,255,.5)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Por ahora solo: BACKEND</span>
                 </label>
-                <input className="finp" type="text" value={categoria} onChange={e => setCategoria(e.target.value)} placeholder="Frontend"
-                  style={{ width:"100%", height:38, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.2)", borderRadius:999, padding:"0 16px", fontFamily:"'Syne', sans-serif", fontSize:13, color:"#e0d4ff" }} />
+                <div style={{ height:38, background:"rgba(255,255,255,.02)", border:"1px solid rgba(100,60,255,.15)", borderRadius:999, padding:"0 16px", display:"flex", alignItems:"center", fontFamily:"'Syne', sans-serif", fontSize:13, color:"rgba(180,150,255,.5)" }}>BACKEND</div>
               </div>
               <div>
                 <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:10 }}>Dificultad</label>
                 <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-                  {(["Fácil","Media","Difícil"] as Dificultad[]).map(d => (
+                  {(["FACIL","MEDIA","DIFICIL"] as Dificultad[]).map(d => (
                     <div key={d} onClick={() => setDificultad(d)} style={{ display:"flex", alignItems:"center", cursor:"pointer", padding:"6px 16px", border:"1px solid", borderRadius:999, fontSize:13, transition:"all .15s", fontWeight: dificultad === d ? 700 : 400, ...(dificultad === d ? difColors[d] : { background:"rgba(255,255,255,.03)", borderColor:"rgba(100,60,255,.25)", color:"rgba(180,150,255,.7)" }) }}>
-                      {d}
+                      {d === "FACIL" ? "Fácil" : d === "DIFICIL" ? "Difícil" : "Media"}
                     </div>
                   ))}
                 </div>
