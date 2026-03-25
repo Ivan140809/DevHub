@@ -4,22 +4,28 @@ import { useRouter, useParams } from "next/navigation";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 
+type OpcionDTO = { texto: string; esCorrecta: boolean };
+
 type Pregunta = {
   id: string;
-  pregunta: string;
-  categoria: string;
-  dificultad: "Fácil" | "Media" | "Difícil";
-  opciones: string[];
-  correcta: number;
+  titulo: string;
+  enunciado: string;
+  category: string;
+  difficulty: "FACIL" | "MEDIA" | "DIFICIL";
+  opciones: OpcionDTO[];
 };
 
 const MOCK: Pregunta = {
   id: "1",
-  pregunta: "¿Cuáles son las principales características de Docker?",
-  categoria: "Backend",
-  dificultad: "Media",
-  opciones: ["Portabilidad y contenedores aislados", "Solo funciona en Linux", "Reemplaza completamente las VMs"],
-  correcta: 0,
+  titulo: "Docker",
+  enunciado: "¿Cuáles son las principales características de Docker?",
+  category: "BACKEND",
+  difficulty: "MEDIA",
+  opciones: [
+    { texto: "Portabilidad y contenedores aislados", esCorrecta: true },
+    { texto: "Solo funciona en Linux", esCorrecta: false },
+    { texto: "Reemplaza completamente las VMs", esCorrecta: false },
+  ],
 };
 
 const PARTICLES = [
@@ -29,9 +35,15 @@ const PARTICLES = [
   { l:"25%", d:"14s", dl:"-4s", s:4 }, { l:"65%", d:"8s", dl:"-7s", s:2 },
 ];
 
+function diffLabel(d: string) {
+  if (d === "FACIL")   return "Fácil";
+  if (d === "DIFICIL") return "Difícil";
+  return "Media";
+}
+
 function diffStyle(d: string): React.CSSProperties {
-  if (d === "Fácil")   return { background:"rgba(30,160,100,.12)",  color:"rgba(80,220,150,.8)",  border:"1px solid rgba(30,160,100,.2)"  };
-  if (d === "Difícil") return { background:"rgba(200,40,40,.1)",    color:"rgba(240,100,100,.8)", border:"1px solid rgba(200,40,40,.2)"   };
+  if (d === "FACIL")   return { background:"rgba(30,160,100,.12)",  color:"rgba(80,220,150,.8)",  border:"1px solid rgba(30,160,100,.2)"  };
+  if (d === "DIFICIL") return { background:"rgba(200,40,40,.1)",    color:"rgba(240,100,100,.8)", border:"1px solid rgba(200,40,40,.2)"   };
   return                      { background:"rgba(200,140,20,.1)",   color:"rgba(240,190,60,.8)",  border:"1px solid rgba(200,140,20,.2)"  };
 }
 
@@ -70,26 +82,28 @@ export default function QuestionDetailPage() {
         setSelected(null);
         setAnswered(false);
         setPregunta(MOCK);
-        setError("Backend no disponible, mostrando datos de ejemplo.");
+        setError("Backend no disponible — mostrando datos de ejemplo.");
         setLoading(false);
       });
   }, [id]);
 
   const letters = ["A", "B", "C"];
 
+  const correctaIdx = pregunta?.opciones.findIndex(o => o.esCorrecta) ?? -1;
+
   function optStyle(i: number): React.CSSProperties {
     if (!answered) return selected === i
       ? { background:"rgba(100,60,255,.2)", borderColor:"rgba(140,80,255,.6)", transform:"translateX(6px) scale(1.01)", boxShadow:"0 0 20px rgba(120,60,255,.3), inset 0 0 20px rgba(100,60,255,.08)" }
       : { background:"rgba(255,255,255,.03)", borderColor:"rgba(100,60,255,.2)" };
-    if (i === pregunta?.correcta) return { background:"rgba(30,160,100,.15)", borderColor:"rgba(80,200,130,.5)" };
-    if (i === selected)           return { background:"rgba(200,40,40,.1)",   borderColor:"rgba(220,80,80,.4)"  };
+    if (i === correctaIdx) return { background:"rgba(30,160,100,.15)", borderColor:"rgba(80,200,130,.5)" };
+    if (i === selected)    return { background:"rgba(200,40,40,.1)",   borderColor:"rgba(220,80,80,.4)"  };
     return { background:"rgba(255,255,255,.03)", borderColor:"rgba(100,60,255,.1)" };
   }
 
   function letterStyle(i: number): React.CSSProperties {
     if (!answered) return { borderColor:"rgba(100,60,255,.4)", color:"#b8a0ff", background:"transparent" };
-    if (i === pregunta?.correcta) return { borderColor:"rgba(80,200,130,.6)", color:"rgba(80,220,150,.9)", background:"rgba(30,160,100,.15)" };
-    if (i === selected)           return { borderColor:"rgba(220,80,80,.5)",  color:"rgba(240,100,100,.8)", background:"transparent" };
+    if (i === correctaIdx) return { borderColor:"rgba(80,200,130,.6)", color:"rgba(80,220,150,.9)", background:"rgba(30,160,100,.15)" };
+    if (i === selected)    return { borderColor:"rgba(220,80,80,.5)",  color:"rgba(240,100,100,.8)", background:"transparent" };
     return { borderColor:"rgba(100,60,255,.2)", color:"rgba(140,100,255,.4)", background:"transparent" };
   }
 
@@ -153,14 +167,14 @@ export default function QuestionDetailPage() {
           <div style={{ background:"rgba(14,10,28,.88)", border:"1px solid rgba(100,60,255,.2)", borderRadius:20, padding:24, backdropFilter:"blur(16px)", display:"flex", flexDirection:"column", gap:16 }}>
             <div style={{ display:"flex", alignItems:"flex-start", gap:16 }}>
               <span style={{ fontFamily:"'Space Mono', monospace", fontSize:38, fontWeight:700, color:"rgba(140,100,255,.2)", lineHeight:1, flexShrink:0 }}>{String(pregunta.id).padStart(2,"0")}</span>
-              <p style={{ color:"#e0d4ff", fontSize:19, fontWeight:800, lineHeight:1.4, flex:1 }}>{pregunta.pregunta}</p>
+              <p style={{ color:"#e0d4ff", fontSize:19, fontWeight:800, lineHeight:1.4, flex:1 }}>{pregunta.enunciado}</p>
             </div>
             <div style={{ height:1, background:"rgba(100,60,255,.15)" }} />
             <div style={{ display:"flex", gap:10, flexWrap:"wrap", alignItems:"center" }}>
               <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(186, 166, 250, 0.4)" }}>Categoría</span>
-              <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", padding:"3px 12px", borderRadius:999, fontWeight:700, background:"rgba(100,60,255,.15)", color:"rgba(180,150,255,.7)", border:"1px solid rgba(100,60,255,.2)" }}>{pregunta.categoria}</span>
+              <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", padding:"3px 12px", borderRadius:999, fontWeight:700, background:"rgba(100,60,255,.15)", color:"rgba(180,150,255,.7)", border:"1px solid rgba(100,60,255,.2)" }}>{pregunta.category}</span>
               <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(186, 166, 250, 0.4)", marginLeft:8 }}>Dificultad</span>
-              <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", padding:"3px 12px", borderRadius:999, fontWeight:700, ...diffStyle(pregunta.dificultad) }}>{pregunta.dificultad}</span>
+              <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", padding:"3px 12px", borderRadius:999, fontWeight:700, ...diffStyle(pregunta.difficulty) }}>{diffLabel(pregunta.difficulty)}</span>
             </div>
           </div>
 
@@ -173,20 +187,20 @@ export default function QuestionDetailPage() {
                 <div style={{ width:36, height:36, borderRadius:"50%", border:"1.5px solid", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Space Mono', monospace", fontSize:13, fontWeight:700, flexShrink:0, ...letterStyle(i) }}>
                   {letters[i]}
                 </div>
-                <span style={{ color:"#ddd0ff", fontSize:14, fontWeight:700, lineHeight:1.4, flex:1 }}>{opt}</span>
-                {answered && i === pregunta.correcta && <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1px", textTransform:"uppercase", padding:"3px 10px", borderRadius:999, background:"rgba(30,160,100,.2)", color:"rgba(80,220,150,.9)", border:"1px solid rgba(30,160,100,.25)", flexShrink:0 }}>Correcta</span>}
-                {answered && i === selected && i !== pregunta.correcta && <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1px", textTransform:"uppercase", padding:"3px 10px", borderRadius:999, background:"rgba(200,40,40,.12)", color:"rgba(240,100,100,.8)", border:"1px solid rgba(200,40,40,.2)", flexShrink:0 }}>Incorrecta</span>}
+                <span style={{ color:"#ddd0ff", fontSize:14, fontWeight:700, lineHeight:1.4, flex:1 }}>{opt.texto}</span>
+                {answered && i === correctaIdx && <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1px", textTransform:"uppercase", padding:"3px 10px", borderRadius:999, background:"rgba(30,160,100,.2)", color:"rgba(80,220,150,.9)", border:"1px solid rgba(30,160,100,.25)", flexShrink:0 }}>Correcta</span>}
+                {answered && i === selected && i !== correctaIdx && <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1px", textTransform:"uppercase", padding:"3px 10px", borderRadius:999, background:"rgba(200,40,40,.12)", color:"rgba(240,100,100,.8)", border:"1px solid rgba(200,40,40,.2)", flexShrink:0 }}>Incorrecta</span>}
               </button>
             ))}
           </div>
 
           {answered && (
             <div style={{ borderRadius:14, padding:"16px 20px", display:"flex", flexDirection:"column", gap:6, ...(selected === pregunta.correcta ? { background:"rgba(30,160,100,.1)", border:"1px solid rgba(30,160,100,.2)" } : { background:"rgba(200,40,40,.08)", border:"1px solid rgba(200,40,40,.2)" }) }}>
-              <span style={{ fontWeight:800, fontSize:15, color: selected === pregunta.correcta ? "rgba(80,220,150,.9)" : "rgba(240,100,100,.8)" }}>
-                {selected === pregunta.correcta ? "¡Correcto!" : "Incorrecto"}
+              <span style={{ fontWeight:800, fontSize:15, color: selected === correctaIdx ? "rgba(80,220,150,.9)" : "rgba(240,100,100,.8)" }}>
+                {selected === correctaIdx ? "¡Correcto!" : "Incorrecto"}
               </span>
               <span style={{ fontSize:13, color:"rgba(200,180,255,.65)", lineHeight:1.6 }}>
-                {selected === pregunta.correcta ? "Muy bien! Respodiste correctamente" : `La respuesta correcta era la opción ${letters[pregunta.correcta]}: ${pregunta.opciones[pregunta.correcta]}`}
+                {selected === correctaIdx ? "Muy bien! Respondiste correctamente" : `La respuesta correcta era: ${pregunta.opciones[correctaIdx]?.texto}`}
               </span>
             </div>
           )}

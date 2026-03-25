@@ -26,7 +26,7 @@ public class QuestionController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> createQuestion(QuestionDTO question) {
+    public ResponseEntity<String> createQuestion(@RequestBody QuestionDTO question) {
         questionService.addQuestion(question);
         return ResponseEntity.status(HttpStatus.CREATED).body("Pregunta Creada Exitosamente");
     }
@@ -35,10 +35,6 @@ public class QuestionController {
     public ResponseEntity<List<QuestionDTO>> getAllQuestions(@RequestParam(defaultValue = "0") int page) {
         List<QuestionDTO> questions = questionService.getQuestions(page);
 
-        if (questions.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questions);
-        }
-
         return ResponseEntity.ok(questions);
     }
 
@@ -46,20 +42,12 @@ public class QuestionController {
     public ResponseEntity<List<QuestionDTO>> filterCategory(@PathVariable Category category, @RequestParam(defaultValue = "0") int page) {
         List<QuestionDTO> questions = questionService.getQuestionByCategory(category, page);
 
-        if (questions.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questions);
-        }
-
         return ResponseEntity.ok(questions);
     }
 
     @GetMapping("/difficulty/{difficulty}")
     public ResponseEntity<List<QuestionDTO>> filterDifficulty(@PathVariable Difficulty difficulty, @RequestParam(defaultValue = "0") int page){
         List<QuestionDTO> questions = questionService.getQuestionByDifficulty(difficulty, page);
-
-        if (questions.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questions);
-        }
 
         return ResponseEntity.ok(questions);
     }
