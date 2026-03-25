@@ -195,7 +195,7 @@ export default function QuestionDetailPage() {
           </div>
 
           {answered && (
-            <div style={{ borderRadius:14, padding:"16px 20px", display:"flex", flexDirection:"column", gap:6, ...(selected === pregunta.correcta ? { background:"rgba(30,160,100,.1)", border:"1px solid rgba(30,160,100,.2)" } : { background:"rgba(200,40,40,.08)", border:"1px solid rgba(200,40,40,.2)" }) }}>
+            <div style={{ borderRadius:14, padding:"16px 20px", display:"flex", flexDirection:"column", gap:6, ...(selected === correctaIdx ? { background:"rgba(30,160,100,.1)", border:"1px solid rgba(30,160,100,.2)" } : { background:"rgba(200,40,40,.08)", border:"1px solid rgba(200,40,40,.2)" }) }}>
               <span style={{ fontWeight:800, fontSize:15, color: selected === correctaIdx ? "rgba(80,220,150,.9)" : "rgba(240,100,100,.8)" }}>
                 {selected === correctaIdx ? "¡Correcto!" : "Incorrecto"}
               </span>
