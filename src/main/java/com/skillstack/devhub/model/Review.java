@@ -3,7 +3,8 @@ package com.skillstack.devhub.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.sql.Date;
+import java.time.LocalDate;
+
 
 @Document(collection = "reviews")
 public class Review {
@@ -13,13 +14,13 @@ public class Review {
 
     private String comment;
     private int rating;
-    private Date date;
+    private LocalDate date;
     private String questionId;
     private String userId;
 
     public Review() {}
 
-    public Review(String comment, int rating, String questionId, String userId, Date date) {
+    public Review(String comment, int rating, String questionId, String userId, LocalDate date) {
         this.comment = comment;
         this.rating = rating;
         this.questionId = questionId;
@@ -51,11 +52,11 @@ public class Review {
         this.rating = rating;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
