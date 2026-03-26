@@ -17,10 +17,10 @@ function diffStyle(d: string): React.CSSProperties {
 function catStyle(c: string): React.CSSProperties {
   if (c === "FrontEnd")      return { background: "rgba(160, 60, 30, 0.12)",  color: "rgba(220, 150, 80, 0.8)",   border: "1px solid rgba(160, 99, 30, 0.3)"  };
   if (c === "BackEnd")       return { background: "rgba(179, 200, 40, 0.1)",    color: "rgba(240, 226, 100, 0.8)",  border: "1px solid rgba(168, 200, 40, 0.3)"   };
-  if (c === "DB")     return { background: "rgba(100,100,200,.1)",  color: "rgba(128, 246, 112, 0.8)",  border: "1px solid rgba(100,100,200,.3)"  };
-  if (c === "IA")            return { background: "rgba(200,100,200,.1)",  color: "rgba(106, 223, 250, 0.8)",  border: "1px solid rgba(200,100,200,.3)"  };
-  if (c === "Ciberseguridad") return {background: "rgba(160, 60, 30, 0.12)",  color: "rgba(115, 1, 255, 0.8)",   border: "1px solid rgba(160, 99, 30, 0.3)"  };
-  if (c === "Estructuras")   return { background: "rgba(160, 60, 30, 0.12)",  color: "rgba(249, 90, 238, 0.8)",   border: "1px solid rgba(160, 99, 30, 0.3)" };
+  if (c === "DB")     return { background: "rgba(100,100,200,.1)",  color: "rgba(128, 246, 112, 0.8)",  border: "1px solid rgba(100, 200, 112, 0.3)"  };
+  if (c === "IA")            return { background: "rgba(200,100,200,.1)",  color: "rgba(106, 223, 250, 0.8)",  border: "1px solid rgba(39, 186, 235, 0.3)"  };
+  if (c === "Ciberseguridad") return {background: "rgba(160, 60, 30, 0.12)",  color: "rgba(115, 1, 255, 0.8)",   border: "1px solid rgba(144, 34, 227, 0.3)"  };
+  if (c === "Estructuras")   return { background: "rgba(160, 60, 30, 0.12)",  color: "rgba(249, 90, 238, 0.8)",   border: "1px solid rgba(217, 34, 238, 0.3)" };
   return                      { background: "rgba(2₀₀,₁₄₀,₂₀,.₁)",   color: "rgba(₂₄₀,₁₉₀,₆₀,.8)",   border: "1px solid rgba(₂₀₀,₁₄₀,₂₀,.3)"  };
 }
 
@@ -43,7 +43,7 @@ export default function FilterPage() {
         .opt-card:hover { background: rgba(100,60,255,.13) !important; transform: translateY(-2px); }
       `}</style>
 
-      {/* Orbs y partículas — igual que la otra pantalla */}
+      {/* Orbs y partículas —  */}
       <>
         <div style={{ position:"fixed", borderRadius:"50%", width:500, height:500, background:"radial-gradient(circle,rgba(90,30,200,.22) 0%,transparent 70%)", top:-150, left:-150, animation:"orbFloat 10s ease-in-out infinite alternate", pointerEvents:"none", zIndex:0 }} />
         <div style={{ position:"fixed", borderRadius:"50%", width:400, height:400, background:"radial-gradient(circle,rgba(110,50,255,.18) 0%,transparent 70%)", bottom:-100, right:-100, animation:"orbFloat 10s ease-in-out infinite alternate", animationDelay:"-5s", pointerEvents:"none", zIndex:0 }} />
@@ -52,7 +52,7 @@ export default function FilterPage() {
 
       {/* Header */}
       <header style={{ position:"relative", zIndex:10, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.8)", backdropFilter:"blur(10px)" }}>
-        <button onClick={() => router.push("/question")} style={{ display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(100,60,255,.08)", border:"1px solid rgba(100,60,255,.2)", borderRadius:10, color:"rgba(180,150,255,.8)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
+        <button onClick={() => router.push("/question")} style={{ display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(98, 45, 244, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(180, 150, 255)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           Volver
         </button>
@@ -64,20 +64,20 @@ export default function FilterPage() {
       </header>
 
       {/* Contenido */}
-      <section style={{ position:"relative", zIndex:5, padding:"40px 24px", display:"flex", flexDirection:"column",  gap:32, animation:"slideIn .35s ease" }}>
+      <section style={{ position:"relative", zIndex:5, padding:"40px 24px", display:"flex", flexDirection:"column",  gap:22, animation:"slideIn .35s ease" }}>
 
         <div style={{ textAlign:"center" }}>
-          <p style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"3px", textTransform:"uppercase", color:"rgba(183, 163, 248, 0.95)", marginBottom:8 }}>
+          <p style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"3px", textTransform:"uppercase", color:"rgb(200, 186, 247)" }}>
             Filtrar por
           </p>
         </div>
 
         <div style={{ display:"flex", justifyContent:"space-between", width:"100%" }}>
           
-          <h2 style={{ marginLeft:80, textAlign:"start" ,color:"#ddd0ff", fontSize:22, fontWeight:800, letterSpacing:1 }}>
+          <h2 style={{ marginLeft:410, textAlign:"start" ,color:"#ddd0ff", fontSize:22, fontWeight:800, letterSpacing:1 }}>
             Dificultad
           </h2>
-          <h2 style={{ marginRight:80, textAlign:"end",color:"#ddd0ff", fontSize:22, fontWeight:800, letterSpacing:1 }}>
+          <h2 style={{ marginRight:410, textAlign:"end",color:"#ddd0ff", fontSize:22, fontWeight:800, letterSpacing:1 }}>
             Categoria
           </h2>
 
@@ -85,7 +85,7 @@ export default function FilterPage() {
 
         <div style={{ display:"flex", justifyContent:"space-between", width:"100%" }}>
 {/* Columna izquierda — Dificultad */}
-        <div style={{marginLeft:10, textAlign:"start", display:"flex", flexDirection:"column", gap:14, width:"100%", maxWidth:300 }}>
+        <div style={{marginLeft:350, textAlign:"start", display:"flex", flexDirection:"column", gap:14, width:"100%", maxWidth:300 }}>
           {opciones.map((op) => {
             const isSelected = selected === op;
             const ds = diffStyle(op);
@@ -99,7 +99,7 @@ export default function FilterPage() {
                   padding:"18px 24px", borderRadius:14, cursor:"pointer",
                   transition:"all .2s ease",
                   background: isSelected ? ds.background : "rgba(14,10,28,.88)",
-                  border: isSelected ? ds.border : "1px solid rgba(100,60,255,.2)",
+                  border: isSelected ? ds.border : "1px solid rgb(99, 60, 255)",
                   backdropFilter:"blur(16px)",
                 }}
               >
@@ -124,7 +124,7 @@ export default function FilterPage() {
         </div>          
           
 {/* Columna derecha — Categoría */}
-          <div style={{ marginRight:10, textAlign:"end", display:"flex", flexDirection:"column", gap:14, width:300 }}>
+          <div style={{ marginRight:350, textAlign:"end", display:"flex", flexDirection:"column", gap:14, width:300 }}>
             {categoria.map((cat) => {
               const isCatSelected = selectedCat === cat;
               const cl = catStyle(cat);
@@ -138,7 +138,7 @@ export default function FilterPage() {
                     padding:"18px 24px", borderRadius:14, cursor:"pointer",
                     transition:"all .2s ease",
                     background: isCatSelected ? "rgba(100,60,255,.15)" : "rgba(14,10,28,.88)",
-                    border: isCatSelected ? "1px solid rgba(100,60,255,.5)" : "1px solid rgba(100,60,255,.2)",
+                    border: isCatSelected ? cl.border : "1px solid rgb(99, 60, 255)",
                     backdropFilter:"blur(16px)",
                   }}
                 >
@@ -170,12 +170,12 @@ export default function FilterPage() {
           style={{
             textAlign:"center", marginTop:8, height:44, padding:"0 48px", width:"100%", maxWidth:300,
             background: selected ? "linear-gradient(135deg,#7040ff,#5020e0)" : "rgba(100,60,255,.1)",
-            border: selected ? "none" : "1px solid rgba(100,60,255,.2)",
-            borderRadius:12, color: selected ? "white" : "rgba(160,130,255,.4)",
+            border: selected ? "none" : "1px solid rgb(99, 60, 255)",
+            borderRadius:12, color: selected ? "white" : "rgb(159, 130, 255)",
             fontFamily:"'Syne', sans-serif", fontSize:12, fontWeight:800,
             letterSpacing:"3px", textTransform:"uppercase" as const,
             cursor: selected ? "pointer" : "default",
-            boxShadow: selected ? "0 4px 16px rgba(90,40,220,.35)" : "none",
+            boxShadow: selected ? "0 4px 16px rgba(91, 40, 220, 1)" : "none",
             transition:"all .2s",
           }}
         >
