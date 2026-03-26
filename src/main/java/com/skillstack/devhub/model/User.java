@@ -16,27 +16,13 @@ public class User {
 
     @Id
     private String id;
-
-    @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
     private String apellido;
-
-    @NotNull(message = "El username es obligatorio")
-    @Size(min = 4, max = 15, message = "El nombre debe tener entre 4 y 15 caracteres")
     private String username;
-
-    @Email(message = "El correo no es válido, asegurese de tener la estructura correo@ejemplo.com")
-    @NotBlank(message = "El correo es obligatorio")
     private String email;
-
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 8, message = "La contraseña debe contener al menos 8 caracteres")
     private String contrasena;
-
     private String phone;
-
     private List<String> preferencias;
-
     private Role rol;
 
     public User(){}
