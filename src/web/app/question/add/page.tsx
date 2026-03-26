@@ -8,6 +8,8 @@ type Dificultad = "FACIL" | "MEDIA" | "DIFICIL";
 const PARTICLES = [
   { l:"5%", d:"12s", dl:"0s", s:3 }, { l:"15%", d:"9s", dl:"-2s", s:2 },
   { l:"55%", d:"16s", dl:"-3s", s:5 }, { l:"80%", d:"10s", dl:"-2s", s:4 },
+  { l:"5%", d:"12s", dl:"0s", s:3 }, { l:"15%", d:"9s", dl:"-2s", s:2 },
+  { l:"55%", d:"16s", dl:"-3s", s:5 }, { l:"80%", d:"10s", dl:"-2s", s:4 },
 ];
 
 export default function AddQuestionPage() {
@@ -64,9 +66,9 @@ export default function AddQuestionPage() {
   }
 
   const difColors: Record<Dificultad, React.CSSProperties> = {
-    "FACIL":   { background:"rgba(30,160,100,.15)",  borderColor:"rgba(80,200,130,.4)",  color:"rgba(80,220,150,.9)"   },
-    "MEDIA":   { background:"rgba(100,60,255,.25)",  borderColor:"rgba(140,80,255,.6)",  color:"#e0d4ff"               },
-    "DIFICIL": { background:"rgba(200,40,40,.1)",    borderColor:"rgba(220,80,80,.35)",  color:"rgba(240,100,100,.85)" },
+    "FACIL":   { background: "rgba(30,160,100,.12)",  color: "rgba(80,220,150,.8)",   border: "1px solid rgba(30,160,100,.2)" },
+    "MEDIA":   { background: "rgba(200,140,20,.1)",   color: "rgba(240,190,60,.8)",   border: "1px solid rgba(200,140,20,.2)" },
+    "DIFICIL": { background: "rgba(200,40,40,.1)",    color: "rgba(240,100,100,.8)",  border: "1px solid rgba(200,40,40,.2)"  },
   };
 
   return (
@@ -88,9 +90,11 @@ export default function AddQuestionPage() {
       </>}
 
       <header style={{ position:"relative", zIndex:10, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.8)", backdropFilter:"blur(10px)" }}>
-        <div onClick={() => router.push("/question")} style={{ width:34, height:34, borderRadius:"50%", border:"1px solid rgba(100,60,255,.35)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", background:"rgba(100,60,255,.05)" }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8a0ff" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        </div>
+        <button onClick={() => router.push("/question")} style={{  display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(98, 45, 244, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(180, 150, 255)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Volver
+        </button>
+
         <span style={{ fontFamily:"'Space Mono', monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
         <div onClick={handleProfile} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding: nombre ? "4px 12px 4px 4px" : "4px", borderRadius:999, border:"1px solid rgba(100,60,255,.35)", background:"rgba(100,60,255,.05)", transition:"background .2s" }}>
           <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
@@ -101,16 +105,11 @@ export default function AddQuestionPage() {
       </header>
 
       <section style={{ position:"relative", zIndex:5, padding:"28px 24px", display:"flex", flexDirection:"column", gap:20, animation:"slideIn .35s ease" }}>
-        <button onClick={() => router.push("/question")} style={{ display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(100,60,255,.08)", border:"1px solid rgba(100,60,255,.2)", borderRadius:10, color:"rgba(180,150,255,.8)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-          Volver
-        </button>
-
         <div style={{ background:"rgba(14,10,28,.88)", border:"1px solid rgba(100,60,255,.2)", borderRadius:20, padding:28, backdropFilter:"blur(16px)", display:"flex", flexDirection:"column", gap:24 }}>
           <div>
             <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:6 }}>
               Título
-              <span style={{ display:"block", fontSize:12, color:"rgba(160,130,255,.5)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Título corto de la pregunta.</span>
+              <span style={{ display:"block", fontSize:12, color:"rgba(159, 130, 255, 0.87)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Título corto de la pregunta.</span>
             </label>
             <input className="finp" type="text" value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Características de Docker"
               style={{ width:"100%", height:38, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.2)", borderRadius:12, padding:"0 16px", fontFamily:"'Syne', sans-serif", fontSize:14, color:"#e0d4ff" }} />
@@ -119,27 +118,27 @@ export default function AddQuestionPage() {
           <div>
             <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:6 }}>
               Enunciado
-              <span style={{ display:"block", fontSize:12, color:"rgba(160,130,255,.5)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Escribe la pregunta completa que deseas agregar.</span>
+              <span style={{ display:"block", fontSize:12, color:"rgba(159, 130, 255, 0.87)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Escribe la pregunta completa que deseas agregar.</span>
             </label>
             <textarea className="fta" value={enunciado} onChange={e => setEnunciado(e.target.value)} placeholder="¿Cuál es la salida de console.log(typeof null)?"
               style={{ width:"100%", height:80, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.2)", borderRadius:12, padding:"12px 16px", fontFamily:"'Syne', sans-serif", fontSize:14, color:"#e0d4ff", resize:"vertical", lineHeight:1.6 }} />
           </div>
 
-          <div style={{ display:"flex", gap:32, flexWrap:"wrap" }}>
+          <div style={{ display:"flex", gap:32, flexWrap:"wrap", width:1410}}>
             <div style={{ flex:1, minWidth:220 }}>
               <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:10 }}>
                 Opciones de respuesta
-                <span style={{ display:"block", fontSize:12, color:"rgba(160,130,255,.5)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Haz clic en la letra para marcarla como correcta.</span>
+                <span style={{ display:"block", fontSize:12, color:"rgba(159, 130, 255, 0.87)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Haz clic en la letra para marcarla como correcta.</span>
               </label>
               <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
                 {opciones.map((opt, i) => (
                   <div key={i} style={{ display:"flex", alignItems:"center", gap:12, cursor:"pointer" }} onClick={() => setCorrecta(i)}>
-                    <div style={{ width:36, height:36, borderRadius:"50%", border:"1.5px solid", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Space Mono', monospace", fontSize:13, fontWeight:700, flexShrink:0, transition:"all .15s", ...(correcta === i ? { background:"rgba(100,60,255,.3)", borderColor:"rgba(140,80,255,.7)", color:"#e0d4ff" } : { borderColor:"rgba(100,60,255,.3)", color:"rgba(140,100,255,.6)", background:"transparent" }) }}>
+                    <div style={{ width:36, height:36, borderRadius:"50%", border:"1.5px solid", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Space Mono', monospace", fontSize:13, fontWeight:700, flexShrink:0, transition:"all .15s", ...(correcta === i ? { background: "rgba(30,160,100,.12)", borderColor:"rgba(80,220,150,.8)", color:"#fefeff" } : { borderColor:"rgba(100,60,255,.3)", color:"rgba(236, 230, 254, 0.93)", background:"transparent" }) }}>
                       {letters[i]}
                     </div>
                     <input className="finp" type="text" value={opt} onChange={e => updateOpt(i, e.target.value)} onClick={e => e.stopPropagation()} placeholder={`Opción ${letters[i]}`}
                       style={{ flex:1, height:38, background:"rgba(255,255,255,.04)", border:`1px solid ${correcta === i ? "rgba(100,60,255,.4)" : "rgba(100,60,255,.2)"}`, borderRadius:999, padding:"0 16px", fontFamily:"'Syne', sans-serif", fontSize:13, color:"#e0d4ff", transition:"border-color .2s" }} />
-                    {correcta === i && <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", color:"rgba(160,130,255,.5)", flexShrink:0 }}>✓ correcta</span>}
+                    {correcta === i && <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", color:"rgba(80,220,150,.8)", flexShrink:0 }}>correcta</span>}
                   </div>
                 ))}
               </div>
@@ -149,15 +148,16 @@ export default function AddQuestionPage() {
               <div>
                 <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:6 }}>
                   Categoría
-                  <span style={{ display:"block", fontSize:12, color:"rgba(160,130,255,.5)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Por ahora solo: BACKEND</span>
+                  <span style={{ display:"block", fontSize:12, color:"rgba(159, 130, 255, 0.87)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Por ahora solo: BACKEND</span>
                 </label>
+                {/* Toca arreglar categorias */}
                 <div style={{ height:38, background:"rgba(255,255,255,.02)", border:"1px solid rgba(100,60,255,.15)", borderRadius:999, padding:"0 16px", display:"flex", alignItems:"center", fontFamily:"'Syne', sans-serif", fontSize:13, color:"rgba(180,150,255,.5)" }}>BACKEND</div>
               </div>
               <div>
                 <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:10 }}>Dificultad</label>
                 <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
                   {(["FACIL","MEDIA","DIFICIL"] as Dificultad[]).map(d => (
-                    <div key={d} onClick={() => setDificultad(d)} style={{ display:"flex", alignItems:"center", cursor:"pointer", padding:"6px 16px", border:"1px solid", borderRadius:999, fontSize:13, transition:"all .15s", fontWeight: dificultad === d ? 700 : 400, ...(dificultad === d ? difColors[d] : { background:"rgba(255,255,255,.03)", borderColor:"rgba(100,60,255,.25)", color:"rgba(180,150,255,.7)" }) }}>
+                    <div key={d} onClick={() => setDificultad(d)} style={{ display:"flex", alignItems:"center", cursor:"pointer", padding:"6px 16px", border:"1px solid", borderRadius:999, fontSize:13, transition:"all .15s", fontWeight: dificultad === d ? 700 : 400, ...(dificultad === d ? difColors[d] : { background:"rgba(255,255,255,.03)", borderColor:"rgba(100,60,255,.25)", color:"rgba(193, 173, 244, 0.94)" }) }}>
                       {d === "FACIL" ? "Fácil" : d === "DIFICIL" ? "Difícil" : "Media"}
                     </div>
                   ))}
