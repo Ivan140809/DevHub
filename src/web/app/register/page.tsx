@@ -44,11 +44,18 @@ export default function RegisterPage() {
       </div>
 
       <header style={{ position:"relative", zIndex:5, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.7)", backdropFilter:"blur(10px)" }}>
-        <div style={iconBtn}><LogOut size={15} color="#b8a0ff" /></div>
+        <button onClick={() => router.push("/login")} style={{ display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(98, 45, 244, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(180, 150, 255)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Volver
+        </button>
+
         <span style={{ fontFamily:"'Space Mono',monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
         <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-          <span style={{ fontSize:11, fontWeight:700, letterSpacing:3, color:"rgba(180,160,255,.5)", cursor:"pointer", textTransform:"uppercase" }}>FAQ</span>
-          <div style={iconBtn}><User size={15} color="#b8a0ff" /></div>
+          <div onClick={() => router.push("/profile")}  style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"4px", borderRadius:999, border:"1px solid rgba(100,60,255,.35)", background:"rgba(100,60,255,.05)", transition:"background .2s" }}>
+  <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+  </div>
+</div>    
         </div>
       </header>
 
@@ -59,8 +66,8 @@ export default function RegisterPage() {
             <User size={26} color="rgba(255,255,255,.9)" strokeWidth={1.8} />
           </div>
 
-          <h2 style={{ textAlign:"center", color:"#ddd0ff", fontSize:18, fontWeight:800, marginBottom:4 }}>Crea tu cuenta</h2>
-          <p style={{ textAlign:"center", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:3, textTransform:"uppercase", color:"rgba(160,130,255,.4)", marginBottom:28 }}>Únete a DevHub</p>
+          <h2 style={{ textAlign:"center", color:"#f0eafd", fontSize:18, fontWeight:800, marginBottom:4 }}>Crea tu cuenta</h2>
+          <p style={{ textAlign:"center", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:3, textTransform:"uppercase", color:"rgba(185, 167, 247, 0.95)", marginBottom:28 }}>Únete a DevHub</p>
 
           <form onSubmit={async (e) => {
             e.preventDefault();
@@ -72,8 +79,7 @@ export default function RegisterPage() {
             if (r.ok) router.push("/login");
             else alert("Error al registrar el usuario");
           }}>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18 }}>
-              <Field label="Nombre"             placeholder="Pepe"                    value={name}      onChange={setName} />
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, color:"rgb(255, 255, 255)"}}>
               <Field label="Apellido"           placeholder="Malo"                    value={lastName}  onChange={setLastName} />
               <Field label="Correo electrónico" placeholder="pepeelmalo@example.com"  value={email}     onChange={setEmail}    type="email" />
               <Field label="Username"           placeholder="@pepeelmalo"             value={username}  onChange={setUsername} />
@@ -82,15 +88,13 @@ export default function RegisterPage() {
             </div>
 
             <div style={{ display:"flex", alignItems:"center", gap:12, margin:"26px 0 20px" }}>
-              <div style={{ flex:1, height:1, background:"rgba(100,60,255,.12)" }} />
-              <span style={{ fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:2, textTransform:"uppercase", color:"rgba(140,110,200,.3)" }}>¿ya tienes cuenta?</span>
-              <div style={{ flex:1, height:1, background:"rgba(100,60,255,.12)" }} />
+              <div style={{ flex:1, height:1, background:"rgba(100,60,255,.12)" }} />             <div style={{ flex:1, height:1, background:"rgba(100,60,255,.12)" }} />
             </div>
 
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-              <p style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(140,120,200,.45)" }}>
+              <p style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgb(184, 167, 247)" }}>
                 ¿Ya tienes cuenta?{" "}
-                <Link href="/login" style={{ color:"#9070e0", textDecoration:"none" }}>Inicia sesión</Link>
+                <span onClick={() => router.push("/login")}  style={{ color:"#e8e3f6", textDecoration:"none" }}>Inicia sesión</span>
               </p>
               <button type="submit" style={{ height:46, padding:"0 40px", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:11, color:"white", fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, letterSpacing:4, textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 24px rgba(90,40,220,.4)" }}>
                 Registrar
@@ -103,13 +107,13 @@ export default function RegisterPage() {
   );
 }
 
-function Field({ label, type="text", placeholder, value, onChange }: {
+function Field({ label, type="text", placeholder, value, onChange}: {
   label: string; type?: string; placeholder?: string;
   value: string; onChange: (v: string) => void;
 }) {
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-      <label style={{ fontFamily:"'Space Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase", color:"rgba(160,130,255,.45)" }}>
+      <label style={{ fontFamily:"'Space Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase", color:"rgb(159, 130, 255)" }}>
         {label}
       </label>
       <input

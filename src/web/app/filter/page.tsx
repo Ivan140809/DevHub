@@ -84,7 +84,7 @@ export default function FilterPage() {
         </div>
 
         <div style={{ display:"flex", justifyContent:"space-between", width:"100%" }}>
-{/* Columna izquierda — Dificultad */}
+{/* Columna izquierda de Dificultad */}
         <div style={{marginLeft:350, textAlign:"start", display:"flex", flexDirection:"column", gap:14, width:"100%", maxWidth:300 }}>
           {opciones.map((op) => {
             const isSelected = selected === op;
@@ -123,7 +123,7 @@ export default function FilterPage() {
           
         </div>          
           
-{/* Columna derecha — Categoría */}
+{/* Columna derecha de Categoría */}
           <div style={{ marginRight:350, textAlign:"end", display:"flex", flexDirection:"column", gap:14, width:300 }}>
             {categoria.map((cat) => {
               const isCatSelected = selectedCat === cat;
