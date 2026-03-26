@@ -18,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class QuestionService {
@@ -116,13 +115,6 @@ public class QuestionService {
                 question.getDificultad(), options);
     }
 
-    public Question getQuestionById(String id){
-        return questionRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Pregunta no encontrada"
-                ));
-    }
-
     public List<QuestionDTO> getQuestionByDifficulty (Difficulty difficulty, int page){
         Pageable pageable = PageRequest.of(page, 10);
         Page<Question> questionPage = questionRepository.findByDifficulty(difficulty, pageable);
@@ -138,8 +130,12 @@ public class QuestionService {
         ).toList();
     }
 
-    public boolean verifyAnswer (AnswerDTO answer){
-        Question question = getQuestionById(answer.getQuestionId());
+    public boolean verifyAnswer (AnswerDTO answer, String id){
+        Question question = questionRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Pregunta no encontrada"
+                ));
+
         for (Option option : question.getOpciones()){
             if (option.getTexto().equals(answer.getSelectedOption())){
                 return option.getEsCorrecta();
