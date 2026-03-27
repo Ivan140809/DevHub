@@ -11,6 +11,13 @@ type Pregunta = {
   difficulty: "FACIL" | "MEDIA" | "DIFICIL";
 };
 
+type Review = {
+  id?: string;
+  comment: string;
+  rating: number;
+  createdAt?: string;
+};
+
 const MOCK: Pregunta[] = [
   { id: "1", titulo: "¿Cuáles son las principales características de Docker?", category: "BACKEND", difficulty: "MEDIA" },
   { id: "2", titulo: "¿Qué lenguaje se usa principalmente en machine learning?", category: "BACKEND", difficulty: "FACIL" },
@@ -59,6 +66,11 @@ export default function QuestionListPage() {
   const [modalLoading, setModalLoading]   = useState(false);
   const [modalOk, setModalOk]             = useState(false);
   const [modalError, setModalError]       = useState<string | null>(null);
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
+  const [selectedPreguntaForReviews, setSelectedPreguntaForReviews] = useState<Pregunta | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
 
   function openModal() {
     setModalOpen(true);
@@ -67,6 +79,37 @@ export default function QuestionListPage() {
     setModalRating(5);
     setModalOk(false);
     setModalError(null);
+  }
+
+  function openReviewsModal() {
+    setReviewsModalOpen(true);
+    setSelectedPreguntaForReviews(null);
+    setReviews([]);
+    setReviewsLoading(false);
+    setReviewsError(null);
+  }
+
+  async function loadReviewsForQuestion(pregunta: Pregunta) {
+    setSelectedPreguntaForReviews(pregunta);
+    setReviews([]);
+    setReviewsLoading(true);
+    setReviewsError(null);
+    
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+    try {
+      const res = await fetch(`${BASE_URL}/question/${pregunta.id}/reviews`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error();
+      const data: Review[] = await res.json();
+      setReviews(data);
+    } catch {
+      setReviewsError("No se pudieron cargar las reseñas.");
+      setReviews([]);
+    } finally {
+      setReviewsLoading(false);
+    }
   }
 
   async function enviarReview() {
@@ -243,7 +286,7 @@ export default function QuestionListPage() {
         Añadir reseña
       </button>
 
-       <button onClick={() => router.push("/filter")} style={{
+       <button onClick={openReviewsModal} style={{
          height: 36, padding: "0 20px", alignItems:"end",
          background: "linear-gradient(135deg,#7040ff,#5020e0)",
         border: "none", borderRadius: 10, color: "white",
@@ -261,7 +304,8 @@ export default function QuestionListPage() {
         style={{ position:"fixed", bottom:28, right:28, zIndex:20, width:52, height:52, borderRadius:"50%", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 6px 24px rgba(90,40,220,.5)", transition:"transform .15s" }}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      //modal overlay
+
+      {/* Modal para añadir reseña */}
       {modalOpen && (
         <div onClick={() => setModalOpen(false)} style={{ position:"fixed", inset:0, zIndex:50, background:"rgba(0,0,0,.6)", backdropFilter:"blur(4px)", display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
           <div onClick={e => e.stopPropagation()} style={{ width:"100%", maxWidth:520, background:"rgba(14,10,28,.97)", border:"1px solid rgba(100,60,255,.3)", borderRadius:20, padding:28, display:"flex", flexDirection:"column", gap:20, boxShadow:"0 24px 80px rgba(60,20,180,.4)" }}>
@@ -321,6 +365,88 @@ export default function QuestionListPage() {
                   style={{ height:40, background: (!modalPregunta || !modalComment.trim()) ? "rgba(100,60,255,.2)" : "linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", fontFamily:"'Syne',sans-serif", fontSize:11, fontWeight:800, letterSpacing:"3px", textTransform:"uppercase", cursor: (!modalPregunta || !modalComment.trim()) ? "not-allowed" : "pointer", boxShadow:"0 4px 16px rgba(90,40,220,.3)" }}>
                   {modalLoading ? "Enviando..." : "Enviar reseña"}
                 </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal para ver reseñas */}
+      {reviewsModalOpen && (
+        <div onClick={() => setReviewsModalOpen(false)} style={{ position:"fixed", inset:0, zIndex:50, background:"rgba(0,0,0,.6)", backdropFilter:"blur(4px)", display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
+          <div onClick={e => e.stopPropagation()} style={{ width:"100%", maxWidth:620, background:"rgba(14,10,28,.97)", border:"1px solid rgba(100,60,255,.3)", borderRadius:20, padding:28, display:"flex", flexDirection:"column", gap:20, boxShadow:"0 24px 80px rgba(60,20,180,.4)", maxHeight:"80vh", overflow:"auto" }}>
+
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, background:"rgba(14,10,28,.97)", paddingBottom:16, borderBottom:"1px solid rgba(100,60,255,.15)" }}>
+              <span style={{ fontFamily:"'Space Mono',monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(160,130,255,.5)" }}>Ver reseñas</span>
+              <div onClick={() => setReviewsModalOpen(false)} style={{ cursor:"pointer", color:"rgba(160,130,255,.5)", fontSize:20, lineHeight:1, flexShrink:0 }}>&#x2715;</div>
+            </div>
+
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              <span style={{ fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(160,130,255,.5)" }}>Selecciona una pregunta</span>
+              <select
+                value={selectedPreguntaForReviews?.id ?? ""}
+                onChange={e => {
+                  const p = preguntas.find(q => q.id === e.target.value);
+                  if (p) loadReviewsForQuestion(p);
+                }}
+                style={{ height:40, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.25)", borderRadius:10, padding:"0 14px", fontFamily:"'Syne',sans-serif", fontSize:13, color: selectedPreguntaForReviews ? "#e0d4ff" : "rgba(160,130,255,.4)", outline:"none", cursor:"pointer" }}
+              >
+                <option value="" disabled style={{ background:"#0e0a1c" }}>Elige una pregunta...</option>
+                {preguntas.map(p => (
+                  <option key={p.id} value={p.id} style={{ background:"#0e0a1c", color:"#e0d4ff" }}>{p.titulo}</option>
+                ))}
+              </select>
+            </div>
+
+            {selectedPreguntaForReviews && (
+              <>
+                <div style={{ display:"flex", alignItems:"center", gap:8, padding:"12px 16px", background:"rgba(100,60,255,.08)", borderRadius:12, border:"1px solid rgba(100,60,255,.15)" }}>
+                  <span style={{ fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:"1px", textTransform:"uppercase", color:"rgba(160,130,255,.6)" }}>Pregunta:</span>
+                  <span style={{ color:"#ddd0ff", fontSize:12, fontWeight:700 }}>{selectedPreguntaForReviews.titulo}</span>
+                </div>
+
+                {reviewsLoading ? (
+                  <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                    {[1,2,3].map(i => (
+                      <div key={i} style={{ display:"flex", flexDirection:"column", gap:8, padding:16, background:"rgba(100,60,255,.05)", borderRadius:12 }}>
+                        <div style={{ height:12, width:"40%", borderRadius:4, background:"rgba(100,60,255,.1)", animation:"pulse 1.5s infinite" }} />
+                        <div style={{ height:14, width:"100%", borderRadius:4, background:"rgba(100,60,255,.08)", animation:"pulse 1.5s infinite" }} />
+                      </div>
+                    ))}
+                  </div>
+                ) : reviewsError ? (
+                  <div style={{ padding:"16px", borderRadius:12, background:"rgba(200,40,40,.08)", border:"1px solid rgba(200,40,40,.2)", fontFamily:"'Space Mono',monospace", fontSize:12, color:"rgba(240,100,100,.8)" }}>
+                    {reviewsError}
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div style={{ padding:32, textAlign:"center", fontFamily:"'Space Mono', monospace", fontSize:12, letterSpacing:"1px", color:"rgba(140, 110, 200, 0.6)" }}>
+                    Sin reseñas aún
+                  </div>
+                ) : (
+                  <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                    {reviews.map((review, i) => (
+                      <div key={i} style={{ display:"flex", flexDirection:"column", gap:8, padding:16, background:"rgba(100,60,255,.05)", borderRadius:12, border:"1px solid rgba(100,60,255,.1)" }}>
+                        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                          <div style={{ display:"flex", gap:4 }}>
+                            {[1,2,3,4,5].map(star => (
+                              <span key={star} style={{ fontSize:14, color: star <= review.rating ? "rgba(240,190,60,.9)" : "rgba(100,100,100,.3)" }}>
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                          {review.createdAt && (
+                            <span style={{ fontFamily:"'Space Mono',monospace", fontSize:10, color:"rgba(160,130,255,.5)" }}>
+                              {new Date(review.createdAt).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                        <p style={{ color:"#ddd0ff", fontSize:13, lineHeight:1.6, margin:0 }}>
+                          {review.comment}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </>
             )}
           </div>
