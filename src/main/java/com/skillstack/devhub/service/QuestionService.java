@@ -3,11 +3,10 @@ package com.skillstack.devhub.service;
 import com.skillstack.devhub.dto.AnswerDTO;
 import com.skillstack.devhub.dto.OptionDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
-import com.skillstack.devhub.model.Category;
-import com.skillstack.devhub.model.Difficulty;
-import com.skillstack.devhub.model.Option;
-import com.skillstack.devhub.model.Question;
+import com.skillstack.devhub.dto.ReviewDTO;
+import com.skillstack.devhub.model.*;
 import com.skillstack.devhub.repository.QuestionRepository;
+import com.skillstack.devhub.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +24,15 @@ import java.util.List;
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
+    private final ReviewRepository reviewRepository;
 
     @Autowired
-    public QuestionService(QuestionRepository questionRepository) {
+    public QuestionService(QuestionRepository questionRepository, ReviewRepository reviewRepository) {
         this.questionRepository = questionRepository;
+        this.reviewRepository = reviewRepository;
     }
+
+
 
     public void addQuestion (QuestionDTO question){
         if (questionRepository.findByTitle(question.getTitulo()).isPresent()){
@@ -145,5 +150,16 @@ public class QuestionService {
         throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST, "Respuesta no válida"
         );
+    }
+
+    public boolean createReview(ReviewDTO reviewDTO, String userID, String questionId){
+
+        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(),
+                questionId, userID, LocalDate.now());
+
+        reviewRepository.save(review);
+        
+        return true;
+
     }
 }
