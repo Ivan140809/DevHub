@@ -91,14 +91,7 @@ public class QuestionService {
         Question question = questionRepository.findById(id)
                 .orElseThrow(()-> new QuestionNotFoundException("PREGUNTA CON ID "+id+" NO ENCONTRADA"));
 
-        List<OptionDTO> options = new ArrayList<>();
-
-        for (Option option : question.getOpciones()) {
-            options.add(new OptionDTO(
-                    option.getTexto(),
-                    option.getEsCorrecta()
-            ));
-        }
+        List<OptionDTO> options = question.getOpciones().stream().map(r ->  new OptionDTO(r.getTexto(), r.getEsCorrecta())).toList();
 
         return new QuestionDTO(
                 question.getTitle(),
@@ -107,6 +100,7 @@ public class QuestionService {
                 question.getDificultad(),
                 options
         );
+
     }
 
 
