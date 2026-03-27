@@ -4,6 +4,7 @@ import { LogOut, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 
+
 const PARTICLES = [
   { l:"5%",  d:"12s", dl:"0s",  s:3 }, { l:"15%", d:"9s",  dl:"-2s", s:2 },
   { l:"25%", d:"14s", dl:"-4s", s:4 }, { l:"35%", d:"10s", dl:"-1s", s:2 },
@@ -132,14 +133,15 @@ export default function ProfilePage() {
       </div>
 
       <header style={{ position:"relative", zIndex:5, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.7)", backdropFilter:"blur(10px)" }}>
-        <div style={iconBtn} onClick={handleLogout}>
-          <LogOut size={15} color="#b8a0ff" style={{ cursor:"pointer" }} />
-        </div>
+        <button onClick={() => router.push("/login")} style={{ display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(98, 45, 244, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(180, 150, 255)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Volver
+        </button>
         <span style={{ fontFamily:"'Space Mono',monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
         <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-          <span style={{ fontSize:11, fontWeight:700, letterSpacing:3, color:"rgba(180,160,255,.5)", cursor:"pointer", textTransform:"uppercase" }}>FAQ</span>
+          
         <div onClick={() => router.push("/profile")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding: nombre ? "4px 12px 4px 4px" : "4px", borderRadius:999, border:"1px solid rgba(100,60,255,.35)", background:"rgba(100,60,255,.05)", transition:"background .2s" }}>
-          <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+          <div style={{ width:36, height:36, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           </div>
           {nombre && <span style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(200,180,255,.8)", whiteSpace:"nowrap" }}>{nombre}</span>}
@@ -147,11 +149,11 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      <section style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"36px 20px", position:"relative", zIndex:5 }}>
-        <div style={{ width:"100%", maxWidth:780, background:"rgba(14,10,28,.9)", border:"1px solid rgba(100,60,255,.22)", borderRadius:22, padding:"42px 42px 36px", backdropFilter:"blur(20px)", boxShadow:"0 0 0 1px rgba(255,255,255,.03) inset,0 30px 80px rgba(80,40,200,.2)", animation:"slideUp .7s cubic-bezier(.16,1,.3,1) both" }}>
+      <section style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"36px 20px", position:"relative", zIndex:5, marginTop:-10 }}>
+        <div style={{ width:"100%", maxWidth:780, background:"rgba(14,10,28,.9)", border:"1px solid rgba(100,60,255,.22)", borderRadius:22, padding:"42px 42px 36px", backdropFilter:"blur(20px)", boxShadow:"0 0 0 1px rgba(255,255,255,.03) inset,0 30px 80px rgba(80,40,200,.2)", animation:"slideUp .7s cubic-bezier(.16,1,.3,1) both"}}>
 
           {!backendOk && !loading && (
-            <div style={{ background:"rgba(200,140,20,.08)", border:"1px solid rgba(200,140,20,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(240,190,60,.7)", marginBottom:20 }}>
+            <div style={{ background:"rgba(200,140,20,.08)", border:"1px solid rgba(200,140,20,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(240,190,60,.7)", marginTop:-20, marginBottom:10 }}>
               ⚠ Backend no disponible — los cambios se guardarán localmente.
             </div>
           )}
@@ -164,8 +166,8 @@ export default function ProfilePage() {
 
           <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:16, marginBottom:36 }}>
             <div style={{ position:"relative", width:130, height:130, display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <div style={{ position:"absolute", inset:-8, borderRadius:"50%", border:"1px solid rgba(120,70,255,.25)", animation:"ringPulse 3s ease-in-out infinite" }} />
-              <div style={{ width:130, height:130, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgba(140,90,255,.5)", animation:"avatarGlow 3s ease-in-out infinite", position:"relative", zIndex:1 }}>
+              <div style={{ position:"absolute", inset:-8, borderRadius:"50%", border:"1px solid rgba(68, 0, 255, 0.84)", animation:"ringPulse 3s ease-in-out infinite" }} />
+              <div style={{ width:130, height:130, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgb(126, 73, 249)", animation:"avatarGlow 3s ease-in-out infinite", position:"relative", zIndex:1 }}>
                 <User size={58} color="rgba(255,255,255,.9)" strokeWidth={1.5} />
               </div>
             </div>
@@ -179,7 +181,7 @@ export default function ProfilePage() {
                 fontSize: 10,
                 letterSpacing: 3,
                 textTransform: "uppercase",
-                color: "rgba(189, 178, 237, 0.45)",
+                color: "rgba(189, 178, 237, 0.86)",
                 background: "rgba(100,60,255,.1)",
                 border: "1px solid rgba(100,60,255,.2)",
                 padding: "4px 14px",
@@ -192,7 +194,7 @@ export default function ProfilePage() {
 
           <div style={{ height:1, background:"rgba(100,60,255,.12)", marginBottom:28 }} />
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18  }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18,  color:"rgb(208, 187, 240)"  }}>
             <Field label="Usuario"            value={form.username     ?? ""} onChange={v => updateField("username",     v)} placeholder="@usuario" />
             <Field label="Preferencias"       value={form.preferencias ?? ""} onChange={v => updateField("preferencias", v)} placeholder="Frontend, Backend..." />
             <Field label="Correo electrónico" value={form.email        ?? ""} onChange={v => updateField("email",        v)} placeholder="tu@email.com"     type="email" />
@@ -200,10 +202,13 @@ export default function ProfilePage() {
           </div>
 
           <div style={{ display:"flex", justifyContent:"flex-end", gap:12, marginTop:26 }}>
-            <button onClick={handleLogout} style={{ height:40, padding:"0 24px", background:"transparent", border:"1px solid rgba(100,60,255,.3)", borderRadius:10, color:"rgba(180,150,255,.6)", fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, letterSpacing:2, textTransform:"uppercase", cursor:"pointer" }}>
+            <button onClick={handleLogout} style={{ height:40, padding:"0 24px", background:"transparent", border:"1px solid rgba(99, 60, 255, 0.69)", borderRadius:10, color:"rgba(180, 150, 255, 0.74)", fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, letterSpacing:2, textTransform:"uppercase", cursor:"pointer" }}>
               Cerrar sesión
             </button>
-            <button onClick={handleSave} disabled={saving || loading} style={{ height:40, padding:"0 28px", background: saving ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:800, letterSpacing:3, textTransform:"uppercase", cursor: saving ? "not-allowed" : "pointer", boxShadow:"0 4px 20px rgba(90,40,220,.4)" }}>
+            <button onClick={handleSave} disabled={saving || loading} 
+            style={{ height:40, padding:"0 28px", background: saving ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", 
+            fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:800, letterSpacing:"3px", textTransform:"uppercase", cursor: saving ? "not-allowed" : "pointer", width: "fit-content", boxShadow:"0 4px 20px rgba(90,40,220,.4)" }}>
+  
               {saving ? "Guardando..." : "Guardar cambios"}
             </button>
           </div>
@@ -218,7 +223,7 @@ function Field({ label, placeholder, type="text", value, onChange }: {
 }) {
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-      <label style={{ fontFamily:"'Space Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase", color:"rgba(160,130,255,.45)" }}>
+      <label style={{ fontFamily:"'Space Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase", color:"rgb(159, 130, 255)" }}>
         {label}
       </label>
       <input

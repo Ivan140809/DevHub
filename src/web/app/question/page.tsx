@@ -16,6 +16,7 @@ const MOCK: Pregunta[] = [
   { id: "2", titulo: "¿Qué lenguaje se usa principalmente en machine learning?", category: "BACKEND", difficulty: "FACIL" },
 ];
 
+
 function diffLabel(d: string) {
   if (d === "FACIL")   return "Fácil";
   if (d === "DIFICIL") return "Difícil";
@@ -99,12 +100,16 @@ export default function QuestionListPage() {
       </>
  
       <header style={{ position:"relative", zIndex:10, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.8)", backdropFilter:"blur(10px)" }}>
+        <button onClick={() => router.push("/login")} style={{ display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(98, 45, 244, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(180, 150, 255)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Volver
+        </button>
         <div style={{ width:34, height:34, visibility:"hidden" }} />
         <span style={{ fontFamily:"'Space Mono', monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>DEVHUB</span>
         <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-          <span onClick={() => router.push("/question/add")} style={{ fontSize:11, fontWeight:700, letterSpacing:3, color:"rgba(180,160,255,.6)", cursor:"pointer", textTransform:"uppercase" }}>+ Agregar</span>
-          <div onClick={handleProfile} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding: nombre ? "4px 12px 4px 4px" : "4px", borderRadius:999, border:"1px solid rgba(100,60,255,.35)", background:"rgba(100,60,255,.05)", transition:"background .2s" }}>
-            <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+          <span onClick={() => router.push("/question/add")} style={{  display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(98, 45, 244, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(196, 174, 253)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer"  }}>+ Agregar</span>
+          <div onClick={() => router.push("/profile")} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding: nombre ? "4px 12px 4px 4px" : "4px", borderRadius:999, border:"1px solid rgba(100,60,255,.35)", background:"rgba(100,60,255,.05)", transition:"background .2s" }}>
+            <div style={{ width:36, height:36, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
             </div>
             {nombre && <span style={{ fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(200,180,255,.8)", whiteSpace:"nowrap" }}>{nombre}</span>}
@@ -120,14 +125,13 @@ export default function QuestionListPage() {
             {error}
           </div>
         )}
-         
- 
+
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
           <span style={{ color:"#ddd0ff", fontSize:16, fontWeight:800 }}>Preguntas disponibles</span>
           <div style={{ position:"relative", display:"flex", alignItems:"center" }}>
-            <svg style={{ position:"absolute", left:11, width:14, height:14, color:"rgba(160,130,255,.5)", pointerEvents:"none" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <svg style={{ position:"absolute", left:11, width:14, height:14, color:"rgb(159, 130, 255)", pointerEvents:"none" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar pregunta "
-              style={{ height:36, width:220, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.2)", borderRadius:10, padding:"0 14px 0 34px", fontFamily:"'Space Mono', monospace", fontSize:12, color:"#ddd0ff", outline:"none" }} />
+              style={{ height:36, width:220, background:"rgba(244, 20, 20, 0.04)", border:"1px solid rgba(99, 60, 255, 0.64)", color:"#ddd0ff",borderRadius:10, padding:"0 14px 0 34px",fontFamily:"'Space Mono', monospace", fontSize:12, outline:"none" }} />
           </div>
 
           
@@ -143,14 +147,14 @@ export default function QuestionListPage() {
   fontWeight: 800, letterSpacing: "3px",
   textTransform: "uppercase" as const,
   cursor: "pointer",
-  boxShadow: "0 4px 16px rgba(90,40,220,.35)",
+  boxShadow: "0 4px 16px rgba(91, 40, 220, 0.75)",
   width: "fit-content",  
 }}>
   Filtrar
 </button>
     </div>
  
-        <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(160,130,255,.35)" }}>
+        <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(159, 130, 255, 0.62)" }}>
           {loading ? "Cargando" : `${filtered.length} pregunta${filtered.length !== 1 ? "s" : ""}`}
         </span>
  
@@ -159,29 +163,29 @@ export default function QuestionListPage() {
             
             [1,2,3].map(i => (
               <div key={i} style={{ display:"flex", alignItems:"stretch", borderBottom:"1px solid rgba(100,60,255,.1)", padding:"20px" }}>
-                <div style={{ width:40, height:16, borderRadius:4, background:"rgba(100,60,255,.1)", animation:"pulse 1.5s infinite", marginRight:20 }} />
+                <div style={{ width:40, height:16, borderRadius:4, background:"rgb(99, 60, 255)", animation:"pulse 1.5s infinite", marginRight:20 }} />
                 <div style={{ flex:1, display:"flex", flexDirection:"column", gap:8 }}>
                   <div style={{ width:"70%", height:14, borderRadius:4, background:"rgba(100,60,255,.1)", animation:"pulse 1.5s infinite" }} />
-                  <div style={{ width:"30%", height:10, borderRadius:4, background:"rgba(100,60,255,.07)", animation:"pulse 1.5s infinite" }} />
+                  <div style={{ width:"30%", height:10, borderRadius:4, background:"rgba(99, 60, 255, 0.95)", animation:"pulse 1.5s infinite" }} />
                 </div>
               </div>
             ))
           ) : filtered.length === 0 ? (
-            <div style={{ padding:48, textAlign:"center", fontFamily:"'Space Mono', monospace", fontSize:12, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(140,110,200,.3)" }}>Sin resultados</div>
+            <div style={{ padding:48, textAlign:"center", fontFamily:"'Space Mono', monospace", fontSize:12, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(140, 110, 200, 0.81)" }}>Sin resultados</div>
           ) : filtered.map((p, i) => (
             <div key={p.id} className="q-row" onClick={() => router.push(`/question/${p.id}`)}
               style={{ display:"flex", alignItems:"stretch", borderBottom: i < filtered.length - 1 ? "1px solid rgba(100,60,255,.1)" : "none", cursor:"pointer", transition:"background .15s" }}>
-              <div style={{ minWidth:56, borderRight:"1px solid rgba(100,60,255,.1)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Space Mono', monospace", fontSize:14, fontWeight:700, color:"rgba(140,100,255,.5)" }}>
+              <div style={{ minWidth:56, borderRight:"1px solid rgba(100,60,255,.1)", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Space Mono', monospace", fontSize:14, fontWeight:700, color:"rgba(171, 149, 238, 0.9)" }}>
                 {String(i + 1).padStart(2, "0")}
               </div>
               <div style={{ flex:1, padding:"16px 20px", display:"flex", flexDirection:"column", gap:8 }}>
                 <p style={{ color:"#e0d4ff", fontSize:14, fontWeight:700, lineHeight:1.5 }}>{p.titulo}</p>
                 <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-                  <span style={{ ...tagBase, background:"rgba(100,60,255,.15)", color:"rgba(180,150,255,.7)", border:"1px solid rgba(100,60,255,.2)" }}>{p.category}</span>
+                  <span style={{ ...tagBase, background:"rgba(100,60,255,.15)", color:"rgb(180, 150, 255)", border:"1px solid rgba(100,60,255,.2)" }}>{p.category}</span>
                   <span style={{ ...tagBase, ...diffStyle(p.difficulty) }}>{diffLabel(p.difficulty)}</span>
                 </div>
               </div>
-              <div style={{ display:"flex", alignItems:"center", padding:"0 16px", color:"rgba(120,80,255,.35)" }}>
+              <div style={{ display:"flex", alignItems:"center", padding:"0 16px", color:"rgb(121, 80, 255)" }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
               </div>
             </div>
