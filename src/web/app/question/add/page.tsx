@@ -150,7 +150,6 @@ export default function AddQuestionPage() {
                   Categoría
                   <span style={{ display:"block", fontSize:12, color:"rgba(159, 130, 255, 0.87)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Por ahora solo: BACKEND</span>
                 </label>
-                {/* Toca arreglar categorias */}
                 <div style={{ height:38, background:"rgba(255,255,255,.02)", border:"1px solid rgba(100,60,255,.15)", borderRadius:999, padding:"0 16px", display:"flex", alignItems:"center", fontFamily:"'Syne', sans-serif", fontSize:13, color:"rgba(180,150,255,.5)" }}>BACKEND</div>
               </div>
               <div>

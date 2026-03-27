@@ -40,14 +40,14 @@ export default function ProfilePage() {
       if (raw) stored = JSON.parse(raw);
     } catch {}
 
-    // Show stored data immediately so the user sees their info right away
+    
     setUser(stored);
     setForm(stored);
 
     const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
     const email = stored?.email;
 
-    // Cambiar endpoint
+    
     const ENDPOINT = email ? `${BASE}/api/users/${encodeURIComponent(email)}` : null;
 
     if (ENDPOINT) {
@@ -81,7 +81,7 @@ export default function ProfilePage() {
     const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
     const email = form?.email;
 
-    // Cambia endpoint
+    
     const ENDPOINT = `${BASE}/api/users/${encodeURIComponent(email ?? "")}`;
 
     try {
@@ -154,13 +154,13 @@ export default function ProfilePage() {
 
           {!backendOk && !loading && (
             <div style={{ background:"rgba(200,140,20,.08)", border:"1px solid rgba(200,140,20,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(240,190,60,.7)", marginTop:-20, marginBottom:10 }}>
-              ⚠ Backend no disponible — los cambios se guardarán localmente.
+              Backend no disponible — los cambios se guardarán localmente.
             </div>
           )}
 
           {saved && (
             <div style={{ background:"rgba(30,160,100,.1)", border:"1px solid rgba(30,160,100,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(80,220,150,.8)", marginBottom:20 }}>
-              ✓ Cambios guardados correctamente.
+              Cambios guardados correctamente.
             </div>
           )}
 
