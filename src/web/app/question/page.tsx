@@ -192,6 +192,20 @@ export default function QuestionListPage() {
           ))}
         </div>
       </section>
+      
+      <button onClick={() => router.push("/filter")} style={{
+         height: 36, padding: "0 20px", alignItems:"end",
+         background: "linear-gradient(135deg,#7040ff,#5020e0)",
+        border: "none", borderRadius: 10, color: "white",
+        fontFamily: "'Syne', sans-serif", fontSize: 10, 
+        fontWeight: 800, letterSpacing: "3px",
+        textTransform: "uppercase" as const,
+        cursor: "pointer",
+        boxShadow: "0 4px 16px rgba(91, 40, 220, 0.75)",
+        width: "fit-content",  
+            position:"absolute", bottom:28, left:28, zIndex:10,   }}>
+  Añadir reseña
+</button>
  
       <button className="fab" title="Agregar pregunta" onClick={() => router.push("/question/add")}
         style={{ position:"fixed", bottom:28, right:28, zIndex:20, width:52, height:52, borderRadius:"50%", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"0 6px 24px rgba(90,40,220,.5)", transition:"transform .15s" }}>
