@@ -17,11 +17,7 @@ export default function LoginPage() {
     { left:"45%", dur:"11s", delay:"-6s",  size:3, op:.5 },
     { left:"55%", dur:"16s", delay:"-3s",  size:5, op:.4 },
     { left:"65%", dur:"8s",  delay:"-7s",  size:2, op:.6 },
-    { left:"72%", dur:"13s", delay:"-5s",  size:3, op:.3 },
-    { left:"80%", dur:"10s", delay:"-2s",  size:4, op:.5 },
-    { left:"88%", dur:"15s", delay:"-8s",  size:2, op:.4 },
-    { left:"93%", dur:"9s",  delay:"-1s",  size:3, op:.6 },
-    { left:"10%", dur:"12s", delay:"-4s",  size:2, op:.3 },
+  
   ];
 
   return (
@@ -83,17 +79,16 @@ export default function LoginPage() {
 
       
       <header style={{ position:"relative", zIndex:5, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,0.15)", background:"rgba(7,7,15,0.6)", backdropFilter:"blur(10px)" }}>
-        <div className="dh-icon" style={iconBtn}>
-          <LogOut size={15} color="#b8a0ff" />
-        </div>
+        
         <span style={{ fontFamily:"'Space Mono',monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,0.5)", position:"absolute", left:"50%", transform:"translateX(-50%)" }}>
           DEVHUB
         </span>
         <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-          <span className="dh-faq" style={{ fontSize:11, fontWeight:700, letterSpacing:3, color:"rgba(180,160,255,0.5)", cursor:"pointer", textTransform:"uppercase", transition:"color .2s" }}>FAQ</span>
-          <div className="dh-icon" style={iconBtn}>
-            <User size={15} color="#b8a0ff" />
-          </div>
+          <div onClick={() => router.push("/profile")}  style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"4px", borderRadius:999, border:"1px solid rgba(100,60,255,.35)", background:"rgba(100,60,255,.05)", transition:"background .2s" }}>
+            <div style={{ width:36, height:36, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+          </div>    
         </div>
       </header>
 
@@ -109,7 +104,7 @@ export default function LoginPage() {
           <h2 style={{ textAlign:"center", color:"#ddd0ff", fontSize:19, fontWeight:800, letterSpacing:.5, marginBottom:5 }}>
             Bienvenido de vuelta
           </h2>
-          <p style={{ textAlign:"center", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:3, textTransform:"uppercase", color:"rgba(160,130,255,0.4)", marginBottom:28 }}>
+          <p style={{ textAlign:"center", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:3, textTransform:"uppercase", color:"rgba(159, 130, 255, 0.76)", marginBottom:28 }}>
             Inicia sesión en tu cuenta
           </p>
 
@@ -126,7 +121,7 @@ export default function LoginPage() {
           router.push("/profile"); 
           } else {
           alert("Credenciales incorrectas");
-         }
+        }
           }}>
 
             <label style={lbl}>Email</label>
@@ -137,7 +132,7 @@ export default function LoginPage() {
             <input className="dh-inp" type="password" placeholder="••••••••"
               value={password} onChange={(e) => setPassword(e.target.value)} style={inp} />
 
-            <div className="dh-forgot" style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgba(140,100,255,0.5)", cursor:"pointer", transition:"color .2s" }}>
+            <div className="dh-forgot" style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgb(132, 94, 245)", cursor:"pointer", transition:"color .2s" }}>
               ¿Olvidaste la contraseña?
             </div>
 
@@ -147,13 +142,14 @@ export default function LoginPage() {
 
             <div style={{ display:"flex", alignItems:"center", gap:12, margin:"20px 0 16px" }}>
               <div style={{ flex:1, height:1, background:"rgba(100,60,255,0.12)" }} />
-              <span style={{ fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:2, textTransform:"uppercase", color:"rgba(140,110,200,0.3)" }}>¿nuevo aquí?</span>
+              <span style={{ fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:2, textTransform:"uppercase", color:"rgb(139, 96, 225)" }}>
+                ¿nuevo aquí?</span>
               <div style={{ flex:1, height:1, background:"rgba(100,60,255,0.12)" }} />
             </div>
 
-            <p style={{ textAlign:"center", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(140,120,200,0.45)" }}>
+            <p style={{ textAlign:"center", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgb(185, 163, 254)" }}>
               ¿No tienes cuenta?{" "}
-              <Link href="/register" className="dh-reg-link" style={{ color:"#9070e0", textDecoration:"none", transition:"color .2s" }}>
+              <Link href="/register" className="dh-reg-link" style={{ color:"#dfd6f5", textDecoration:"none", transition:"color .2s" }}>
                 Regístrate
               </Link>
             </p>
@@ -174,7 +170,7 @@ const iconBtn: React.CSSProperties = {
 const lbl: React.CSSProperties = {
   display:"block", fontFamily:"'Space Mono',monospace",
   fontSize:10, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase",
-  color:"rgba(160,130,255,0.45)", marginBottom:6,
+  color:"rgb(191, 175, 242)", marginBottom:6,
 };
 const inp: React.CSSProperties = {
   width:"100%", height:44,
