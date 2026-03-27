@@ -28,35 +28,45 @@ public class QuestionController {
 
     @PostMapping("/add")
     public ResponseEntity<String> createQuestion(@RequestBody QuestionDTO question) {
-        questionService.addQuestion(question);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Pregunta Creada Exitosamente");
+        String response = questionService.addQuestion(question);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<QuestionDTO>> getAllQuestions(@RequestParam(defaultValue = "0") int page) {
         List<QuestionDTO> questions = questionService.getQuestions(page);
 
-        return ResponseEntity.ok(questions);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(questions);
     }
 
     @GetMapping("/category/{category}")
     public ResponseEntity<List<QuestionDTO>> filterCategory(@PathVariable Category category, @RequestParam(defaultValue = "0") int page) {
         List<QuestionDTO> questions = questionService.getQuestionByCategory(category, page);
 
-        return ResponseEntity.ok(questions);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(questions);
     }
 
     @GetMapping("/difficulty/{difficulty}")
     public ResponseEntity<List<QuestionDTO>> filterDifficulty(@PathVariable Difficulty difficulty, @RequestParam(defaultValue = "0") int page){
         List<QuestionDTO> questions = questionService.getQuestionByDifficulty(difficulty, page);
 
-        return ResponseEntity.ok(questions);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(questions);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable String id) {
-        QuestionDTO question = questionService.getQuestionDTOById(id);
-        return ResponseEntity.ok(question);
+        QuestionDTO question = questionService.getQuestionById(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(question);
     }
 
     @GetMapping("/categories")
@@ -67,17 +77,19 @@ public class QuestionController {
     @GetMapping("/{id}/answer")
     public ResponseEntity<Boolean> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer){
 
-        boolean response = questionService.verifyAnswer(answer);
+        boolean response = questionService.verifyAnswer(answer,id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
     @PostMapping("/{id}/reviews")
-    public ResponseEntity<Void> createReview(
+    public ResponseEntity<String> createReview(
         @PathVariable("id") String questionId,
         @RequestBody ReviewDTO reviewDTO){
         
-        questionService.createReview(questionId, reviewDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        String response = questionService.createReview(questionId, reviewDTO);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 }

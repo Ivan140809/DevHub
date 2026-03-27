@@ -31,37 +31,37 @@ public class AuthenticationService {
     public String validarContrasena(String password){
 
         if (!password.matches(".*[A-Z].*")) {
-            return "Debe contener al menos una mayúscula";
+            return " DEBE CONTENER AL MENOS UNA MAYÚSCULA";
         }
 
         if (!password.matches(".*[a-z].*")) {
-            return "Debe contener al menos una minúscula";
+            return " DEBE CONTENER AL MENOS UNA MINÚSCULA";
         }
 
         if (!password.matches(".*\\d.*")) {
-            return "Debe contener al menos un número";
+            return " DEBE CONTENER AL MENOS UN NÚMERO";
         }
 
         if (!password.matches(".*[@#$%^&+=!].*")) {
-            return "Debe contener al menos un símbolo (@#$%^&+=!)";
+            return " DEBE CONTENER AL MENOS UN SÍMBOLO (@#$%^&+=!)";
         }
 
         return "OK";
     }
 
-    public void register(UserRegisterDTO user) {
+    public String register(UserRegisterDTO user) {
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException("EMAIL YA EN USO");
+            throw new UserAlreadyExistsException("EMAIL"+user.getEmail()+" YA EN USO");
         }
 
         if(userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("USERNAME YA EN USO");
+            throw new UserAlreadyExistsException("USERNAME "+user.getUsername()+" YA EN USO");
         }
 
         String respuesta=validarContrasena(user.getPassword());
         if(!respuesta.equals("OK")){
-            throw new PasswordFormatException(respuesta);
+            throw new PasswordFormatException("CONTRASEÑA "+ respuesta);
         }
 
         User u = new User(user.getNombre(), user.getApellido(), user.getUsername(), user.getEmail(),
@@ -70,12 +70,14 @@ public class AuthenticationService {
         u.setPhone(user.getPhone());
 
         userRepository.save(u);
+
+        return "USUARIO REGISTRADO CORRECTAMENTE";
     }
 
     public LoginResponseDTO login(UserLoginDTO request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("USUARIO NO ENCONTRADO"));
+                .orElseThrow(() -> new RuntimeException("USUARIO CON EMAIL "+request.getEmail()+" NO ENCONTRADO"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getContrasena())) {
             throw new IncorrectPasswordException("CONTRASEÑA INCORRECTA");

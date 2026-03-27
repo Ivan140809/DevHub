@@ -1,10 +1,7 @@
 package com.skillstack.devhub.handler;
 
 
-import com.skillstack.devhub.exception.IncorrectPasswordException;
-import com.skillstack.devhub.exception.PasswordFormatException;
-import com.skillstack.devhub.exception.UserAlreadyExistsException;
-import com.skillstack.devhub.exception.UserNotFoundException;
+import com.skillstack.devhub.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,4 +36,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
+    @ExceptionHandler(QuestionAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleQuestionAlreadyExists(QuestionAlreadyExistsException ex){
+        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(),HttpStatus.CONFLICT.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(QuestionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleQuestionNotFound(QuestionNotFoundException ex){
+        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(),HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleReviewNotFound(ReviewNotFoundException ex){
+        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(),HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
 }
