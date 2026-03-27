@@ -60,6 +60,11 @@ export default function QuestionDetailPage() {
   const [error, setError]       = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
+  const [comentario, setComentario] = useState("");
+  const [rating, setRating] = useState<number>(5);
+  const [comentarioEnviado, setComentarioEnviado] = useState(false);
+  const [comentarioLoading, setComentarioLoading] = useState(false);
+  const [comentarioError, setComentarioError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -87,7 +92,26 @@ export default function QuestionDetailPage() {
       });
   }, [id]);
 
-  const letters = ["A", "B", "C"];
+  async function enviarComentario() {
+    if (!comentario.trim() || !id) return;
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+    setComentarioLoading(true);
+    setComentarioError(null);
+    try {
+      const res = await fetch(`${BASE_URL}/question/${id}/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ comment: comentario, rating }),
+      });
+      if (!res.ok) throw new Error();
+      setComentarioEnviado(true);
+    } catch {
+      setComentarioError("No se pudo enviar el comentario. Intenta de nuevo.");
+    } finally {
+      setComentarioLoading(false);
+    }
+  }
+
 
   const correctaIdx = pregunta?.opciones.findIndex(o => o.esCorrecta) ?? -1;
 
@@ -204,6 +228,40 @@ export default function QuestionDetailPage() {
               </span>
             </div>
           )}
+
+          <div style={{ background:"rgba(14,10,28,.88)", border:"1px solid rgba(100,60,255,.2)", borderRadius:20, padding:24, backdropFilter:"blur(16px)", display:"flex", flexDirection:"column", gap:14 }}>
+            <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(160,130,255,.5)" }}>Deja un comentario</span>
+            {comentarioEnviado ? (
+              <div style={{ padding:"12px 16px", borderRadius:12, background:"rgba(30,160,100,.08)", border:"1px solid rgba(30,160,100,.2)", fontFamily:"'Space Mono', monospace", fontSize:12, color:"rgba(80,220,150,.8)" }}>
+                ✓ Comentario enviado
+              </div>
+            ) : (
+              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                  <span style={{ fontFamily:"'Space Mono', monospace", fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", color:"rgba(160,130,255,.5)" }}>Rating</span>
+                  {[1,2,3,4,5].map(n => (
+                    <span key={n} onClick={() => setRating(n)} style={{ fontSize:18, cursor:"pointer", opacity: n <= rating ? 1 : 0.25, transition:"opacity .15s" }}>&#9733;</span>
+                  ))}
+                </div>
+                <textarea
+                  value={comentario}
+                  onChange={e => setComentario(e.target.value)}
+                  placeholder="Escribe tu comentario sobre esta pregunta..."
+                  rows={3}
+                  style={{ width:"100%", background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.2)", borderRadius:12, padding:"12px 16px", fontFamily:"'Syne', sans-serif", fontSize:13, color:"#e0d4ff", resize:"vertical", lineHeight:1.6, outline:"none" }}
+                />
+                {comentarioError && (
+                  <span style={{ fontFamily:"'Space Mono', monospace", fontSize:11, color:"rgba(240,100,100,.8)" }}>{comentarioError}</span>
+                )}
+                <button
+                  onClick={enviarComentario}
+                  disabled={!comentario.trim() || comentarioLoading}
+                  style={{ alignSelf:"flex-end", height:36, padding:"0 24px", background: !comentario.trim() ? "rgba(100,60,255,.2)" : "linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", fontFamily:"'Syne', sans-serif", fontSize:11, fontWeight:800, letterSpacing:"3px", textTransform:"uppercase", cursor: !comentario.trim() ? "not-allowed" : "pointer", boxShadow:"0 4px 16px rgba(90,40,220,.25)" }}>
+                  {comentarioLoading ? "Enviando..." : "Enviar"}
+                </button>
+              </div>
+            )}
+          </div>
 
           <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
             {!answered && (
