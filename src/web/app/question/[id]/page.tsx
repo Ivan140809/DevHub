@@ -46,6 +46,7 @@ function diffStyle(d: string): React.CSSProperties {
   if (d === "DIFICIL") return { background:"rgba(200,40,40,.1)",    color:"rgba(240,100,100,.8)", border:"1px solid rgba(200,40,40,.2)"   };
   return                      { background:"rgba(200,140,20,.1)",   color:"rgba(240,190,60,.8)",  border:"1px solid rgba(200,140,20,.2)"  };
 }
+const letters = ["A","B","C","D","E"];
 
 export default function QuestionDetailPage() {
   const router   = useRouter();
