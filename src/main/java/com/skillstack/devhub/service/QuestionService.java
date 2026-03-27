@@ -162,4 +162,15 @@ public class QuestionService {
         return true;
 
     }
+
+    public List<ReviewDTO> getReviewsByQuestionId(String questionId, int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Review> reviewPage = reviewRepository.findByQuestionId(questionId, pageable);
+
+        return reviewPage.getContent().stream().map(r ->
+            new ReviewDTO(
+                r.getComment(),
+                r.getRating())
+        ).toList();
+    }
 }
