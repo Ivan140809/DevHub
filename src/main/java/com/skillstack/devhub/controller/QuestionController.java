@@ -2,6 +2,7 @@ package com.skillstack.devhub.controller;
 
 import com.skillstack.devhub.dto.AnswerDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
+import com.skillstack.devhub.dto.ReviewDTO;
 import com.skillstack.devhub.model.Category;
 import com.skillstack.devhub.model.Difficulty;
 import com.skillstack.devhub.service.QuestionService;
@@ -69,5 +70,14 @@ public class QuestionController {
         boolean response = questionService.verifyAnswer(answer);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
+    }
+
+    @PostMapping("/{id}/reviews")
+    public ResponseEntity<Void> createReview(
+        @PathVariable("id") String questionId,
+        @RequestBody ReviewDTO reviewDTO){
+        
+        questionService.createReview(questionId, reviewDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
