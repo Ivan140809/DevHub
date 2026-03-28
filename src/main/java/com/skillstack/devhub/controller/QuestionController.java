@@ -92,4 +92,12 @@ public class QuestionController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    @GetMapping("/{questionId}/reviews")
+    public ResponseEntity<List<ReviewDTO>> getReviewsByQuestionId(@PathVariable String questionId, @RequestParam(defaultValue = "0") int page){
+
+        List<ReviewDTO> reviews = questionService.getReviewsByQuestionId(questionId, page);
+
+        return ResponseEntity.ok(reviews);
+    }
 }
