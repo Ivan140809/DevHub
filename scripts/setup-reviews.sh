@@ -5,7 +5,6 @@ if [ -z "$MONGOURI" ]; then
   exit 1
 fi
 mongosh "$MONGOURI" --eval '
-  use DevHubDB;
-  db.createCollection("reviews");
+  db.getSiblingDB("DevHubDB").createCollection("answers");
   print("Colección reviews creada");
 '
