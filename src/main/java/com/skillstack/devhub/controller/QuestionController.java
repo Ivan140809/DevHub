@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<String> createQuestion(@RequestBody QuestionDTO question) {
         String response = questionService.addQuestion(question);
@@ -74,6 +76,7 @@ public class QuestionController {
         return ResponseEntity.ok(Category.values());
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}/answer")
     public ResponseEntity<Boolean> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer){
 
@@ -82,6 +85,7 @@ public class QuestionController {
 
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/reviews")
     public ResponseEntity<String> createReview(
         @PathVariable("id") String questionId,
@@ -93,11 +97,10 @@ public class QuestionController {
                 .body(response);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{questionId}/reviews")
     public ResponseEntity<List<ReviewDTO>> getReviewsByQuestionId(@PathVariable String questionId, @RequestParam(defaultValue = "0") int page){
-
         List<ReviewDTO> reviews = questionService.getReviewsByQuestionId(questionId, page);
-
         return ResponseEntity.ok(reviews);
     }
 }
