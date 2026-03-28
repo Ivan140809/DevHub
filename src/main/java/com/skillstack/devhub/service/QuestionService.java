@@ -8,6 +8,7 @@ import com.skillstack.devhub.exception.QuestionAlreadyExistsException;
 import com.skillstack.devhub.exception.QuestionNotFoundException;
 import com.skillstack.devhub.exception.ReviewNotFoundException;
 import com.skillstack.devhub.model.*;
+import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.QuestionRepository;
 import com.skillstack.devhub.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +28,14 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
     private final ReviewRepository reviewRepository;
+    private final AnswerRepository answerRepository;
 
     @Autowired
-    public QuestionService(QuestionRepository questionRepository, ReviewRepository reviewRepository) {
+    public QuestionService(QuestionRepository questionRepository, ReviewRepository reviewRepository, AnswerRepository answerRepository) {
         this.questionRepository = questionRepository;
         this.reviewRepository = reviewRepository;
+        this.answerRepository=answerRepository;
     }
-
-
 
     public String addQuestion (QuestionDTO question){
         if (questionRepository.findByTitle(question.getTitulo()).isPresent()){
@@ -123,12 +124,15 @@ public class QuestionService {
         ).toList();
     }
 
-    public boolean verifyAnswer (AnswerDTO answer, String id){
+    public boolean verifyAnswer (AnswerDTO answerDTO, String id){
         Question question = questionRepository.findById(id)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID "+id+" NO ENCONTRADA");
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID "+id+" NO ENCONTRADA"));
+
+        Answer answer = new Answer(answerDTO.getQuestionId(), answerDTO.getSelectedOption());
+        answerRepository.save(answer);
 
         for (Option option : question.getOpciones()){
-            if (option.getTexto().equals(answer.getSelectedOption())){
+            if (option.getTexto().equals(answerDTO.getSelectedOption())){
                 return option.getEsCorrecta();
             }
         }
