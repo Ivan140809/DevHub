@@ -25,15 +25,16 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegisterDTO user) {
-        authenticationService.register(user);
+        String response = authenticationService.register(user);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body("Usuario registrado correctamente");
-       
+                .body(response);
     }
 
     @PostMapping("/login")
-    public LoginResponseDTO login(@RequestBody UserLoginDTO request) {
-        return authenticationService.login(request);
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody UserLoginDTO request) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(authenticationService.login(request));
     }
 }

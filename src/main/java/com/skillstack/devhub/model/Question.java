@@ -14,19 +14,10 @@ public class Question {
 
     @Id
     private String id;
-
     private String title;
-
-    @NotBlank(message = "El enunciado no puede estar vacío")
     private String enunciado;
-
-    @NotBlank(message = "La categoría no puede estar vacía")
     private Category category;
-
-    @NotNull(message = "La dificultad es obligatoria")
     private Difficulty difficulty;
-
-    @NotEmpty(message = "Debe existir al menos una opción")
     private List<Option> opciones;
 
     public Question() {
