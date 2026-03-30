@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, MessageSquare, HelpCircle, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 
 
-const PARTICLES = [
+const Particles = [
   { l:"5%",  d:"12s", dl:"0s",  s:3 }, { l:"15%", d:"9s",  dl:"-2s", s:2 },
   { l:"25%", d:"14s", dl:"-4s", s:4 }, { l:"35%", d:"10s", dl:"-1s", s:2 },
   { l:"45%", d:"11s", dl:"-6s", s:3 }, { l:"55%", d:"16s", dl:"-3s", s:5 },
@@ -22,6 +22,34 @@ type UserData = {
   phone?:        string;
   preferencias?: string;
 };
+
+const applyGlassmorphismDecorator = (Component: React.FC<{ children: React.ReactNode }>, delay = "0s") => {
+  const Decorated = ({ children }: { children: React.ReactNode }) => (
+    <div style={{ 
+      background:"rgba(14,10,28,.9)", 
+      border:"1px solid rgba(100,60,255,.22)", 
+      borderRadius:22, 
+      padding:"42px 42px 36px", 
+      backdropFilter:"blur(20px)", 
+      boxShadow:"0 0 0 1px rgba(255,255,255,.03) inset,0 30px 80px rgba(80,40,200,.2)", 
+      animation:"slideUp .7s cubic-bezier(.16,1,.3,1) both",
+      animationDelay: delay
+    }}>
+      <Component>{children}</Component>
+    </div>
+  );
+  Decorated.displayName = `GlassmorphismDecorator(${Component.displayName || 'Component'})`;
+  return Decorated;
+};
+
+const ProfileCard: React.FC<{ children: React.ReactNode }> = ({ children }) => <>{children}</>;
+ProfileCard.displayName = "ProfileCard";
+
+const StatsCard: React.FC<{ children: React.ReactNode }> = ({ children }) => <>{children}</>;
+StatsCard.displayName = "StatsCard";
+
+const DecoratedProfileCard = applyGlassmorphismDecorator(ProfileCard, "0s");
+const DecoratedStatsCard = applyGlassmorphismDecorator(StatsCard, "0.1s");
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -120,14 +148,19 @@ export default function ProfilePage() {
         @keyframes ringPulse { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:.7;transform:scale(1.04)} }
         @keyframes avatarGlow{ 0%,100%{box-shadow:0 0 24px rgba(120,70,255,.35)} 50%{box-shadow:0 0 48px rgba(120,70,255,.6)} }
         @keyframes pulse     { 0%,100%{opacity:.3} 50%{opacity:.7} }
+        @keyframes countUp   { 0%{opacity:0;transform:scale(.8)} 100%{opacity:1;transform:scale(1)} }
+        @keyframes glowPulse { 0%,100%{filter:drop-shadow(0 0 4px rgba(100,60,255,0))} 50%{filter:drop-shadow(0 0 12px rgba(100,60,255,.6))} }
         .field-input:focus   { border-color: rgba(100,60,255,.5) !important; outline: none; }
+        @media (max-width: 1200px) {
+          .profile-container { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       <div style={{ position:"absolute", borderRadius:"50%", width:500, height:500, background:"radial-gradient(circle,rgba(90,30,200,.25) 0%,transparent 70%)", top:-150, left:-150, animation:"orbFloat 10s ease-in-out infinite alternate", pointerEvents:"none" }} />
       <div style={{ position:"absolute", borderRadius:"50%", width:400, height:400, background:"radial-gradient(circle,rgba(110,50,255,.2) 0%,transparent 70%)", bottom:-100, right:-100, animation:"orbFloat 10s ease-in-out infinite alternate", animationDelay:"-5s", pointerEvents:"none" }} />
       <div style={{ position:"absolute", borderRadius:"50%", width:280, height:280, background:"radial-gradient(circle,rgba(70,20,160,.2) 0%,transparent 70%)", top:"30%", left:"50%", animation:"orbFloat 14s ease-in-out infinite alternate", animationDelay:"-3s", pointerEvents:"none" }} />
       <div style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:1 }}>
-        {PARTICLES.map((p, i) => (
+        {Particles.map((p, i) => (
           <div key={i} style={{ position:"absolute", borderRadius:"50%", width:p.s, height:p.s, background:"rgba(160,100,255,.7)", left:p.l, bottom:-10, animation:`floatUp ${p.d} linear ${p.dl} infinite` }} />
         ))}
       </div>
@@ -150,68 +183,87 @@ export default function ProfilePage() {
       </header>
 
       <section style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"36px 20px", position:"relative", zIndex:5, marginTop:-10 }}>
-        <div style={{ width:"100%", maxWidth:780, background:"rgba(14,10,28,.9)", border:"1px solid rgba(100,60,255,.22)", borderRadius:22, padding:"42px 42px 36px", backdropFilter:"blur(20px)", boxShadow:"0 0 0 1px rgba(255,255,255,.03) inset,0 30px 80px rgba(80,40,200,.2)", animation:"slideUp .7s cubic-bezier(.16,1,.3,1) both"}}>
+        <div className="profile-container" style={{ width:"100%", maxWidth:1400, display:"grid", gridTemplateColumns:"1fr 1fr", gap:24 }}>
+          
+          <DecoratedProfileCard>
+            {!backendOk && !loading && (
+              <div style={{ background:"rgba(200,140,20,.08)", border:"1px solid rgba(200,140,20,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(240,190,60,.7)", marginTop:-20, marginBottom:10 }}>
+                Backend no disponible — los cambios se guardarán localmente.
+              </div>
+            )}
 
-          {!backendOk && !loading && (
-            <div style={{ background:"rgba(200,140,20,.08)", border:"1px solid rgba(200,140,20,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(240,190,60,.7)", marginTop:-20, marginBottom:10 }}>
-              Backend no disponible — los cambios se guardarán localmente.
-            </div>
-          )}
+            {saved && (
+              <div style={{ background:"rgba(30,160,100,.1)", border:"1px solid rgba(30,160,100,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(80,220,150,.8)", marginBottom:20 }}>
+                Cambios guardados correctamente.
+              </div>
+            )}
 
-          {saved && (
-            <div style={{ background:"rgba(30,160,100,.1)", border:"1px solid rgba(30,160,100,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(80,220,150,.8)", marginBottom:20 }}>
-              Cambios guardados correctamente.
-            </div>
-          )}
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:16, marginBottom:36 }}>
+              <div style={{ position:"relative", width:130, height:130, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                <div style={{ position:"absolute", inset:-8, borderRadius:"50%", border:"1px solid rgba(68, 0, 255, 0.84)", animation:"ringPulse 3s ease-in-out infinite" }} />
+                <div style={{ width:130, height:130, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgb(126, 73, 249)", animation:"avatarGlow 3s ease-in-out infinite", position:"relative", zIndex:1 }}>
+                  <User size={58} color="rgba(255,255,255,.9)" strokeWidth={1.5} />
+                </div>
+              </div>
+              <div style={{ color:"#ddd0ff", fontSize:18, fontWeight:800, letterSpacing:.5 }}>
+                {loading ? "..." : [user.nombre, user.apellido].filter(Boolean).join(" ") || "Mi Perfil"}
+              </div>
 
-          <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:16, marginBottom:36 }}>
-            <div style={{ position:"relative", width:130, height:130, display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <div style={{ position:"absolute", inset:-8, borderRadius:"50%", border:"1px solid rgba(68, 0, 255, 0.84)", animation:"ringPulse 3s ease-in-out infinite" }} />
-              <div style={{ width:130, height:130, borderRadius:"50%", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgb(126, 73, 249)", animation:"avatarGlow 3s ease-in-out infinite", position:"relative", zIndex:1 }}>
-                <User size={58} color="rgba(255,255,255,.9)" strokeWidth={1.5} />
+              <div
+                style={{
+                  fontFamily: "'Space Mono',monospace",
+                  fontSize: 10,
+                  letterSpacing: 3,
+                  textTransform: "uppercase",
+                  color: "rgba(189, 178, 237, 0.86)",
+                  background: "rgba(100,60,255,.1)",
+                  border: "1px solid rgba(100,60,255,.2)",
+                  padding: "4px 14px",
+                  borderRadius: 999,
+                }}
+              >
+                {user.username ? `@${user.username}` : "DevHub Member"}
               </div>
             </div>
-            <div style={{ color:"#ddd0ff", fontSize:18, fontWeight:800, letterSpacing:.5 }}>
-              {loading ? "..." : [user.nombre, user.apellido].filter(Boolean).join(" ") || "Mi Perfil"}
+
+            <div style={{ height:1, background:"rgba(100,60,255,.12)", marginBottom:28 }} />
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18,  color:"rgb(208, 187, 240)"  }}>
+              <Field label="Usuario"            value={form.username     ?? ""} onChange={v => updateField("username",     v)} placeholder="@usuario" />
+              <Field label="Preferencias"       value={form.preferencias ?? ""} onChange={v => updateField("preferencias", v)} placeholder="Frontend, Backend..." />
+              <Field label="Correo electrónico" value={form.email        ?? ""} onChange={v => updateField("email",        v)} placeholder="tu@email.com"     type="email" />
+              <Field label="Teléfono"           value={form.phone        ?? ""} onChange={v => updateField("phone",        v)} placeholder="+57 300 000 0000" type="tel" />
             </div>
 
-            <div
-              style={{
-                fontFamily: "'Space Mono',monospace",
-                fontSize: 10,
-                letterSpacing: 3,
-                textTransform: "uppercase",
-                color: "rgba(189, 178, 237, 0.86)",
-                background: "rgba(100,60,255,.1)",
-                border: "1px solid rgba(100,60,255,.2)",
-                padding: "4px 14px",
-                borderRadius: 999,
-              }}
-            >
-              {user.username ? `@${user.username}` : "DevHub Member"}
+            <div style={{ display:"flex", justifyContent:"flex-end", gap:12, marginTop:26 }}>
+              <button onClick={handleLogout} style={{ height:40, padding:"0 24px", background:"transparent", border:"1px solid rgba(99, 60, 255, 0.69)", borderRadius:10, color:"rgba(180, 150, 255, 0.74)", fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, letterSpacing:2, textTransform:"uppercase", cursor:"pointer" }}>
+                Cerrar sesión
+              </button>
+              <button onClick={handleSave} disabled={saving || loading} 
+              style={{ height:40, padding:"0 28px", background: saving ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", 
+              fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:800, letterSpacing:"3px", textTransform:"uppercase", cursor: saving ? "not-allowed" : "pointer", width: "fit-content", boxShadow:"0 4px 20px rgba(90,40,220,.4)" }}>
+    
+                {saving ? "Guardando " : "Guardar cambios"}
+              </button>
             </div>
-          </div>
+          </DecoratedProfileCard>
 
-          <div style={{ height:1, background:"rgba(100,60,255,.12)", marginBottom:28 }} />
+          <DecoratedStatsCard>
+            <div style={{ display:"flex", flexDirection:"column", gap:20, height:"100%" }}>
+              <div>
+                <h2 style={{ color:"#ddd0ff", fontSize:18, fontWeight:800, letterSpacing:.5, marginBottom:8 }}>
+                  Tus Estadísticas
+                </h2>
+                <div style={{ height:2, background:"linear-gradient(90deg,rgba(100,60,255,.3),transparent)", borderRadius:1 }} />
+              </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18,  color:"rgb(208, 187, 240)"  }}>
-            <Field label="Usuario"            value={form.username     ?? ""} onChange={v => updateField("username",     v)} placeholder="@usuario" />
-            <Field label="Preferencias"       value={form.preferencias ?? ""} onChange={v => updateField("preferencias", v)} placeholder="Frontend, Backend..." />
-            <Field label="Correo electrónico" value={form.email        ?? ""} onChange={v => updateField("email",        v)} placeholder="tu@email.com"     type="email" />
-            <Field label="Teléfono"           value={form.phone        ?? ""} onChange={v => updateField("phone",        v)} placeholder="+57 300 000 0000" type="tel" />
-          </div>
+              <StatCard title="Preguntas" value="" icon={HelpCircle} gradientStart="rgba(100,200,255,.2)" gradientEnd="rgba(50,150,255,.05)" accentColor="#64c8ff" />
+              <StatCard title="Respuestas" value="" icon={MessageSquare} gradientStart="rgba(150,100,255,.2)" gradientEnd="rgba(100,50,255,.05)" accentColor="#9664ff" />
+              <StatCard title="Rating" value="" icon={Star} gradientStart="rgba(255,200,100,.2)" gradientEnd="rgba(255,150,50,.05)" accentColor="#ffc864" />
 
-          <div style={{ display:"flex", justifyContent:"flex-end", gap:12, marginTop:26 }}>
-            <button onClick={handleLogout} style={{ height:40, padding:"0 24px", background:"transparent", border:"1px solid rgba(99, 60, 255, 0.69)", borderRadius:10, color:"rgba(180, 150, 255, 0.74)", fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, letterSpacing:2, textTransform:"uppercase", cursor:"pointer" }}>
-              Cerrar sesión
-            </button>
-            <button onClick={handleSave} disabled={saving || loading} 
-            style={{ height:40, padding:"0 28px", background: saving ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", 
-            fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:800, letterSpacing:"3px", textTransform:"uppercase", cursor: saving ? "not-allowed" : "pointer", width: "fit-content", boxShadow:"0 4px 20px rgba(90,40,220,.4)" }}>
-  
-              {saving ? "Guardando..." : "Guardar cambios"}
-            </button>
-          </div>
+            </div>
+          </DecoratedStatsCard>
+
         </div>
       </section>
     </main>
@@ -238,9 +290,66 @@ function Field({ label, placeholder, type="text", value, onChange }: {
   );
 }
 
-const iconBtn: React.CSSProperties = {
-  width:34, height:34, borderRadius:"50%",
-  border:"1px solid rgba(100,60,255,.35)",
-  display:"flex", alignItems:"center", justifyContent:"center",
-  cursor:"pointer", background:"rgba(100,60,255,.05)",
-};
+interface StatCardProps {
+  title: string;
+  value: string;
+  icon: React.ComponentType<{ size: number; color: string }>;
+  gradientStart: string;
+  gradientEnd: string;
+  accentColor: string;
+}
+
+function StatCard({ title, value, icon: Icon, gradientStart, gradientEnd, accentColor }: StatCardProps) {
+  return (
+    <div style={{ 
+      background:`linear-gradient(135deg,${gradientStart},${gradientEnd})`,
+      border:`1px solid ${accentColor}33`,
+      borderRadius:14, 
+      padding:24,
+      display:"flex",
+      alignItems:"center",
+      gap:18,
+      position:"relative",
+      overflow:"hidden",
+      transition:"all .3s cubic-bezier(.16,1,.3,1)",
+      cursor:"pointer"
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.background = `linear-gradient(135deg,${gradientStart},${gradientEnd})`;
+      e.currentTarget.style.borderColor = accentColor + "66";
+      e.currentTarget.style.transform = "translateY(-4px)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "translateY(0)";
+      e.currentTarget.style.borderColor = accentColor + "33";
+    }}
+    >
+      <div style={{ position:"absolute", inset:0, background:`radial-gradient(circle at 0% 0%, ${accentColor}11, transparent 60%)`, pointerEvents:"none" }} />
+      
+      <div style={{ 
+        width:56, 
+        height:56, 
+        borderRadius:12, 
+        background:`${accentColor}15`,
+        border:`1px solid ${accentColor}44`,
+        display:"flex", 
+        alignItems:"center", 
+        justifyContent:"center",
+        flexShrink:0,
+        position:"relative",
+        zIndex:1
+      }}>
+        <Icon size={28} color={accentColor} />
+      </div>
+
+      <div style={{ flex:1, position:"relative", zIndex:1 }}>
+        <div style={{ fontFamily:"'Space Mono',monospace", fontSize:9, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase", color:accentColor, marginBottom:6, opacity:.8 }}>
+          {title}
+        </div>
+        <div style={{ fontSize:32, fontWeight:900, color:"#ddd0ff", lineHeight:1, animation:"countUp .6s cubic-bezier(.16,1,.3,1) both" }}>
+          {value}
+        </div>
+      </div>
+    </div>
+  );
+}
