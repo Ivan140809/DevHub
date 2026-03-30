@@ -128,7 +128,7 @@ public class QuestionService {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID "+id+" NO ENCONTRADA"));
 
-        Answer answer = new Answer(answerDTO.getQuestionId(), answerDTO.getSelectedOption());
+        Answer answer = new Answer(answerDTO.getQuestionId(), answerDTO.getSelectedOption(), answerDTO.getUserId());
         answerRepository.save(answer);
 
         for (Option option : question.getOpciones()){

@@ -8,9 +8,11 @@ public class Answer {
     @Id
     private String questionId;
     private String selectedOption;
+    private String userId;
 
-    public Answer(String questionId, String selectedOption) {
+    public Answer(String questionId, String selectedOption, String userId) {
         this.questionId = questionId;
         this.selectedOption = selectedOption;
+        this.userId = userId;
     }
 }
