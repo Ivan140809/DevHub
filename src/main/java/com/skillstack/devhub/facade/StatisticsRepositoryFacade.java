@@ -5,9 +5,11 @@ import com.skillstack.devhub.model.Answer;
 import com.skillstack.devhub.model.Question;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.QuestionRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class StatisticsRepositoryFacade {
 
     private final AnswerRepository answerRepository;
@@ -19,13 +21,17 @@ public class StatisticsRepositoryFacade {
         this.questionRepository = questionRepository;
     }
 
-    public List<Answer>  findAnseredQuestionsByUser(String userId){
+    public List<Answer>  findAnsweredQuestionsByUser(String userId){
         return answerRepository.findByUserId(userId);
     }
 
     public Question findQuestionById(String questionId){
         return questionRepository.findById(questionId)
                 .orElseThrow(()-> new QuestionNotFoundException("PREGUNTA CON ID"+questionId+"NO ENCONTRADA"));
+    }
+
+    public int countAnsweredQuestionsByUser(String userId){
+        return answerRepository.findDistinctQuestionIdByUserId(userId).size();
     }
 
 }

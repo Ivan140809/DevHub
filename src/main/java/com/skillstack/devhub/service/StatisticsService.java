@@ -25,4 +25,6 @@ public class StatisticsService {
         Statistics<T> strategy = (Statistics<T>) strategies.get(strategyName);
         return strategy.progress(userId);
     }
+
+
 }

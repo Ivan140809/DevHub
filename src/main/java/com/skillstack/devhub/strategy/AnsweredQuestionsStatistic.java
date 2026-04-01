@@ -23,7 +23,7 @@ public class AnsweredQuestionsStatistic implements Statistics<List<QuestionDTO>>
 
     @Override
     public List<QuestionDTO> progress(String userId){
-        List<Answer> answers = statisticsRepositoryFacade.findAnseredQuestionsByUser(userId);
+        List<Answer> answers = statisticsRepositoryFacade.findAnsweredQuestionsByUser(userId);
         List<Question> questions = new ArrayList<>();
         for(Answer ans: answers){
             Question q = statisticsRepositoryFacade.findQuestionById(ans.getQuestionId());
