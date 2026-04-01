@@ -15,4 +15,28 @@ public class Answer {
         this.selectedOption = selectedOption;
         this.userId = userId;
     }
+
+    public String getQuestionId() {
+        return questionId;
+    }
+
+    public void setQuestionId(String questionId) {
+        this.questionId = questionId;
+    }
+
+    public String getSelectedOption() {
+        return selectedOption;
+    }
+
+    public void setSelectedOption(String selectedOption) {
+        this.selectedOption = selectedOption;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }
