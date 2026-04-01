@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 type Dificultad = "FACIL" | "MEDIA" | "DIFICIL";
+type Categoria = "FrontEnd" | "BackEnd" | "DB" | "IA" | "Ciberseguridad" | "Estructuras";
 
 const PARTICLES = [
   { l:"5%", d:"12s", dl:"0s", s:3 }, { l:"15%", d:"9s", dl:"-2s", s:2 },
@@ -24,6 +25,7 @@ export default function AddQuestionPage() {
   const [opciones, setOpciones]   = useState(["", "", ""]);
   const [correcta, setCorrecta]   = useState<number | null>(null);
   const [dificultad, setDificultad] = useState<Dificultad | null>(null);
+  const [categoria, setCategoria] = useState<Categoria | null>(null);
   const [loading, setLoading]     = useState(false);
   const [mounted, setMounted]     = useState(false);
   useEffect(() => setMounted(true), []);
@@ -70,6 +72,15 @@ export default function AddQuestionPage() {
     "MEDIA":   { background: "rgba(200,140,20,.1)",   color: "rgba(240,190,60,.8)",   border: "1px solid rgba(200,140,20,.2)" },
     "DIFICIL": { background: "rgba(200,40,40,.1)",    color: "rgba(240,100,100,.8)",  border: "1px solid rgba(200,40,40,.2)"  },
   };
+const catColors: Record<Categoria, React.CSSProperties> = {
+    "FrontEnd":      { background: "rgba(160, 60, 30, 0.12)",  color: "rgba(220, 150, 80, 0.8)",   border: "1px solid rgba(160, 99, 30, 0.3)"  },
+    "BackEnd":       { background: "rgba(179, 200, 40, 0.1)",    color: "rgba(240, 226, 100, 0.8)",  border: "1px solid rgba(168, 200, 40, 0.3)"   },
+    "DB":            { background: "rgba(100,100,200,.1)",  color: "rgba(128, 246, 112, 0.8)",  border: "1px solid rgba(100, 200, 112, 0.3)"  },
+    "IA":            { background: "rgba(200,100,200,.1)",  color: "rgba(106, 223, 250, 0.8)",  border: "1px solid rgba(39, 186, 235, 0.3)"  },
+    "Ciberseguridad": {  background: "rgba(160, 60, 30, 0.12)",  color: "rgba(115, 1, 255, 0.8)",   border: "1px solid rgba(144, 34, 227, 0.3)"  },
+    "Estructuras":   { background: "rgba(160, 60, 30, 0.12)",  color: "rgba(249, 90, 238, 0.8)",   border: "1px solid rgba(217, 34, 238, 0.3)" }
+  
+  }
 
   return (
     <main style={{ minHeight:"100vh", background:"#07070f", fontFamily:"'Syne', sans-serif", position:"relative", overflow:"hidden" }}>
@@ -90,7 +101,7 @@ export default function AddQuestionPage() {
       </>}
 
       <header style={{ position:"relative", zIndex:10, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.8)", backdropFilter:"blur(10px)" }}>
-        <button onClick={() => router.push("/question")} style={{  display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(98, 45, 244, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(180, 150, 255)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
+        <button onClick={() => router.push("/question")} style={{  display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(52, 20, 141, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(180, 150, 255)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           Volver
         </button>
@@ -147,10 +158,16 @@ export default function AddQuestionPage() {
             <div style={{ display:"flex", flexDirection:"column", gap:20, minWidth:200 }}>
               <div>
                 <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:6 }}>
-                  Categoría
-                  <span style={{ display:"block", fontSize:12, color:"rgba(159, 130, 255, 0.87)", fontWeight:400, marginTop:2, fontFamily:"'Space Mono', monospace" }}>Por ahora solo: BACKEND</span>
+                  Categoría  
                 </label>
-                <div style={{ height:38, background:"rgba(255,255,255,.02)", border:"1px solid rgba(100,60,255,.15)", borderRadius:999, padding:"0 16px", display:"flex", alignItems:"center", fontFamily:"'Syne', sans-serif", fontSize:13, color:"rgba(180,150,255,.5)" }}>BACKEND</div>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                  {(["FrontEnd","BackEnd","DB","IA","Ciberseguridad","Estructuras"] as Categoria[]).map(d => (
+                    <div key={d} onClick={() => setCategoria(d)} style={{ display:"flex", alignItems:"center", cursor:"pointer", padding:"6px 16px", border:"1px solid", borderRadius:999, fontSize:13, transition:"all .15s", marginBottom:8, fontWeight: categoria === d ? 700 : 400, ...(categoria === d ? catColors[d] : { background:"rgba(255,255,255,.03)", borderColor:"rgba(100,60,255,.25)", color:"rgba(193, 173, 244, 0.94)" }) }}>
+                      {d}
+                    </div>
+                  ))}
+                </div>
+
               </div>
               <div>
                 <label style={{ fontWeight:700, fontSize:14, color:"#ddd0ff", display:"block", marginBottom:10 }}>Dificultad</label>

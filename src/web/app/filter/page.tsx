@@ -48,7 +48,7 @@ function catStyle(c: string): React.CSSProperties {
   if (c === "IA")            return { background: "rgba(200,100,200,.1)",  color: "rgba(106, 223, 250, 0.8)",  border: "1px solid rgba(39, 186, 235, 0.3)"  };
   if (c === "Ciberseguridad") return { background: "rgba(160, 60, 30, 0.12)",  color: "rgba(115, 1, 255, 0.8)",   border: "1px solid rgba(144, 34, 227, 0.3)"  };
   if (c === "Estructuras")   return { background: "rgba(160, 60, 30, 0.12)",  color: "rgba(249, 90, 238, 0.8)",   border: "1px solid rgba(217, 34, 238, 0.3)" };
-  return                      { background: "rgba(200,140,20,.1)",   color: "rgba(240,190,60,.8)",   border: "1px solid rgba(200,140,20,.3)"  };
+  return {};
 }
 
 export default function FilterPage() {
@@ -77,7 +77,7 @@ export default function FilterPage() {
       </>
 
       <header style={{ position:"relative", zIndex:10, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.8)", backdropFilter:"blur(10px)" }}>
-        <button onClick={() => router.push("/question")} style={{ display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(98, 45, 244, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(180, 150, 255)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
+        <button onClick={() => router.push("/question")} style={{  display:"flex", alignItems:"center", gap:8, width:"fit-content", padding:"8px 16px", background:"rgba(52, 20, 141, 0.3)", border:"1px solid rgb(99, 60, 255)", borderRadius:10, color:"rgb(180, 150, 255)", fontFamily:"'Space Mono', monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer" }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           Volver
         </button>
