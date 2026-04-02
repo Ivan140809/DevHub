@@ -21,8 +21,8 @@ public class StatisticsRepositoryFacade {
         this.questionRepository = questionRepository;
     }
 
-    public List<Answer>  findAnsweredQuestionsByUser(String userId){
-        return answerRepository.findByUserId(userId);
+    public List<String> findAnsweredQuestionsByUser(String userId){
+        return answerRepository.findDistinctQuestionIdByUserId(userId);
     }
 
     public Question findQuestionById(String questionId){
@@ -30,17 +30,7 @@ public class StatisticsRepositoryFacade {
                 .orElseThrow(()-> new QuestionNotFoundException("PREGUNTA CON ID"+questionId+"NO ENCONTRADA"));
     }
 
-    public int countAnsweredQuestionsByUser(String userId){
-        return answerRepository.findDistinctQuestionIdByUserId(userId).size();
-    }
-
-    public double percentageAnsweredQuestions (String userId){
-        int answered = answerRepository.findDistinctQuestionIdByUserId(userId).size();
-        long totalQuestions = questionRepository.count();
-        if (totalQuestions == 0){
-            return 0.0;
-        }
-
-        return ((double) answered/totalQuestions)*100;
+    public long countTotalQuestions(){
+        return questionRepository.count();
     }
 }

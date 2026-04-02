@@ -15,6 +15,6 @@ public class TotalQuestionsAnsweredStatistics implements Statistics <Integer> {
 
     @Override
     public Integer progress (String userId){
-        return statisticsRepositoryFacade.countAnsweredQuestionsByUser(userId);
+        return statisticsRepositoryFacade.findAnsweredQuestionsByUser(userId).size();
     }
 }
