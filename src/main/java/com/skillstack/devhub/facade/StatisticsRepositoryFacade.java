@@ -34,4 +34,13 @@ public class StatisticsRepositoryFacade {
         return answerRepository.findDistinctQuestionIdByUserId(userId).size();
     }
 
+    public double percentageAnsweredQuestions (String userId){
+        int answered = answerRepository.findDistinctQuestionIdByUserId(userId).size();
+        long totalQuestions = questionRepository.count();
+        if (totalQuestions == 0){
+            return 0.0;
+        }
+
+        return ((double) answered/totalQuestions)*100;
+    }
 }
