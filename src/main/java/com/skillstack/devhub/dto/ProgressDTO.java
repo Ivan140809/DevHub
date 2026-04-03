@@ -5,7 +5,7 @@ public class ProgressDTO {
     private int totalAnswered;
     private double percentage;
 
-    public ProgressDTO() {}
+    private ProgressDTO() {}
 
     public static class Builder {
         private int totalAnswered;
