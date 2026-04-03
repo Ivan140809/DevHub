@@ -89,9 +89,10 @@ public class QuestionController {
     @PostMapping("/{id}/reviews")
     public ResponseEntity<String> createReview(
         @PathVariable("id") String questionId,
-        @RequestBody ReviewDTO reviewDTO){
+        @RequestBody ReviewDTO reviewDTO,
+        Authentication authentication){
         
-        String response = questionService.createReview(questionId, reviewDTO);
+        String response = questionService.createReview(reviewDTO, authentication.getName(), questionId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);

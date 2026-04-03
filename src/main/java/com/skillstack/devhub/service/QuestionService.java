@@ -29,12 +29,14 @@ public class QuestionService {
     private final QuestionRepository questionRepository;
     private final ReviewRepository reviewRepository;
     private final AnswerRepository answerRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public QuestionService(QuestionRepository questionRepository, ReviewRepository reviewRepository, AnswerRepository answerRepository) {
+    public QuestionService(QuestionRepository questionRepository, ReviewRepository reviewRepository, AnswerRepository answerRepository, UserRepository userRepository) {
         this.questionRepository = questionRepository;
         this.reviewRepository = reviewRepository;
         this.answerRepository=answerRepository;
+        this.userRepository = userRepository;
     }
 
     public String addQuestion (QuestionDTO question){
@@ -142,14 +144,15 @@ public class QuestionService {
         );
     }
 
-    public String createReview(ReviewDTO reviewDTO, String userID, String questionId){
+    public String createReview(ReviewDTO reviewDTO, String email, String questionId){
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
 
-        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(),
-                questionId, userID, LocalDate.now());
+        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(), questionId, user.getId(), LocalDate.now());
 
         reviewRepository.save(review);
         
-        return "REVIEW CREADO CORRECTAMENTE PARA USUARIO "+userID+" EN LA PREGUNTA "+questionId;
+        return "REVIEW CREADO CORRECTAMENTE PARA USUARIO "+user.getId()+" EN LA PREGUNTA "+questionId;
     }
 
     public List<ReviewDTO> getReviewsByQuestionId(String questionId, int page){
