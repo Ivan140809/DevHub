@@ -82,7 +82,7 @@ const BackButtonStyle: React.CSSProperties = {
   gap: 8,
   width: "fit-content",
   padding: "8px 16px",
-  background: "rgba(98, 45, 244, 0.3)",
+  background:"rgba(52, 20, 141, 0.3)",
   border: "1px solid rgb(99, 60, 255)",
   borderRadius: 10,
   color: "rgb(180, 150, 255)",
@@ -111,7 +111,7 @@ const HeaderButtonStyle: React.CSSProperties = {
   gap: 8,
   width: "fit-content",
   padding: "8px 16px",
-  background: "rgba(98, 45, 244, 0.3)",
+  background: "rgba(45, 25, 103, 0.3)",
   border: "1px solid rgb(99, 60, 255)",
   borderRadius: 10,
   color: "rgb(196, 174, 253)",
@@ -560,7 +560,7 @@ export default function QuestionListPage() {
             ) : (
               <>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(160,130,255,.5)" }}>Pregunta</span>
+                  <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase",color: "rgba(181, 165, 234, 0.83)" }}>Pregunta</span>
                   <select title="Selecciona una pregunta" value={modalPregunta?.id ?? ""} onChange={e => {
                     const selected = preguntas.find(p => p.id === e.target.value);
                     setModalPregunta(selected || null);
@@ -573,7 +573,7 @@ export default function QuestionListPage() {
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(160,130,255,.5)" }}>Rating</span>
+                  <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase",color: "rgba(181, 165, 234, 0.83)" }}>Rating</span>
                   <div style={{ display: "flex", gap: 6 }}>
                     {[1, 2, 3, 4, 5].map(n => (
                       <span key={n} onClick={() => setModalRating(n)} style={{ fontSize: 22, cursor: "pointer", opacity: n <= modalRating ? 1 : 0.2, transition: "opacity .15s" }}>★</span>
@@ -582,7 +582,7 @@ export default function QuestionListPage() {
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(160,130,255,.5)" }}>Comentario</span>
+                  <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(181, 165, 234, 0.83)" }}>Comentario</span>
                   <textarea value={modalComment} onChange={e => setModalComment(e.target.value)} placeholder="Escribe tu reseña sobre esta pregunta..." rows={4} style={{ width: "100%", background: "rgba(255,255,255,.04)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 12, padding: "12px 16px", fontFamily: "'Syne',sans-serif", fontSize: 13, color: "#e0d4ff", resize: "vertical", lineHeight: 1.6, outline: "none" }} />
                 </div>
 
@@ -602,16 +602,16 @@ export default function QuestionListPage() {
         <div onClick={() => setReviewsModalOpen(false)} style={ModalOverlayStyle}>
           <div onClick={e => e.stopPropagation()} style={ModalLargeContentStyle}>
             <div style={{ ...ModalHeaderStyle, position: "sticky", top: 0, background: "rgba(14,10,28,.97)", paddingBottom: 16, borderBottom: "1px solid rgba(100,60,255,.15)" }}>
-              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(160,130,255,.5)" }}>Ver reseñas</span>
+              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(181, 165, 234, 0.83)" }}>Ver reseñas</span>
               <div onClick={() => setReviewsModalOpen(false)} style={CloseButtonStyle}>&#x2715;</div>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(160,130,255,.5)" }}>Selecciona una pregunta</span>
+              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(181, 165, 234, 0.83)" }}>Selecciona una pregunta</span>
               <select title="Selecciona una pregunta para ver reseñas" value={selectedPreguntaForReviews?.id ?? ""} onChange={e => {
                 const selected = preguntas.find(q => q.id === e.target.value);
                 if (selected) loadReviewsForQuestion(selected);
-              }} style={{ ...SelectStyle, color: selectedPreguntaForReviews ? "#e0d4ff" : "rgba(160,130,255,.4)" }}>
+              }} style={{ ...SelectStyle, color: selectedPreguntaForReviews ? "#e0d4ff" : "rgba(159, 130, 255, 0.78)" }}>
                 <option value="" disabled>Elige una pregunta...</option>
                 {preguntas.map(p => (
                   <option key={p.id} value={p.id}>{p.titulo}</option>
@@ -650,7 +650,7 @@ export default function QuestionListPage() {
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                           <div style={{ display: "flex", gap: 4 }}>
                             {[1, 2, 3, 4, 5].map(star => (
-                              <span key={star} style={{ fontSize: 14, color: star <= review.rating ? "rgba(240,190,60,.9)" : "rgba(100,100,100,.3)" }}>★</span>
+                              <span key={star} style={{ fontSize: 14, color: star <= review.rating ? "rgba(250, 192, 45, 0.9)" : "rgba(100,100,100,.3)" }}>★</span>
                             ))}
                           </div>
                           {review.createdAt && (
