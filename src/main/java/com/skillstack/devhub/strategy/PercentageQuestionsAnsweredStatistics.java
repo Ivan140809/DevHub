@@ -15,6 +15,11 @@ public class PercentageQuestionsAnsweredStatistics implements Statistics <Double
 
     @Override
     public Double progress(String userId) {
-        return statisticsRepositoryFacade.percentageAnsweredQuestions(userId);
+        long total = statisticsRepositoryFacade.countTotalQuestions();
+        if (total==0){
+            return 0.0;
+        }
+        int answeredQuestions = statisticsRepositoryFacade.findAnsweredQuestionsByUser(userId).size();
+        return ((double)answeredQuestions/total)*100;
     }
 }
