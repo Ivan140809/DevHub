@@ -15,8 +15,7 @@ public class StatisticsRepositoryFacade {
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
 
-    public StatisticsRepositoryFacade(AnswerRepository answerRepository,
-                                      QuestionRepository questionRepository) {
+    public StatisticsRepositoryFacade(AnswerRepository answerRepository, QuestionRepository questionRepository) {
         this.answerRepository = answerRepository;
         this.questionRepository = questionRepository;
     }
