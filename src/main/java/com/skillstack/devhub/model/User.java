@@ -10,51 +10,50 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 
-
-@Document(collection = "usuarios")
+@Document(collection = "users")
 public class User {
 
     @Id
     private String id;
-    private String nombre;
-    private String apellido;
+    private String firstName;
+    private String lastName;
     private String username;
     private String email;
-    private String contrasena;
+    private String password;
     private String phone;
-    private List<String> preferencias;
-    private Role rol;
+    private List<String> preferences;
+    private Role role;
 
     public User(){}
 
-    public User(String nombre, String apellido, String username, String email,
-                String contrasena, Role rol) {
-        this.nombre = nombre;
-        this.apellido = apellido;
+    public User(String firstName, String lastName, String username, String email,
+                String password, Role role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.username = username;
         this.email = email;
-        this.contrasena = contrasena;
-        this.rol = rol;
+        this.password = password;
+        this.role = role;
     }
 
     public String getId(){
         return id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getApellido() {
-        return apellido;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getUsername() {
@@ -73,24 +72,24 @@ public class User {
         this.email = email;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public String getPassword() {
+        return password;
     }
 
-    public void setContrasena(String contrasena) { this.contrasena = contrasena;}
+    public void setPassword(String password) { this.password = password; }
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
 
-    public Role getRol() {
-        return rol;
+    public Role getRole() {
+        return role;
     }
 
-    public List<String> getPreferencias() {
-        return preferencias;
+    public List<String> getPreferences() {
+        return preferences;
     }
 
-    public void setPreferencias(List<String> preferencias) {
-        this.preferencias = preferencias;
+    public void setPreferences(List<String> preferences) {
+        this.preferences = preferences;
     }
 }

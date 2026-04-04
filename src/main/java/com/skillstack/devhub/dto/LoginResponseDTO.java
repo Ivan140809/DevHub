@@ -6,24 +6,24 @@ public class LoginResponseDTO {
 
     private String token;
     private String email;
-    private String nombre;
-    private String apellido;
+    private String firstName;
+    private String lastName;
     private String username;
     private String phone;
 
-    public LoginResponseDTO(String token, String email, String nombre, String apellido, String username, String phone) {
+    public LoginResponseDTO(String token, String email, String firstName, String lastName, String username, String phone) {
         this.token = token;
         this.email = email;
-        this.nombre = nombre;
-        this.apellido = apellido;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.username = username;
         this.phone = phone;
     }
 
-    public String getToken()    { return token; }
-    public String getEmail()    { return email; }
-    public String getNombre()   { return nombre; }
-    public String getApellido() { return apellido; }
-    public String getUsername() { return username; }
-    public String getPhone()    { return phone; }
+    public String getToken()     { return token; }
+    public String getEmail()     { return email; }
+    public String getFirstName() { return firstName; }
+    public String getLastName()  { return lastName; }
+    public String getUsername()  { return username; }
+    public String getPhone()     { return phone; }
 }

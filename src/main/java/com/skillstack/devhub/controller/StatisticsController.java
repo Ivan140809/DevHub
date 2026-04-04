@@ -54,5 +54,4 @@ public class StatisticsController {
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(progress);
     }
-
 }

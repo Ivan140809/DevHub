@@ -8,44 +8,49 @@ import jakarta.validation.constraints.Size;
 public class UserRegisterDTO {
 
     @NotBlank(message = "El nombre es obligatorio")
-    private String nombre;
+    private String firstName;
+
     @NotBlank(message = "El apellido es obligatorio")
-    private String apellido;
+    private String lastName;
+
     @NotNull(message = "El username es obligatorio")
-    @Size(min = 4, max = 15, message = "El nombre debe tener entre 4 y 15 caracteres")
+    @Size(min = 4, max = 15, message = "El username debe tener entre 4 y 15 caracteres")
     private String username;
+
     @Email(message = "El correo no es válido, asegurese de tener la estructura correo@ejemplo.com")
     @NotBlank(message = "El correo es obligatorio")
     private String email;
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 8, message = "La contraseña debe contener al menos 8 caracteres")
+
+    @NotBlank(message = "La contrasena es obligatoria")
+    @Size(min = 8, message = "La contrasena debe contener al menos 8 caracteres")
     private String password;
+
     private String phone;
 
 
-    public UserRegisterDTO(String nombre, String apellido, String username, String email, String password,String phone) {
-        this.nombre = nombre;
-        this.apellido = apellido;
+    public UserRegisterDTO(String firstName, String lastName, String username, String email, String password, String phone) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.username = username;
         this.email = email;
         this.password = password;
         this.phone = phone;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getApellido() {
-        return apellido;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getUsername() {
@@ -75,5 +80,4 @@ public class UserRegisterDTO {
     public String getPhone() {
         return phone;
     }
-
 }

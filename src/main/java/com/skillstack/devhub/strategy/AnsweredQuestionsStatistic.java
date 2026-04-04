@@ -34,8 +34,8 @@ public class AnsweredQuestionsStatistic implements Statistics<List<QuestionDTO>>
                 new QuestionDTO(
                         q.getTitle(),
                         null,
-                        q.getCategoria(),
-                        q.getDificultad(),
+                        q.getCategory(),
+                        q.getDifficulty(),
                         null)).toList();
     }
 
