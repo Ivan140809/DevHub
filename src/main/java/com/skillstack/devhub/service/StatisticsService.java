@@ -21,7 +21,7 @@ public class StatisticsService {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T execute(String strategyName, String userId) {
+    public <T> T progress(String strategyName, String userId) {
         Statistics<T> strategy = (Statistics<T>) strategies.get(strategyName);
         return strategy.progress(userId);
     }

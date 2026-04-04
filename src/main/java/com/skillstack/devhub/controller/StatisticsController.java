@@ -38,7 +38,7 @@ public class StatisticsController {
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
 
-        List<QuestionDTO> questions = statisticsService.execute("AnsweredQuestionsStatistic", user.getId());
+        List<QuestionDTO> questions = statisticsService.progress("AnsweredQuestionsStatistic", user.getId());
         return ResponseEntity.status(HttpStatus.OK).body(questions);
     }
 
@@ -49,8 +49,8 @@ public class StatisticsController {
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
 
         ProgressDTO progress = new ProgressDTO.Builder()
-                .totalAnswered(statisticsService.execute("TotalQuestionsAnsweredStatistics", user.getId()))
-                .percentage(statisticsService.execute("PercentageQuestionsAnsweredStatistics", user.getId()))
+                .totalAnswered(statisticsService.progress("TotalQuestionsAnsweredStatistics", user.getId()))
+                .percentage(statisticsService.progress("PercentageQuestionsAnsweredStatistics", user.getId()))
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(progress);
     }
