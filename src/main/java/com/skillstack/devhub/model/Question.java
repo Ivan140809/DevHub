@@ -1,38 +1,37 @@
 package com.skillstack.devhub.model;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 import java.util.List;
 
-@Document(collection = "preguntas")
+@Document(collection = "questions")
 public class Question {
 
     @Id
     private String id;
     private String title;
-    private String enunciado;
+    private String statement;
     private Category category;
     private Difficulty difficulty;
-    private List<Option> opciones;
+    private List<Option> options;
 
     public Question() {
     }
 
-    public Question(String title, String enunciado, Category category, Difficulty difficulty, List<Option> opciones) {
+    public Question(String title, String statement, Category category, Difficulty difficulty, List<Option> options) {
         this.title = title;
-        this.enunciado = enunciado;
+        this.statement = statement;
         this.category = category;
         this.difficulty = difficulty;
-        this.opciones = opciones;
+        this.options = options;
     }
 
-    public void agregarOpcion(Option opcion) {
-        this.opciones.add(opcion);
+    public void addOption(Option option) {
+        this.options.add(option);
     }
 
-    //getters yyy setters
-
+    // getters and setters
 
     public String getTitle() {
         return title;
@@ -50,36 +49,35 @@ public class Question {
         this.id = id;
     }
 
-    public String getEnunciado() {
-        return enunciado;
+    public String getStatement() {
+        return statement;
     }
 
-    public void setEnunciado(String enunciado) {
-        this.enunciado = enunciado;
+    public void setStatement(String statement) {
+        this.statement = statement;
     }
 
-    public Category getCategoria() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategoria(Category category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
-    public Difficulty getDificultad() {
+    public Difficulty getDifficulty() {
         return difficulty;
     }
 
-    public void setDificultad(Difficulty difficulty) {
+    public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
 
-    public List<Option> getOpciones() {
-        return opciones;
+    public List<Option> getOptions() {
+        return options;
     }
 
-    public void setOpciones(List<Option> opciones) {
-        this.opciones = opciones;
+    public void setOptions(List<Option> options) {
+        this.options = options;
     }
-
 }

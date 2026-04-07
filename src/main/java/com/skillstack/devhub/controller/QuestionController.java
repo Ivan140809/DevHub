@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -89,9 +90,10 @@ public class QuestionController {
     @PostMapping("/{id}/reviews")
     public ResponseEntity<String> createReview(
         @PathVariable("id") String questionId,
-        @RequestBody ReviewDTO reviewDTO){
-        
-        String response = questionService.createReview(questionId, reviewDTO);
+        @RequestBody ReviewDTO reviewDTO,
+        Authentication authentication){
+
+        String response = questionService.createReview(reviewDTO, authentication.getName(), questionId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);

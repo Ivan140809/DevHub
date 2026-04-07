@@ -28,22 +28,22 @@ public class AuthenticationService {
         this.jwtUtil = jwtUtil;
     }
 
-    public String validarContrasena(String password){
+    public String validatePassword(String password) {
 
         if (!password.matches(".*[A-Z].*")) {
-            return " DEBE CONTENER AL MENOS UNA MAYÚSCULA";
+            return " DEBE CONTENER AL MENOS UNA MAYUSCULA";
         }
 
         if (!password.matches(".*[a-z].*")) {
-            return " DEBE CONTENER AL MENOS UNA MINÚSCULA";
+            return " DEBE CONTENER AL MENOS UNA MINUSCULA";
         }
 
         if (!password.matches(".*\\d.*")) {
-            return " DEBE CONTENER AL MENOS UN NÚMERO";
+            return " DEBE CONTENER AL MENOS UN NUMERO";
         }
 
         if (!password.matches(".*[@#$%^&+=!].*")) {
-            return " DEBE CONTENER AL MENOS UN SÍMBOLO (@#$%^&+=!)";
+            return " DEBE CONTENER AL MENOS UN SIMBOLO (@#$%^&+=!)";
         }
 
         return "OK";
@@ -52,21 +52,21 @@ public class AuthenticationService {
     public String register(UserRegisterDTO user) {
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException("EMAIL"+user.getEmail()+" YA EN USO");
+            throw new UserAlreadyExistsException("EMAIL " + user.getEmail() + " YA EN USO");
         }
 
-        if(userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("USERNAME "+user.getUsername()+" YA EN USO");
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("USERNAME " + user.getUsername() + " YA EN USO");
         }
 
-        String respuesta=validarContrasena(user.getPassword());
-        if(!respuesta.equals("OK")){
-            throw new PasswordFormatException("CONTRASEÑA "+ respuesta);
+        String result = validatePassword(user.getPassword());
+        if (!result.equals("OK")) {
+            throw new PasswordFormatException("CONTRASENA" + result);
         }
 
-        User u = new User(user.getNombre(), user.getApellido(), user.getUsername(), user.getEmail(),
+        User u = new User(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(),
                 user.getPassword(), Role.USER);
-        u.setContrasena(passwordEncoder.encode(user.getPassword()));
+        u.setPassword(passwordEncoder.encode(user.getPassword()));
         u.setPhone(user.getPhone());
 
         userRepository.save(u);
@@ -77,15 +77,14 @@ public class AuthenticationService {
     public LoginResponseDTO login(UserLoginDTO request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("USUARIO CON EMAIL "+request.getEmail()+" NO ENCONTRADO"));
+                .orElseThrow(() -> new RuntimeException("USUARIO CON EMAIL " + request.getEmail() + " NO ENCONTRADO"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getContrasena())) {
-            throw new IncorrectPasswordException("CONTRASEÑA INCORRECTA");
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IncorrectPasswordException("CONTRASENA INCORRECTA");
         }
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return new LoginResponseDTO(token, user.getEmail(), user.getNombre(), user.getApellido(), user.getUsername(), user.getPhone());
+        return new LoginResponseDTO(token, user.getEmail(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getPhone());
     }
-
 }

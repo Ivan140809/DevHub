@@ -15,8 +15,7 @@ public class StatisticsRepositoryFacade {
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
 
-    public StatisticsRepositoryFacade(AnswerRepository answerRepository,
-                                      QuestionRepository questionRepository) {
+    public StatisticsRepositoryFacade(AnswerRepository answerRepository, QuestionRepository questionRepository) {
         this.answerRepository = answerRepository;
         this.questionRepository = questionRepository;
     }
@@ -27,7 +26,7 @@ public class StatisticsRepositoryFacade {
 
     public Question findQuestionById(String questionId){
         return questionRepository.findById(questionId)
-                .orElseThrow(()-> new QuestionNotFoundException("PREGUNTA CON ID"+questionId+"NO ENCONTRADA"));
+                .orElseThrow(()-> new QuestionNotFoundException("PREGUNTA CON ID "+questionId+" NO ENCONTRADA"));
     }
 
     public long countTotalQuestions(){
