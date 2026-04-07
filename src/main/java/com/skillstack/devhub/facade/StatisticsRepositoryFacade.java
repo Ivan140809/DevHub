@@ -26,7 +26,7 @@ public class StatisticsRepositoryFacade {
 
     public Question findQuestionById(String questionId){
         return questionRepository.findById(questionId)
-                .orElseThrow(()-> new QuestionNotFoundException("PREGUNTA CON ID"+questionId+"NO ENCONTRADA"));
+                .orElseThrow(()-> new QuestionNotFoundException("PREGUNTA CON ID "+questionId+" NO ENCONTRADA"));
     }
 
     public long countTotalQuestions(){

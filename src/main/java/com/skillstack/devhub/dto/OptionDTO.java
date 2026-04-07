@@ -5,33 +5,33 @@ import jakarta.validation.constraints.NotNull;
 
 public class OptionDTO {
 
-    @NotBlank(message = "El texto de la opción es obligatorio")
-    private String texto;
+    @NotBlank(message = "El texto de la opcion es obligatorio")
+    private String text;
 
-    @NotNull(message = "Debe indicarse si la opción es correcta")
-    private Boolean esCorrecta;
+    @NotNull(message = "Debe indicarse si la opcion es correcta")
+    private Boolean correct;
 
     public OptionDTO() {
     }
 
-    public OptionDTO(String texto, Boolean esCorrecta) {
-        this.texto = texto;
-        this.esCorrecta = esCorrecta;
+    public OptionDTO(String text, Boolean correct) {
+        this.text = text;
+        this.correct = correct;
     }
 
-    public String getTexto() {
-        return texto;
+    public String getText() {
+        return text;
     }
 
-    public void setTexto(String texto) {
-        this.texto = texto;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public Boolean getEsCorrecta() {
-        return esCorrecta;
+    public Boolean isCorrect() {
+        return correct;
     }
 
-    public void setEsCorrecta(Boolean esCorrecta) {
-        this.esCorrecta = esCorrecta;
+    public void setCorrect(Boolean correct) {
+        this.correct = correct;
     }
 }
