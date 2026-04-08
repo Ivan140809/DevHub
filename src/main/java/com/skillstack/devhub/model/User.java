@@ -23,17 +23,19 @@ public class User {
     private String phone;
     private List<String> preferences;
     private Role role;
+    private String totalScore;
 
     public User(){}
 
     public User(String firstName, String lastName, String username, String email,
-                String password, Role role) {
+                String password, Role role, String totalScore) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.totalScore = totalScore;
     }
 
     public String getId(){
@@ -91,5 +93,13 @@ public class User {
 
     public void setPreferences(List<String> preferences) {
         this.preferences = preferences;
+    }
+
+    public String getTotalScore(){
+        return totalScore;
+    }
+
+    public void setTotalScore(String totalScore){
+        this.totalScore = totalScore;
     }
 }
