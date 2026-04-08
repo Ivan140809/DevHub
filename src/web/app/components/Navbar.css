@@ -1,0 +1,80 @@
+.nav-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(52, 20, 141, 0.3);
+  border: 1px solid rgb(99, 60, 255);
+  border-radius: 10px;
+  color: rgb(180, 150, 255);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-icon-btn:hover {
+  background: rgba(99, 60, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.nav-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(45, 25, 103, 0.3);
+  border: 1px solid rgb(99, 60, 255);
+  border-radius: 10px;
+  color: rgb(196, 174, 253);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-add-btn:hover {
+  background: rgba(99, 60, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.nav-settings-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(52, 20, 141, 0.3);
+  border: 1px solid rgb(99, 60, 255);
+  border-radius: 10px;
+  color: rgb(180, 150, 255);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-settings-btn:hover {
+  background: rgba(99, 60, 255, 0.4);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.nav-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 60, 255, 0.35);
+  background: rgba(100, 60, 255, 0.05);
+  transition: all 0.2s;
+}
+
+.nav-profile-btn.has-name {
+  padding: 4px 12px 4px 4px;
+}
+
+.nav-profile-btn:hover {
+  background: rgba(100, 60, 255, 0.15);
+  transform: translateY(-2px);
+}

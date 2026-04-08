@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "../hooks/useCurrentUser";
+import Navbar from "../components/Navbar";
 
 type Pregunta = {
   id: string;
@@ -474,23 +475,7 @@ export default function QuestionListPage() {
         {PARTICLES.map((p, i) => <div key={i} className="dh-particle" style={{ width: p.s, height: p.s, left: p.l, animationDuration: p.d, animationDelay: p.dl }} />)}
       </>
 
-      <header style={HeaderStyle}>
-        <button onClick={() => router.push("/login")} style={BackButtonStyle}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
-          Volver
-        </button>
-        <div style={{ width: 34, height: 34, visibility: "hidden" }} />
-        <span style={LogoStyle}>DEVHUB</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <span onClick={() => router.push("/question/add")} style={HeaderButtonStyle}>+ Agregar</span>
-          <div onClick={() => router.push("/profile")} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: nombre ? "4px 12px 4px 4px" : "4px", borderRadius: 999, border: "1px solid rgba(100,60,255,.35)", background: "rgba(100,60,255,.05)", transition: "background .2s" }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(145deg,#7040ff,#4020b0)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg>
-            </div>
-            {nombre && <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: "rgba(200,180,255,.8)", whiteSpace: "nowrap" }}>{nombre}</span>}
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <section style={SectionStyle}>
         {error && <div style={ErrorStyle}>{error}</div>}
