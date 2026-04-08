@@ -1,8 +1,11 @@
 package com.skillstack.devhub.controller;
 
+import com.skillstack.devhub.builder.ProgressBuilder;
+import com.skillstack.devhub.builder.ProgressDirector;
 import com.skillstack.devhub.dto.ProgressDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.exception.UserNotFoundException;
+import com.skillstack.devhub.model.Progress;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
 import com.skillstack.devhub.service.StatisticsService;
@@ -25,11 +28,13 @@ public class StatisticsController {
 
     private final StatisticsService statisticsService;
     private final UserRepository userRepository;
+    private final ProgressDirector progressDirector;
 
     @Autowired
-    public StatisticsController(StatisticsService statisticsService, UserRepository userRepository) {
+    public StatisticsController(StatisticsService statisticsService, UserRepository userRepository, ProgressDirector progressDirector) {
         this.statisticsService = statisticsService;
         this.userRepository = userRepository;
+        this.progressDirector = progressDirector;
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -48,10 +53,8 @@ public class StatisticsController {
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
 
-        ProgressDTO progress = new ProgressDTO.Builder()
-                .totalAnswered(statisticsService.progress("TotalQuestionsAnsweredStatistics", user.getId()))
-                .percentage(statisticsService.progress("PercentageQuestionsAnsweredStatistics", user.getId()))
-                .build();
-        return ResponseEntity.status(HttpStatus.OK).body(progress);
+        Progress progress = progressDirector.buildTotalAndPercentage(user.getId());
+        ProgressDTO progressDTO = new ProgressDTO(progress.getTotalAnswered(), progress.getTotalAnswered());
+        return ResponseEntity.status(HttpStatus.OK).body(progressDTO);
     }
 }
