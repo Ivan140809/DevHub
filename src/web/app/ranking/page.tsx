@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useCurrentUser } from "../hooks/useCurrentUser";
 import { Trophy, Medal, Award } from "lucide-react";
 
 type Usuario = {
@@ -22,12 +21,20 @@ const PARTICLES = [
 
 export default function RankingPage() {
   const router = useRouter();
-  const nombre = useCurrentUser();
+  const [nombre, setNombre] = useState<string | null>(null);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("devhub_user");
+      if (raw) {
+        const u = JSON.parse(raw);
+        setNombre(u.nombre ?? u.username ?? null);
+      }
+    } catch {}
+
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
     const ENDPOINT = `${BASE_URL}/api/users/ranking`;
 
