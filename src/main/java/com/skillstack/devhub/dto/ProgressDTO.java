@@ -5,35 +5,24 @@ public class ProgressDTO {
     private int totalAnswered;
     private double percentage;
 
-    private ProgressDTO() {}
-
-    public static class Builder {
-        private int totalAnswered;
-        private double percentage;
-
-        public Builder totalAnswered(int totalAnswered) {
-            this.totalAnswered = totalAnswered;
-            return this;
-        }
-
-        public Builder percentage(double percentage) {
-            this.percentage = percentage;
-            return this;
-        }
-
-        public ProgressDTO build() {
-            ProgressDTO dto = new ProgressDTO();
-            dto.totalAnswered = this.totalAnswered;
-            dto.percentage = this.percentage;
-            return dto;
-        }
+    public ProgressDTO(int totalAnswered, double percentage) {
+        this.totalAnswered = totalAnswered;
+        this.percentage = percentage;
     }
 
-    public int getTotalAnswered(){
+    public int getTotalAnswered() {
         return totalAnswered;
     }
 
-    public double getPercentage(){
+    public void setTotalAnswered(int totalAnswered) {
+        this.totalAnswered = totalAnswered;
+    }
+
+    public double getPercentage() {
         return percentage;
+    }
+
+    public void setPercentage(double percentage) {
+        this.percentage = percentage;
     }
 }
