@@ -48,17 +48,17 @@ export default function RankingPage() {
   }, []);
 
   function getMedalIcon(pos: number) {
-    if (pos === 1) return <Trophy size={24} color="#ffd700" />;
-    if (pos === 2) return <Medal size={24} color="#c0c0c0" />;
-    if (pos === 3) return <Award size={24} color="#cd7f32" />;
+    if (pos === 1) return <Trophy size={20} color="#ffd700" />;
+    if (pos === 2) return <Medal size={20} color="#c0c0c0" />;
+    if (pos === 3) return <Award size={20} color="#cd7f32" />;
     return null;
   }
 
   function getPodiumStyle(pos: number): React.CSSProperties {
-    if (pos === 1) return { background: "linear-gradient(135deg, rgba(255,215,0,.15), rgba(255,215,0,.05))", border: "1px solid rgba(255,215,0,.3)" };
-    if (pos === 2) return { background: "linear-gradient(135deg, rgba(192,192,192,.15), rgba(192,192,192,.05))", border: "1px solid rgba(192,192,192,.3)" };
-    if (pos === 3) return { background: "linear-gradient(135deg, rgba(205,127,50,.15), rgba(205,127,50,.05))", border: "1px solid rgba(205,127,50,.3)" };
-    return { background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)" };
+    if (pos === 1) return { background: "linear-gradient(135deg, rgba(255,215,0,.12), rgba(255,215,0,.03))", border: "1px solid rgba(255,215,0,.25)" };
+    if (pos === 2) return { background: "linear-gradient(135deg, rgba(192,192,192,.12), rgba(192,192,192,.03))", border: "1px solid rgba(192,192,192,.25)" };
+    if (pos === 3) return { background: "linear-gradient(135deg, rgba(205,127,50,.12), rgba(205,127,50,.03))", border: "1px solid rgba(205,127,50,.25)" };
+    return { background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.15)" };
   }
 
   return (
@@ -68,11 +68,11 @@ export default function RankingPage() {
         @keyframes orbFloat { 0%{transform:translate(0,0)} 100%{transform:translate(20px,20px)} }
         @keyframes floatUp { 0%{transform:translateY(0);opacity:.7} 100%{transform:translateY(-100vh);opacity:0} }
         @keyframes slideIn { 0%{opacity:0;transform:translateY(28px)} 100%{opacity:1;transform:translateY(0)} }
-        @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:.7} }
+        @keyframes pulse { 0%,100%{opacity:.25} 50%{opacity:.5} }
         @keyframes shine { 0%{background-position:200%} 100%{background-position:-200%} }
         .dh-particle { position:fixed; border-radius:50%; background:rgba(160,100,255,.7); bottom:-10px; animation:floatUp linear infinite; pointer-events:none; z-index:0; }
-        .rank-row:hover { background: rgba(100,60,255,.08) !important; transform: translateX(4px); }
-        .rank-row { transition: all .2s ease; }
+        .rank-row:hover { background: rgba(100,60,255,.12) !important; transform: translateX(6px); border-color: rgba(100,60,255,.25) !important; }
+        .rank-row { transition: all .25s cubic-bezier(.16,1,.3,1); }
       `}</style>
 
       <div style={{ position: "fixed", borderRadius: "50%", width: 500, height: 500, background: "radial-gradient(circle, rgba(90,30,200,.22) 0%, transparent 70%)", top: -150, left: -150, animation: "orbFloat 10s ease-in-out infinite alternate", pointerEvents: "none", zIndex: 0 }} />
@@ -95,67 +95,82 @@ export default function RankingPage() {
         </div>
       </header>
 
-      <section style={{ position: "relative", zIndex: 5, padding: "28px 24px", display: "flex", flexDirection: "column", gap: 20, animation: "slideIn .35s ease" }}>
+      <section style={{ position: "relative", zIndex: 5, padding: "40px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 28, animation: "slideIn .35s ease", maxWidth: 1200, margin: "0 auto", width: "100%" }}>
         {error && (
-          <div style={{ background: "rgba(200,140,20,.08)", border: "1px solid rgba(200,140,20,.2)", borderRadius: 10, padding: "10px 16px", fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: "1px", color: "rgba(240,190,60,.7)" }}>
+          <div style={{ width: "100%", background: "rgba(200,140,20,.08)", border: "1px solid rgba(200,140,20,.2)", borderRadius: 12, padding: "12px 18px", fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: "1px", color: "rgba(240,190,60,.7)", textAlign: "center" }}>
             {error}
           </div>
         )}
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Trophy size={28} color="#b8a0ff" />
-            <span style={{ color: "#ddd0ff", fontSize: 22, fontWeight: 800 }}>Ranking de Usuarios</span>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, marginBottom: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <Trophy size={32} color="#b8a0ff" strokeWidth={2} />
+            <h1 style={{ color: "#ddd0ff", fontSize: 28, fontWeight: 800, letterSpacing: 1, margin: 0 }}>Ranking de Usuarios</h1>
           </div>
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(159, 130, 255, 0.62)" }}>
-            {loading ? "Cargando" : `${usuarios.length} usuario${usuarios.length !== 1 ? "s" : ""}`}
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: "2.5px", textTransform: "uppercase", color: "rgba(159, 130, 255, 0.6)" }}>
+            {loading ? "Cargando..." : `${usuarios.length} usuario${usuarios.length !== 1 ? "s" : ""} registrado${usuarios.length !== 1 ? "s" : ""}`}
           </span>
         </div>
 
-        <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 16, overflow: "hidden", backdropFilter: "blur(16px)" }}>
+        <div style={{ width: "100%", background: "rgba(14,10,28,.92)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 18, overflow: "hidden", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(80,40,200,.15)" }}>
           {loading ? (
             [1, 2, 3, 4, 5].map(i => (
-              <div key={i} style={{ display: "flex", alignItems: "center", padding: "20px", borderBottom: "1px solid rgba(100,60,255,.1)" }}>
-                <div style={{ width: 40, height: 16, borderRadius: 4, background: "rgba(100,60,255,.1)", animation: "pulse 1.5s infinite", marginRight: 20 }} />
+              <div key={i} style={{ display: "flex", alignItems: "center", padding: "18px 24px", borderBottom: "1px solid rgba(100,60,255,.08)" }}>
+                <div style={{ width: 50, height: 14, borderRadius: 6, background: "rgba(100,60,255,.1)", animation: "pulse 1.5s infinite", marginRight: 20 }} />
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(100,60,255,.1)", animation: "pulse 1.5s infinite", marginRight: 16 }} />
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div style={{ width: "60%", height: 14, borderRadius: 4, background: "rgba(100,60,255,.1)", animation: "pulse 1.5s infinite" }} />
-                  <div style={{ width: "30%", height: 10, borderRadius: 4, background: "rgba(100,60,255,.08)", animation: "pulse 1.5s infinite" }} />
+                  <div style={{ width: "50%", height: 14, borderRadius: 6, background: "rgba(100,60,255,.1)", animation: "pulse 1.5s infinite" }} />
+                  <div style={{ width: "30%", height: 10, borderRadius: 6, background: "rgba(100,60,255,.06)", animation: "pulse 1.5s infinite" }} />
                 </div>
+                <div style={{ width: 80, height: 32, borderRadius: 999, background: "rgba(100,60,255,.08)", animation: "pulse 1.5s infinite" }} />
               </div>
             ))
           ) : usuarios.length === 0 ? (
-            <div style={{ padding: 48, textAlign: "center", fontFamily: "'Space Mono', monospace", fontSize: 12, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(140, 110, 200, 0.81)" }}>
-              Sin usuarios
+            <div style={{ padding: 60, textAlign: "center", fontFamily: "'Space Mono', monospace", fontSize: 12, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(140, 110, 200, 0.6)" }}>
+              No hay usuarios en el ranking
             </div>
           ) : (
             usuarios.map((u, i) => {
               const pos = i + 1;
               const podiumStyle = getPodiumStyle(pos);
               return (
-                <div key={u.id} className="rank-row" style={{ ...podiumStyle, display: "flex", alignItems: "center", padding: "20px 24px", borderBottom: i < usuarios.length - 1 ? "1px solid rgba(100,60,255,.1)" : "none" }}>
-                  <div style={{ minWidth: 60, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                <div 
+                  key={u.id} 
+                  className="rank-row" 
+                  style={{ 
+                    ...podiumStyle, 
+                    display: "flex", 
+                    alignItems: "center", 
+                    padding: "18px 24px", 
+                    borderBottom: i < usuarios.length - 1 ? "1px solid rgba(100,60,255,.08)" : "none",
+                    gap: 16
+                  }}
+                >
+                  <div style={{ minWidth: 70, display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 10 }}>
                     {getMedalIcon(pos)}
-                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 18, fontWeight: 700, color: pos <= 3 ? "#ffd700" : "rgba(171, 149, 238, 0.9)" }}>
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 16, fontWeight: 700, color: pos <= 3 ? "#ffd700" : "rgba(171, 149, 238, 0.85)", minWidth: 32 }}>
                       #{pos}
                     </span>
                   </div>
                   
-                  <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(145deg,#7040ff,#4020b0)", display: "flex", alignItems: "center", justifyContent: "center", marginRight: 16, flexShrink: 0 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(145deg,#7040ff,#4020b0)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "2px solid rgba(112,64,255,.3)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg>
                   </div>
 
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-                    <p style={{ color: "#e0d4ff", fontSize: 16, fontWeight: 700, lineHeight: 1.3 }}>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
+                    <p style={{ color: "#e0d4ff", fontSize: 15, fontWeight: 700, lineHeight: 1.3, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {u.nombre} {u.apellido}
                     </p>
-                    <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, letterSpacing: "1px", color: "rgba(160,130,255,.6)" }}>
+                    <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, letterSpacing: "0.5px", color: "rgba(160,130,255,.55)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       @{u.username}
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 20px", background: "rgba(255,100,219,.15)", border: "1px solid rgba(255,100,219,.25)", borderRadius: 999 }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff64db" strokeWidth="2.5"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z" fill="#ff64db" opacity="0.2"/><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z"/></svg>
-                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 16, fontWeight: 700, color: "#ff64db" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 18px", background: "rgba(255,100,219,.12)", border: "1px solid rgba(255,100,219,.22)", borderRadius: 999, flexShrink: 0 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff64db" stroke="#ff64db" strokeWidth="2" opacity="0.9">
+                      <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z"/>
+                    </svg>
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 15, fontWeight: 700, color: "#ff64db" }}>
                       {u.puntosAcumulados?.toLocaleString() || 0}
                     </span>
                   </div>
