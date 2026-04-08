@@ -54,7 +54,7 @@ public class StatisticsController {
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
 
         Progress progress = progressDirector.buildTotalAndPercentage(user.getId());
-        ProgressDTO progressDTO = new ProgressDTO(progress.getTotalAnswered(), progress.getTotalAnswered());
+        ProgressDTO progressDTO = new ProgressDTO(progress.getTotalAnswered(), progress.getPercentage());
         return ResponseEntity.status(HttpStatus.OK).body(progressDTO);
     }
 }

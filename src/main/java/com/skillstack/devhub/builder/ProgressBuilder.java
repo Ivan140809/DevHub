@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 @Service
-@Scope ("proyotype")
 public class ProgressBuilder implements ProgressBuilderInterface{
     private final StatisticsService statisticsService;
     private String userId;
