@@ -109,18 +109,38 @@ export default function LoginPage() {
 
           <form onSubmit={async (e) => {
             e.preventDefault();
-            const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/login`, {
-              method:"POST",
-              headers:{ "Content-Type":"application/json" },
-              body: JSON.stringify({ email: username, password }),
-            });
-            if (r.ok) {
-          const data = await r.json();
-          localStorage.setItem("devhub_user", JSON.stringify(data));
-          router.push("/profile"); 
-          } else {
-          alert("Credenciales incorrectas");
-        }
+            
+            if (!username || !password) {
+              alert("Por favor completa todos los campos");
+              return;
+            }
+
+            try {
+              const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/login`, {
+                method:"POST",
+                headers:{ "Content-Type":"application/json" },
+                body: JSON.stringify({ email: username, password }),
+              });
+              
+              if (r.ok) {
+                const data = await r.json();
+                const userData = {
+                  email: username,
+                  nombre: data.firstName || data.nombre,
+                  apellido: data.lastName || data.apellido,
+                  username: data.username,
+                  phone: data.phone,
+                  preferencias: data.preferencias
+                };
+                localStorage.setItem("devhub_user", JSON.stringify(userData));
+                router.push("/profile"); 
+              } else {
+                const errorData = await r.json().catch(() => ({}));
+                alert(errorData.message || "Credenciales incorrectas");
+              }
+            } catch (error) {
+              alert("Error de conexión. Verifica que el backend esté disponible.");
+            }
           }}>
 
             <label style={lbl}>Email</label>

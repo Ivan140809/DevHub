@@ -82,15 +82,13 @@ export default function QuestionDetailPage() {
         setAnswered(false);
         setPregunta(data);
         setError(null);
-        setLoading(false);
       })
-      .catch(() => {
-        setSelected(null);
-        setAnswered(false);
-        setPregunta(MOCK);
-        setError("Backend no disponible — mostrando datos de ejemplo.");
-        setLoading(false);
-      });
+      .catch((error) => {
+        console.error('Error fetching question:', error);
+        setError("No se pudo cargar la pregunta. Verifica tu conexión.");
+        setPregunta(null);
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   async function enviarComentario() {
@@ -104,10 +102,14 @@ export default function QuestionDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ comment: comentario, rating }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Error al enviar comentario");
+      }
       setComentarioEnviado(true);
-    } catch {
-      setComentarioError("No se pudo enviar el comentario. Intenta de nuevo.");
+      setComentario("");
+    } catch (error: any) {
+      setComentarioError(error.message || "No se pudo enviar el comentario. Intenta de nuevo.");
     } finally {
       setComentarioLoading(false);
     }

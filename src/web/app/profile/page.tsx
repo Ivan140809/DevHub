@@ -21,6 +21,11 @@ type UserData = {
   username?:     string;
   phone?:        string;
   preferencias?: string;
+  firstName?:    string;
+  lastName?:     string;
+  preguntasResueltas?: number;
+  totalPreguntas?: number;
+  puntosAcumulados?: number;
 };
 
 const applyGlassmorphismDecorator = (Component: React.FC<{ children: React.ReactNode }>, delay = "0s") => {
@@ -68,26 +73,40 @@ export default function ProfilePage() {
       if (raw) stored = JSON.parse(raw);
     } catch {}
 
-    
     setUser(stored);
     setForm(stored);
 
     const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
     const email = stored?.email;
 
-    
-    const ENDPOINT = email ? `${BASE}/api/users/${encodeURIComponent(email)}` : null;
+    const ENDPOINT = email ? `${BASE}/api/users/email/${encodeURIComponent(email)}` : null;
 
     if (ENDPOINT) {
       fetch(ENDPOINT)
-        .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-        .then((data: UserData) => {
-          setUser(data);
-          setForm(data);
-          setBackendOk(true);
-          localStorage.setItem("devhub_user", JSON.stringify(data));
+        .then(res => { 
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`); 
+          return res.json(); 
         })
-        .catch(() => {
+        .then((data: UserData) => {
+          const mappedData = {
+            nombre: data.firstName || data.nombre,
+            apellido: data.lastName || data.apellido,
+            email: data.email,
+            username: data.username,
+            phone: data.phone,
+            preferencias: data.preferencias,
+          };
+          setUser(mappedData);
+          setForm(mappedData);
+          setBackendOk(true);
+          localStorage.setItem("devhub_user", JSON.stringify(mappedData));
+          
+          setPreguntasResueltas(data.preguntasResueltas || 0);
+          setTotalPreguntas(data.totalPreguntas || 100);
+          setPuntosAcumulados(data.puntosAcumulados || 0);
+        })
+        .catch((error) => {
+          console.error('Error fetching user data:', error);
           setBackendOk(false);
         })
         .finally(() => setLoading(false));
@@ -109,20 +128,38 @@ export default function ProfilePage() {
     const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
     const email = form?.email;
 
-    
-    const ENDPOINT = `${BASE}/api/users/${encodeURIComponent(email ?? "")}`;
+    const ENDPOINT = `${BASE}/api/users/email/${encodeURIComponent(email ?? "")}`;
 
     try {
+      const payload = {
+        firstName: form.nombre,
+        lastName: form.apellido,
+        email: form.email,
+        username: form.username,
+        phone: form.phone,
+        preferencias: form.preferencias,
+      };
+
       const res = await fetch(ENDPOINT, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error();
       const updated: UserData = await res.json();
-      setUser(updated);
-      setForm(updated);
-      localStorage.setItem("devhub_user", JSON.stringify(updated));
+      
+      const mappedData = {
+        nombre: updated.firstName || updated.nombre,
+        apellido: updated.lastName || updated.apellido,
+        email: updated.email,
+        username: updated.username,
+        phone: updated.phone,
+        preferencias: updated.preferencias,
+      };
+      
+      setUser(mappedData);
+      setForm(mappedData);
+      localStorage.setItem("devhub_user", JSON.stringify(mappedData));
       setBackendOk(true);
     } catch {
       localStorage.setItem("devhub_user", JSON.stringify(form));
@@ -139,10 +176,9 @@ export default function ProfilePage() {
     setForm(prev => ({ ...prev, [key]: val }));
   }
 
-  {/* variables estadisticas, conectar */}
-  const [preguntasResueltas, setPreguntasResueltas] = useState(50);
+  const [preguntasResueltas, setPreguntasResueltas] = useState(0);
   const [totalPreguntas, setTotalPreguntas] = useState(100);
-  const [puntosAcumulados, setPuntosAcumulados] = useState(3);
+  const [puntosAcumulados, setPuntosAcumulados] = useState(0);
 
   return (
     <main style={{ minHeight:"100vh", background:"#07070f", fontFamily:"'Syne',sans-serif", position:"relative", overflow:"hidden", display:"flex", flexDirection:"column" }}>

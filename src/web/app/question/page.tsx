@@ -344,7 +344,7 @@ function diffStyle(d: string): React.CSSProperties {
 export default function QuestionListPage() {
   const router = useRouter();
   const nombre = useCurrentUser();
-  const [preguntas, setPreguntas] = useState<Pregunta[]>(MOCK);
+  const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -390,11 +390,14 @@ export default function QuestionListPage() {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Error al cargar reseñas");
+      }
       const data: Review[] = await res.json();
       setReviews(data);
-    } catch {
-      setReviewsError("No se pudieron cargar las reseñas.");
+    } catch (error: any) {
+      setReviewsError(error.message || "No se pudieron cargar las reseñas.");
       setReviews([]);
     } finally {
       setReviewsLoading(false);
@@ -412,10 +415,15 @@ export default function QuestionListPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ comment: modalComment, rating: modalRating }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Error al enviar reseña");
+      }
       setModalOk(true);
-    } catch {
-      setModalError("No se pudo enviar la reseña. Intenta de nuevo.");
+      setModalComment("");
+      setModalRating(5);
+    } catch (error: any) {
+      setModalError(error.message || "No se pudo enviar la reseña. Intenta de nuevo.");
     } finally {
       setModalLoading(false);
     }
@@ -434,9 +442,10 @@ export default function QuestionListPage() {
         setPreguntas(data);
         setError(null);
       })
-      .catch(() => {
-        setPreguntas(MOCK);
-        setError("Backend no disponible — mostrando datos de ejemplo.");
+      .catch((error) => {
+        console.error('Error fetching questions:', error);
+        setPreguntas([]);
+        setError("No se pudieron cargar las preguntas. Verifica tu conexión.");
       })
       .finally(() => setLoading(false));
   }, []);

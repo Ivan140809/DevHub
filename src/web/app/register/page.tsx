@@ -60,7 +60,7 @@ export default function RegisterPage() {
       </header>
 
       <section style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"30px 20px", position:"relative", zIndex:5 }}>
-        <div style={{ width:"100%", maxWidth:700, background:"rgba(14,10,28,.9)", border:"1px solid rgba(100,60,255,.22)", borderRadius:22, padding:"38px 38px 34px", backdropFilter:"blur(20px)", boxShadow:"0 0 0 1px rgba(255,255,255,.03) inset,0 30px 80px rgba(80,40,200,.2)", animation:"slideUp .7s cubic-bezier(.16,1,.3,1) both" }}>
+        <div style={{ width:"100%", maxWidth:750, background:"rgba(14,10,28,.9)", border:"1px solid rgba(100,60,255,.22)", borderRadius:22, padding:"38px 38px 34px", backdropFilter:"blur(20px)", boxShadow:"0 0 0 1px rgba(255,255,255,.03) inset,0 30px 80px rgba(80,40,200,.2)", animation:"slideUp .7s cubic-bezier(.16,1,.3,1) both" }}>
 
           <div style={{ width:60, height:60, borderRadius:"50%", margin:"0 auto 14px", background:"linear-gradient(145deg,#7040ff,#4020b0)", display:"flex", alignItems:"center", justifyContent:"center", border:"2px solid rgba(140,90,255,.4)", animation:"avatarGlow 3s ease-in-out infinite" }}>
             <User size={26} color="rgba(255,255,255,.9)" strokeWidth={1.8} />
@@ -71,15 +71,39 @@ export default function RegisterPage() {
 
           <form onSubmit={async (e) => {
             e.preventDefault();
-            const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/register`, {
-              method:"POST",
-              headers:{"Content-Type":"application/json"},
-              body: JSON.stringify({ nombre: name, apellido: lastName, email, username, contrasena: password, phone }),
-            });
-            if (r.ok) router.push("/login");
-            else alert("Error al registrar el usuario");
+            
+            if (!name || !lastName || !email || !username || !password) {
+              alert("Por favor completa todos los campos obligatorios");
+              return;
+            }
+
+            try {
+              const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/register`, {
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body: JSON.stringify({ 
+                  firstName: name, 
+                  lastName: lastName, 
+                  email, 
+                  username, 
+                  password: password, 
+                  phone 
+                }),
+              });
+              
+              if (r.ok) {
+                alert("Usuario registrado exitosamente");
+                router.push("/login");
+              } else {
+                const errorData = await r.json().catch(() => ({}));
+                alert(errorData.message || "Error al registrar el usuario");
+              }
+            } catch (error) {
+              alert("Error de conexión. Verifica que el backend esté disponible.");
+            }
           }}>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:18, color:"rgb(255, 255, 255)"}}>
+              <Field label="Nombre"             placeholder="Pepe"                    value={name}      onChange={setName} />
               <Field label="Apellido"           placeholder="Malo"                    value={lastName}  onChange={setLastName} />
               <Field label="Correo electrónico" placeholder="pepeelmalo@example.com"  value={email}     onChange={setEmail}    type="email" />
               <Field label="Username"           placeholder="@pepeelmalo"             value={username}  onChange={setUsername} />
@@ -121,6 +145,7 @@ function Field({ label, type="text", placeholder, value, onChange}: {
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        required
         style={{ height:44, background:"rgba(255,255,255,.04)", border:"1px solid rgba(100,60,255,.18)", borderRadius:10, padding:"0 14px", fontFamily:"'Space Mono',monospace", fontSize:13, color:"#ddd0ff", outline:"none" }}
       />
     </div>
