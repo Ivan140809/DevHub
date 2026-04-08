@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { LogOut, User, MessageSquare, HelpCircle, Star } from "lucide-react";
+import { Crown, User, MessageSquare, HelpCircle, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 
@@ -140,8 +140,9 @@ export default function ProfilePage() {
   }
 
   {/* variables estadisticas, conectar */}
-  const [preguntasResueltas, setPreguntasResueltas] = useState(0);
+  const [preguntasResueltas, setPreguntasResueltas] = useState(50);
   const [totalPreguntas, setTotalPreguntas] = useState(100);
+  const [puntosAcumulados, setPuntosAcumulados] = useState(3);
 
   return (
     <main style={{ minHeight:"100vh", background:"#07070f", fontFamily:"'Syne',sans-serif", position:"relative", overflow:"hidden", display:"flex", flexDirection:"column" }}>
@@ -260,21 +261,32 @@ export default function ProfilePage() {
                 </h2>
                 <div style={{ height:2, background:"linear-gradient(90deg,rgba(100,60,255,.3),transparent)", borderRadius:1 }} />
               </div>
-              {/* PREGUNTAS */}
-              <div style={{ 
-              background:"linear-gradient(135deg,rgba(100,200,255,.2),rgba(50,150,255,.05))",
-              border:"1px solid #64c8ff33", borderRadius:14, padding:24,
-              display:"flex", flexDirection:"column", gap:16,
-              position:"relative", overflow:"hidden",
-              }}>
+
+              {/* ESTADISTICAS */}
+
+  {/* Preguntas resueltas */}
+  <div 
+  onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "translateY(-4px)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "translateY(0)";
+    }}
+  
+  style={{ 
+    background:"linear-gradient(135deg,rgba(100,200,255,.2),rgba(50,150,255,.05))",
+  border:"1px solid #64c8ff33", borderRadius:14, padding:24,
+  display:"flex", flexDirection:"column", gap:16,
+  position:"relative", overflow:"hidden", transition:"all .3s cubic-bezier(.16,1,.3,1)", cursor:"pointer"
+    }}>
 
               <div style={{ position:"absolute", inset:0, background:"radial-gradient(circle at 0% 0%, #64c8ff11, transparent 60%)", pointerEvents:"none" }} />
   
-  {/* caja de preguntas resueltas, la azul*/}
+  {/* caja chiquita de ?*/}
   <div style={{ display:"flex", alignItems:"center", gap:18, position:"relative", zIndex:1 }}>
     <div style={{ width:56, height:56, borderRadius:12, background:"#64c8ff15", border:"1px solid #64c8ff44", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
       <HelpCircle size={28} color="#64c8ff" />
-    </div>
+    </div>             
     <div style={{ flex:1 }}>
       <div style={{ fontFamily:"'Space Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase", color:"#64c8ff", marginBottom:6, opacity:.8 }}>
         Preguntas resueltas
@@ -287,8 +299,8 @@ export default function ProfilePage() {
   </div>
 
   {/* Barra de progreso */}
-  <div style={{ position:"relative", zIndex:1 }}>
-    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+  <div style={{ position:"relative", zIndex:1, marginTop:-20 }}>
+    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:1 }}>
       <span style={{ fontFamily:"'Space Mono',monospace", fontSize:9, color:"rgba(100,200,255,.5)", letterSpacing:2 }}> </span>
       <span style={{ fontFamily:"'Space Mono',monospace", fontSize:17, color:"#64c8ff", letterSpacing:1 }}>
         {totalPreguntas > 0 ? Math.round((preguntasResueltas / totalPreguntas) * 100) : 0}%
@@ -308,7 +320,41 @@ export default function ProfilePage() {
     </div>
   </div>
 </div>
-              
+
+  {/*  Puntos acumulados */}
+      <div 
+      onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "translateY(-4px)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "translateY(0)";
+    }}
+      style={{ 
+    background:"linear-gradient(135deg,rgba(252, 81, 161, 0.23),rgba(255, 50, 142, 0.05))",
+  border:"1px solid #ff64d633", borderRadius:14, padding:24,
+  display:"flex", flexDirection:"column", gap:16,
+  position:"relative", overflow:"hidden", transition:"all .3s cubic-bezier(.16,1,.3,1)", cursor:"pointer"
+    }}>
+
+              <div style={{ position:"absolute", inset:0, background:"radial-gradient(circle at 0% 0%, #64c8ff11, transparent 60%)", pointerEvents:"none" }} />
+  
+  {/* caja chiquita de ?*/}
+  <div style={{ display:"flex", alignItems:"center", gap:18, position:"relative", zIndex:1 }}>
+    <div style={{ width:56, height:56, borderRadius:12, background:"#ff64bc21", border:"1px solid #ff64d644", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+      <Crown size={28} color="#ff64db" />
+    </div>             
+    <div style={{ flex:1 }}>
+      <div style={{ fontFamily:"'Space Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase", color:"#ff64db" , marginBottom:6, opacity:.8 }}>
+        Puntos acumulados
+      </div>
+      <div style={{ fontSize:22, fontWeight:900, color:"#ddd0ff", lineHeight:1 }}>
+        {puntosAcumulados}
+    
+      </div>
+    </div>
+  </div>
+</div>
+
               <StatCard title="Respuestas" value="" icon={MessageSquare} gradientStart="rgba(150,100,255,.2)" gradientEnd="rgba(100,50,255,.05)" accentColor="#9664ff" />
               <StatCard title="Rating" value="" icon={Star} gradientStart="rgba(255,200,100,.2)" gradientEnd="rgba(255,150,50,.05)" accentColor="#ffc864" />
 
