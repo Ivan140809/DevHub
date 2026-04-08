@@ -9,7 +9,8 @@ type Usuario = {
   nombre: string;
   apellido: string;
   username: string;
-  puntos: number;
+  email: string;
+  puntosAcumulados: number;
 };
 
 
@@ -36,7 +37,7 @@ export default function RankingPage() {
         return res.json();
       })
       .then((data: Usuario[]) => {
-        setUsuarios(data.sort((a, b) => b.puntos - a.puntos));
+        setUsuarios(data.sort((a, b) => (b.puntosAcumulados || 0) - (a.puntosAcumulados || 0)));
         setError(null);
       })
       .catch(() => {
@@ -152,10 +153,10 @@ export default function RankingPage() {
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 20px", background: "rgba(100,60,255,.15)", border: "1px solid rgba(100,60,255,.25)", borderRadius: 999 }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffc864" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 16, fontWeight: 700, color: "#ffc864" }}>
-                      {u.puntos.toLocaleString()}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 20px", background: "rgba(255,100,219,.15)", border: "1px solid rgba(255,100,219,.25)", borderRadius: 999 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff64db" strokeWidth="2.5"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z" fill="#ff64db" opacity="0.2"/><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z"/></svg>
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 16, fontWeight: 700, color: "#ff64db" }}>
+                      {u.puntosAcumulados?.toLocaleString() || 0}
                     </span>
                   </div>
                 </div>
