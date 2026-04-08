@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Scope ("proyotype")
 public class ProgressBuilder implements ProgressBuilderInterface{
-    private StatisticsService statisticsService;
+    private final StatisticsService statisticsService;
     private String userId;
     private Progress progress;
 
