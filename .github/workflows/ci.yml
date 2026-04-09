@@ -9,7 +9,8 @@ on:
 jobs:
   backend-build:
     name: Backend Build
-    runs-on: ubuntu-21.04
+    runs-on: ubuntu-latest
+  
     
     steps:
       - name: Checkout code
@@ -37,7 +38,7 @@ jobs:
 
   frontend-build:
     name: Frontend Build  
-    runs-on: ubuntu-21.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
