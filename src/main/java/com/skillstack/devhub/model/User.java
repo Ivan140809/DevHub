@@ -10,63 +10,52 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 
-
-@Document(collection = "usuarios")
+@Document(collection = "users")
 public class User {
 
     @Id
     private String id;
-
-    @NotBlank(message = "El nombre es obligatorio")
-    private String nombre;
-    private String apellido;
-
-    @NotNull(message = "El username es obligatorio")
-    @Size(min = 4, max = 15, message = "El nombre debe tener entre 4 y 15 caracteres")
+    private String firstName;
+    private String lastName;
     private String username;
-
-    @Email(message = "El correo no es válido, asegurese de tener la estructura correo@ejemplo.com")
-    @NotBlank(message = "El correo es obligatorio")
     private String email;
-
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 8, message = "La contraseña debe contener al menos 8 caracteres")
-    private String contrasena;
-
-    private List<String> preferencias;
-
-    private Role rol;
+    private String password;
+    private String phone;
+    private List<String> preferences;
+    private Role role;
+    private String totalScore;
 
     public User(){}
 
-    public User(String nombre, String apellido, String username, String email,
-                String contrasena, Role rol) {
-        this.nombre = nombre;
-        this.apellido = apellido;
+    public User(String firstName, String lastName, String username, String email,
+                String password, Role role, String totalScore) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.username = username;
         this.email = email;
-        this.contrasena = contrasena;
-        this.rol = rol;
+        this.password = password;
+        this.role = role;
+        this.totalScore = totalScore;
     }
 
     public String getId(){
         return id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getApellido() {
-        return apellido;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getUsername() {
@@ -85,21 +74,32 @@ public class User {
         this.email = email;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public String getPassword() {
+        return password;
     }
 
-    public void setContrasena(String contrasena) { this.contrasena = contrasena;}
+    public void setPassword(String password) { this.password = password; }
 
-    public Role getRol() {
-        return rol;
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public Role getRole() {
+        return role;
     }
 
-    public List<String> getPreferencias() {
-        return preferencias;
+    public List<String> getPreferences() {
+        return preferences;
     }
 
-    public void setPreferencias(List<String> preferencias) {
-        this.preferencias = preferencias;
+    public void setPreferences(List<String> preferences) {
+        this.preferences = preferences;
+    }
+
+    public String getTotalScore(){
+        return totalScore;
+    }
+
+    public void setTotalScore(String totalScore){
+        this.totalScore = totalScore;
     }
 }

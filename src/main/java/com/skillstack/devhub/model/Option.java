@@ -5,34 +5,31 @@ import jakarta.validation.constraints.NotNull;
 
 public class Option {
 
-    @NotBlank(message = "El texto de la opción no puede estar vacío")
-    private String texto;
-
-    @NotNull(message = "Debe indicarse si es correcta o no")
-    private Boolean esCorrecta;
+    private String text;
+    private Boolean correct;
 
     public Option() {
     }
 
-    public Option(String texto, Boolean esCorrecta) {
-        this.texto = texto;
-        this.esCorrecta = esCorrecta;
+    public Option(String text, Boolean correct) {
+        this.text = text;
+        this.correct = correct;
     }
 
-    //getters yyy setters
-    public String getTexto() {
-        return texto;
+    // getters and setters
+    public String getText() {
+        return text;
     }
 
-    public void setTexto(String texto) {
-        this.texto = texto;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public Boolean getEsCorrecta() {
-        return esCorrecta;
+    public Boolean isCorrect() {
+        return correct;
     }
 
-    public void setEsCorrecta(Boolean esCorrecta) {
-        this.esCorrecta = esCorrecta;
+    public void setCorrect(Boolean correct) {
+        this.correct = correct;
     }
 }

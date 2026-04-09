@@ -20,7 +20,6 @@ src/web/*.tsbuildinfo
 src/web/next-env.d.ts
 src/web/.env.local
 
-src/main/resources/application.properties
 bun.lock
 bun.lockb
 

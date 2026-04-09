@@ -1,51 +1,37 @@
 package com.skillstack.devhub.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 import java.util.List;
 
-@Document(collection = "preguntas")
+@Document(collection = "questions")
 public class Question {
 
     @Id
     private String id;
-
     private String title;
-
-    @NotBlank(message = "El enunciado no puede estar vacío")
-    private String enunciado;
-
-    @NotBlank(message = "La categoría no puede estar vacía")
+    private String statement;
     private Category category;
-
-    @NotNull(message = "La dificultad es obligatoria")
-    private Dificultad dificultad;
-
-    @NotEmpty(message = "Debe existir al menos una opción")
-    private List<Option> opciones;
+    private Difficulty difficulty;
+    private List<Option> options;
 
     public Question() {
     }
 
-    public Question(String title, String enunciado, Category category, Dificultad dificultad, List<Option> opciones) {
+    public Question(String title, String statement, Category category, Difficulty difficulty, List<Option> options) {
         this.title = title;
-        this.enunciado = enunciado;
+        this.statement = statement;
         this.category = category;
-        this.dificultad = dificultad;
-        this.opciones = opciones;
+        this.difficulty = difficulty;
+        this.options = options;
     }
 
-    public void agregarOpcion(Option opcion) {
-        this.opciones.add(opcion);
+    public void addOption(Option option) {
+        this.options.add(option);
     }
 
-    //getters yyy setters
-
+    // getters and setters
 
     public String getTitle() {
         return title;
@@ -63,36 +49,35 @@ public class Question {
         this.id = id;
     }
 
-    public String getEnunciado() {
-        return enunciado;
+    public String getStatement() {
+        return statement;
     }
 
-    public void setEnunciado(String enunciado) {
-        this.enunciado = enunciado;
+    public void setStatement(String statement) {
+        this.statement = statement;
     }
 
-    public Category getCategoria() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategoria(Category category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
-    public Dificultad getDificultad() {
-        return dificultad;
+    public Difficulty getDifficulty() {
+        return difficulty;
     }
 
-    public void setDificultad(Dificultad dificultad) {
-        this.dificultad = dificultad;
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 
-    public List<Option> getOpciones() {
-        return opciones;
+    public List<Option> getOptions() {
+        return options;
     }
 
-    public void setOpciones(List<Option> opciones) {
-        this.opciones = opciones;
+    public void setOptions(List<Option> options) {
+        this.options = options;
     }
-
 }
