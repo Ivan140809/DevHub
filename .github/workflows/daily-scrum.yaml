@@ -31,7 +31,7 @@ jobs:
                     - ¿Qué hice ayer?
                     - ¿Qué haré hoy?
                     - ¿Bloqueos?`,
-              assignees: ["brewLux", "KALEL2006", "ana2320-ux", "RichardCastillo-jpg", "Ivan140809", "lorenzoramire-lrc" ] 
+              assignees: ["brewLux", "KALEL2006", "ana2320-ux", "RichardCastillo-jpg", "Ivan140809", "lorenzoramirez-lrc" ] 
             });
 
             console.log(issue.data.html_url);
