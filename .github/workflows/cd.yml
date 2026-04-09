@@ -1,0 +1,61 @@
+name: CD - Deployment
+on:
+  push:
+    branches: [ "Develop" ]
+  workflow_dispatch:
+
+jobs: 
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-21.04
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Build Backend
+        run: mvn clean package -DskipTests
+      
+      - name: Build Frontend
+        working-directory: ./src/web
+        run: |
+          bun install
+          bun run build
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker(futuro )
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+  
+      - name: Build and push Docker images
+        run: docker-compose build
+      
+      - name: Deploy docker compose
+        run: 
+          docker-compose down
+          docker-compose up -d
+
+      - name: Verify deployment
+        run: |
+          sleep 30 
+          curl -f http://localhost:8080/ || exit 1
+        
+      
+    
