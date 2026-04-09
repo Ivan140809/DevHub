@@ -2,6 +2,8 @@
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import "./Navbar.css";
+import { HelpCircle, Settings,House, Trophy,Crown } from "lucide-react";
+import { useState } from "react";
 
 export default function Navbar() {
   const router = useRouter();
@@ -12,6 +14,9 @@ export default function Navbar() {
     const isRegistered = !!raw;
     router.push(isRegistered ? "/profile" : "/login");
   };
+
+  
+  const puntosAcumulados = 0;
 
   return (
     <header style={{
@@ -32,9 +37,8 @@ export default function Navbar() {
           onClick={() => router.push("/home")} 
           className="nav-icon-btn"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
+          <svg width="156" height="18"  viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2">
+            <House size={28}/>
           </svg>
         </button>
 
@@ -44,10 +48,9 @@ export default function Navbar() {
           onClick={() => router.push("/question")} 
           className="nav-icon-btn"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
+          <svg width="156" height="18" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2">
+        
+            <HelpCircle size={28}/>
           </svg>
         </button>
 
@@ -57,11 +60,12 @@ export default function Navbar() {
           onClick={() => router.push("/ranking")} 
           className="nav-icon-btn"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z" />
+          <svg width="156" height="18" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2">
+            <Trophy size={28}/>
           </svg>
         </button>
       </div>
+
 
       <span style={{
         fontFamily: "'Space Mono', monospace",
@@ -81,13 +85,28 @@ export default function Navbar() {
 
         <button 
           type="button"
+          title="Puntos Acumulados"
+          
+          className="nav-points-btn"
+        >
+          <svg width="156" height="18"  viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2">
+            <Crown size={28}/>
+          </svg>
+          <div style={{ color:"#ddd0ff", fontSize:13, fontWeight:600, letterSpacing:.5, marginRight:11 }}>
+        {puntosAcumulados}
+      </div>
+        </button>
+
+        <button 
+          type="button"
           title="Configuraciones"
           onClick={() => router.push("")} 
           className="nav-settings-btn"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M12 1v6m0 6v6m5.2-13.2l-4.2 4.2m0 6l4.2 4.2M23 12h-6m-6 0H1m18.2 5.2l-4.2-4.2m0-6l4.2-4.2" />
+          <svg width="156" height="18"  viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2">
+            
+            <Settings size={28}/>
+            
           </svg>
         </button>
 
@@ -109,7 +128,7 @@ export default function Navbar() {
             justifyContent: "center",
             flexShrink: 0,
           }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2">
+            <svg width="17" height="17" viewBox="0 0 24 26" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2">
               <circle cx="12" cy="8" r="4" />
               <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
             </svg>

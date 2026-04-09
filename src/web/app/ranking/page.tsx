@@ -44,8 +44,11 @@ export default function RankingPage() {
         if (!res.ok) throw new Error();
         return res.json();
       })
-      .then((data: Usuario[]) => {
-        setUsuarios(data.sort((a, b) => (b.puntosAcumulados || 0) - (a.puntosAcumulados || 0)));
+      
+.then((data: Usuario[]) => {
+        setUsuarios(data.sort((a, b) => (b.puntosAcumulados || 0) - (a.puntosAcumulados || 0))
+        .slice(0, 50)  
+);
         setError(null);
       })
       .catch(() => {
@@ -63,11 +66,12 @@ export default function RankingPage() {
   }
 
   function getPodiumStyle(pos: number): React.CSSProperties {
-    if (pos === 1) return { background: "linear-gradient(135deg, rgba(255,215,0,.12), rgba(255,215,0,.03))", border: "1px solid rgba(255,215,0,.25)" };
-    if (pos === 2) return { background: "linear-gradient(135deg, rgba(192,192,192,.12), rgba(192,192,192,.03))", border: "1px solid rgba(192,192,192,.25)" };
-    if (pos === 3) return { background: "linear-gradient(135deg, rgba(205,127,50,.12), rgba(205,127,50,.03))", border: "1px solid rgba(205,127,50,.25)" };
+    if (pos === 1) return { background: "linear-gradient(135deg, rgba(255, 217, 0, 0.33), rgba(255,215,0,.03))", border: "1px solid rgba(255,215,0,.25)" };
+    if (pos === 2) return { background: "linear-gradient(135deg, rgba(192, 176, 176, 0.35), rgba(192,192,192,.03))", border: "1px solid rgba(192,192,192,.25)" };
+    if (pos === 3) return { background: "linear-gradient(135deg, rgba(174, 104, 34, 0.35), rgba(205,127,50,.03))", border: "1px solid rgba(205,127,50,.25)" };
     return { background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.15)" };
   }
+
 
   return (
     <main style={{ minHeight: "100vh", background: "#07070f", fontFamily: "'Syne', sans-serif", position: "relative", overflow: "hidden" }}>
@@ -101,7 +105,7 @@ export default function RankingPage() {
             <Trophy size={32} color="#b8a0ff" strokeWidth={2} />
             <h1 style={{ color: "#ddd0ff", fontSize: 28, fontWeight: 800, letterSpacing: 1, margin: 0 }}>Ranking de Usuarios</h1>
           </div>
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: "2.5px", textTransform: "uppercase", color: "rgba(159, 130, 255, 0.6)" }}>
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: "2.5px", textTransform: "uppercase", color:"#bea8f4e4" }}>
             {loading ? "Cargando..." : `${usuarios.length} usuario${usuarios.length !== 1 ? "s" : ""} registrado${usuarios.length !== 1 ? "s" : ""}`}
           </span>
         </div>
@@ -120,7 +124,7 @@ export default function RankingPage() {
               </div>
             ))
           ) : usuarios.length === 0 ? (
-            <div style={{ padding: 60, textAlign: "center", fontFamily: "'Space Mono', monospace", fontSize: 12, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(140, 110, 200, 0.6)" }}>
+            <div style={{ padding: 60, textAlign: "center", fontFamily: "'Space Mono', monospace", fontSize: 12, letterSpacing: "2px", textTransform: "uppercase",  color:"#bea8f4e4"}}>
               No hay usuarios en el ranking
             </div>
           ) : (
@@ -160,11 +164,11 @@ export default function RankingPage() {
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 18px", background: "rgba(255,100,219,.12)", border: "1px solid rgba(255,100,219,.22)", borderRadius: 999, flexShrink: 0 }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff64db" stroke="#ff64db" strokeWidth="2" opacity="0.9">
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 18px", background: "rgba(203, 46, 246, 0.12)", border: "1px solid rgba(100,216,255,.22)", borderRadius: 999, flexShrink: 0 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#c64bfb" stroke="#c64bfb" strokeWidth="2" opacity="0.9">
                       <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z"/>
                     </svg>
-                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 15, fontWeight: 700, color: "#ff64db" }}>
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 15, fontWeight: 700, color: "#cf62fe" }}>
                       {u.puntosAcumulados?.toLocaleString() || 0}
                     </span>
                   </div>
