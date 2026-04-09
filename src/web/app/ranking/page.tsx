@@ -47,7 +47,7 @@ export default function RankingPage() {
       
 .then((data: Usuario[]) => {
         setUsuarios(data.sort((a, b) => (b.puntosAcumulados || 0) - (a.puntosAcumulados || 0))
-        .slice(0, 50)  // solo se muestran los 50 primeros del ranking
+        .slice(0, 50)  
 );
         setError(null);
       })

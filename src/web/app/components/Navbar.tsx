@@ -15,8 +15,8 @@ export default function Navbar() {
     router.push(isRegistered ? "/profile" : "/login");
   };
 
-  //conectar con el backend para obtener los puntos acumulados del usuario 
-  const [puntosAcumulados, setPuntosAcumulados] = useState(0);
+  
+  const puntosAcumulados = 0;
 
   return (
     <header style={{
