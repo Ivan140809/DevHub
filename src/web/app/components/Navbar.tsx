@@ -82,7 +82,7 @@ export default function Navbar() {
         <button 
           type="button"
           title="Configuraciones"
-          onClick={() => router.push("/settings")} 
+          onClick={() => router.push("")} 
           className="nav-settings-btn"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

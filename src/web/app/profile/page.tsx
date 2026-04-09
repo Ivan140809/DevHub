@@ -66,6 +66,7 @@ export default function ProfilePage() {
   const [saving, setSaving]       = useState(false);
   const [backendOk, setBackendOk] = useState(true);
   const [saved, setSaved]         = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     let stored: UserData = {};
@@ -95,7 +96,7 @@ export default function ProfilePage() {
             email: data.email,
             username: data.username,
             phone: data.phone,
-            preferencias: data.preferencias,
+            preferencias: Array.isArray(data.preferencias) ? data.preferencias.join(', ') : data.preferencias || '',
           };
           setUser(mappedData);
           setForm(mappedData);
@@ -125,6 +126,7 @@ export default function ProfilePage() {
   async function handleSave() {
     setSaving(true);
     setSaved(false);
+    setSaveError(null);
 
     const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
     const email = form?.email;
@@ -138,7 +140,7 @@ export default function ProfilePage() {
         email: form.email,
         username: form.username,
         phone: form.phone,
-        preferencias: form.preferencias,
+        preferences: form.preferencias ? form.preferencias.split(',').map(p => p.trim()).filter(p => p) : [],
       };
 
       const res = await fetch(ENDPOINT, {
@@ -146,7 +148,7 @@ export default function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error("Error al guardar en el servidor");
       const updated: UserData = await res.json();
       
       const mappedData = {
@@ -155,21 +157,28 @@ export default function ProfilePage() {
         email: updated.email,
         username: updated.username,
         phone: updated.phone,
-        preferencias: updated.preferencias,
+        preferencias: Array.isArray(updated.preferencias) ? updated.preferencias.join(', ') : updated.preferencias || '',
       };
       
       setUser(mappedData);
       setForm(mappedData);
       localStorage.setItem("devhub_user", JSON.stringify(mappedData));
       setBackendOk(true);
-    } catch {
+      setSaved(true);
+      setSaveError(null);
+    } catch (error) {
+      console.error('Error saving to backend:', error);
       localStorage.setItem("devhub_user", JSON.stringify(form));
       setUser(form);
       setBackendOk(false);
+      setSaved(true);
+      setSaveError("Guardado solo localmente. Backend no disponible.");
     } finally {
       setSaving(false);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+      setTimeout(() => {
+        setSaved(false);
+        setSaveError(null);
+      }, 3500);
     }
   }
 
@@ -219,9 +228,15 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {saved && (
+            {saved && !saveError && (
               <div style={{ background:"rgba(30,160,100,.1)", border:"1px solid rgba(30,160,100,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(80,220,150,.8)", marginBottom:20 }}>
-                Cambios guardados correctamente.
+                ✓ Cambios guardados en el servidor correctamente.
+              </div>
+            )}
+
+            {saved && saveError && (
+              <div style={{ background:"rgba(200,140,20,.08)", border:"1px solid rgba(200,140,20,.2)", borderRadius:10, padding:"10px 16px", fontFamily:"'Space Mono',monospace", fontSize:11, color:"rgba(240,190,60,.7)", marginBottom:20 }}>
+                ⚠ {saveError}
               </div>
             )}
 
@@ -256,8 +271,10 @@ export default function ProfilePage() {
             <div style={{ height:1, background:"rgba(100,60,255,.12)", marginBottom:28 }} />
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18,  color:"rgb(208, 187, 240)"  }}>
+              <Field label="Nombre"             value={form.nombre       ?? ""} onChange={v => updateField("nombre",       v)} placeholder="Tu nombre" />
+              <Field label="Apellido"           value={form.apellido     ?? ""} onChange={v => updateField("apellido",     v)} placeholder="Tu apellido" />
               <Field label="Usuario"            value={form.username     ?? ""} onChange={v => updateField("username",     v)} placeholder="@usuario" />
-              <Field label="Preferencias"       value={form.preferencias ?? ""} onChange={v => updateField("preferencias", v)} placeholder="Frontend, Backend..." />
+              <Field label="Preferencias"       value={form.preferencias ?? ""} onChange={v => updateField("preferencias", v)} placeholder="Frontend, Backend, IA..." />
               <Field label="Correo electrónico" value={form.email        ?? ""} onChange={v => updateField("email",        v)} placeholder="tu@email.com"     type="email" />
               <Field label="Teléfono"           value={form.phone        ?? ""} onChange={v => updateField("phone",        v)} placeholder="+57 300 000 0000" type="tel" />
             </div>
