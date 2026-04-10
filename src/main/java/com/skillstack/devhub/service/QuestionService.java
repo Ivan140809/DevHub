@@ -144,8 +144,8 @@ public class QuestionService {
         );
     }
 
-    public String createReview(ReviewDTO reviewDTO, String email, String questionId) {
-        User user = userRepository.findByEmail(email)
+    public String createReview(ReviewDTO reviewDTO, String id, String questionId) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
 
         Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(), questionId, user.getId(), LocalDate.now());

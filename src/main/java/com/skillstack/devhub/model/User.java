@@ -1,5 +1,6 @@
 package com.skillstack.devhub.model;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
@@ -13,6 +14,7 @@ public class User extends AbstractUser{
         this.password = password;
         this.phone = phone;
         this.role = role;
+        this.phone = phone;
         this.totalScore = totalScore;
     }
 
