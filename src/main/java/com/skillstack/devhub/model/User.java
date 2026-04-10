@@ -1,9 +1,5 @@
 package com.skillstack.devhub.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -23,18 +19,19 @@ public class User {
     private String phone;
     private List<String> preferences;
     private Role role;
-    private String totalScore;
+    private int totalScore;
 
     public User(){}
 
     public User(String firstName, String lastName, String username, String email,
-                String password, Role role, String totalScore) {
+                String password, String phone, Role role, int totalScore) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.phone = phone;
         this.totalScore = totalScore;
     }
 
@@ -95,11 +92,11 @@ public class User {
         this.preferences = preferences;
     }
 
-    public String getTotalScore(){
+    public int getTotalScore(){
         return totalScore;
     }
 
-    public void setTotalScore(String totalScore){
+    public void setTotalScore(int totalScore){
         this.totalScore = totalScore;
     }
 }

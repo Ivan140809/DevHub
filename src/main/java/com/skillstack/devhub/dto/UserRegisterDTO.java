@@ -25,6 +25,7 @@ public class UserRegisterDTO {
     @Size(min = 8, message = "La contrasena debe contener al menos 8 caracteres")
     private String password;
 
+    @NotBlank(message = "NUMERO DE TELEFONO OBLIGATORIO")
     private String phone;
 
 
