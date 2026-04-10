@@ -64,6 +64,7 @@ public class QuestionService {
 
         return questionPage.getContent().stream().map(q ->
                 new QuestionDTO(
+                        q.getId(),
                         q.getTitle(),
                         null,
                         q.getCategory(),
@@ -83,6 +84,7 @@ public class QuestionService {
 
         return questionPage.getContent().stream().map(q ->
                 new QuestionDTO(
+                        q.getId(),
                         q.getTitle(),
                         null,
                         q.getCategory(),
@@ -99,6 +101,7 @@ public class QuestionService {
                 .map(r -> new OptionDTO(r.getText(), r.isCorrect())).toList();
 
         return new QuestionDTO(
+                question.getId(),
                 question.getTitle(),
                 question.getStatement(),
                 question.getCategory(),
@@ -116,7 +119,7 @@ public class QuestionService {
         }
 
         return questionPage.getContent().stream().map(q ->
-                new QuestionDTO(
+                new QuestionDTO(q.getId(),
                         q.getTitle(),
                         null,
                         q.getCategory(),
