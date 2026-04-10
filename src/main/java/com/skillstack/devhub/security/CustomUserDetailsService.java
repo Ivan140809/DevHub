@@ -19,9 +19,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
-
-
-
     @Override
     public UserDetails loadUserByUsername(String email) {
 
@@ -31,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
 
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
+                .withUsername(user.getId())
                 .password(user.getPassword())
                 .authorities(authority)
                 .build();

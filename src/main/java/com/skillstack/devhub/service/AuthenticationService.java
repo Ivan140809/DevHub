@@ -65,9 +65,8 @@ public class AuthenticationService {
         }
 
         User u = new User(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(),
-                user.getPassword(), Role.USER, "0");
+                "", user.getPhone(),Role.USER, 0);
         u.setPassword(passwordEncoder.encode(user.getPassword()));
-        u.setPhone(user.getPhone());
 
         userRepository.save(u);
 
@@ -85,6 +84,6 @@ public class AuthenticationService {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return new LoginResponseDTO(token, user.getEmail(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getPhone());
+        return new LoginResponseDTO(token);
     }
 }
