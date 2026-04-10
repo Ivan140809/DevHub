@@ -9,16 +9,14 @@ public class UserResponseDTO {
     private String email;
     private String phone;
     private List<String> preferences;
-    private Integer preguntasResueltas;
-    private Integer totalPreguntas;
-    private Integer puntosAcumulados;
+    private int answeredQuestions;
+    private int totalScore;
     public UserResponseDTO() {
 
     }
     
     public UserResponseDTO(String id, String firstName, String lastName, String username, String email, 
-                          String phone, List<String> preferences, Integer preguntasResueltas, 
-                          Integer totalPreguntas, Integer puntosAcumulados) {
+                          String phone, List<String> preferences, int answeredQuestions, int totalScore) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -26,9 +24,8 @@ public class UserResponseDTO {
         this.email = email;
         this.phone = phone;
         this.preferences = preferences;
-        this.preguntasResueltas = preguntasResueltas;
-        this.totalPreguntas = totalPreguntas;
-        this.puntosAcumulados = puntosAcumulados;
+        this.answeredQuestions = answeredQuestions;
+        this.totalScore = totalScore;
     }
 
     public String getId() { 
@@ -84,26 +81,19 @@ public class UserResponseDTO {
         this.preferences = preferences; 
     }
 
-    public Integer getPreguntasResueltas() {
-         return preguntasResueltas; 
+    public int getAnsweredQuestions() {
+         return answeredQuestions;
     }
-    public void setPreguntasResueltas(Integer preguntasResueltas) {
-         this.preguntasResueltas = preguntasResueltas; 
-    }
-
-    public Integer getTotalPreguntas() { 
-        return totalPreguntas; 
-    }
-    public void setTotalPreguntas(Integer totalPreguntas) { 
-        this.totalPreguntas = totalPreguntas; 
+    public void setAnsweredQuestions(int answeredQuestions) {
+         this.answeredQuestions = answeredQuestions;
     }
 
-    public Integer getPuntosAcumulados() { 
-        return puntosAcumulados; 
+    public int getTotalScore() {
+        return totalScore;
     }
 
-    public void setPuntosAcumulados(Integer puntosAcumulados) { 
-        this.puntosAcumulados = puntosAcumulados; 
+    public void setTotalScore(int totalScore) {
+        this.totalScore = totalScore;
     }
     
 }
