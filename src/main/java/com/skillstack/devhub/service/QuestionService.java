@@ -58,41 +58,6 @@ public class QuestionService {
         return "PREGUNTA CREADA EXITOSAMENTE";
     }
 
-    public List<QuestionDTO> getQuestions(int page) {
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<Question> questionPage = questionRepository.findAll(pageable);
-
-        return questionPage.getContent().stream().map(q ->
-                new QuestionDTO(
-                        q.getId(),
-                        q.getTitle(),
-                        null,
-                        q.getCategory(),
-                        q.getDifficulty(),
-                        null
-                )
-        ).toList();
-    }
-
-    public List<QuestionDTO> getQuestionByCategory(Category category, int page) {
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<Question> questionPage = questionRepository.findByCategory(category, pageable);
-
-        if (questionPage.isEmpty()) {
-            throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON CATEGORIA " + category);
-        }
-
-        return questionPage.getContent().stream().map(q ->
-                new QuestionDTO(
-                        q.getId(),
-                        q.getTitle(),
-                        null,
-                        q.getCategory(),
-                        q.getDifficulty(),
-                        null
-                )).toList();
-    }
-
     public QuestionDTO getQuestionById(String id) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + id + " NO ENCONTRADA"));
@@ -110,16 +75,36 @@ public class QuestionService {
         );
     }
 
-    public List<QuestionDTO> getQuestionByDifficulty(Difficulty difficulty, int page) {
+    public List<QuestionDTO> getQuestions(Category category, Difficulty difficulty, int page) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<Question> questionPage = questionRepository.findByDifficulty(difficulty, pageable);
 
-        if (questionPage.isEmpty()) {
-            throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON DIFICULTAD " + difficulty);
+        Page<Question> questionPage;
+
+        if (category != null && difficulty != null) {
+            questionPage = questionRepository.findByCategoryAndDifficulty(category, difficulty, pageable);
+            if (questionPage.isEmpty()) {
+                throw new QuestionNotFoundException("NO HAY PREGUNTAS CON CATEGORIA " + category + " Y DIFICULTAD " + difficulty);
+            }
+        } else if (category != null){
+            questionPage = questionRepository.findByCategory(category, pageable);
+            if (questionPage.isEmpty()) {
+                throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON CATEGORIA " + category);
+            }
+        } else if(difficulty != null){
+            questionPage = questionRepository.findByDifficulty(difficulty, pageable);
+            if (questionPage.isEmpty()) {
+                throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON DIFICULTAD " + difficulty);
+            }
+        } else {
+            questionPage = questionRepository.findAll(pageable);
+            if (questionPage.isEmpty()) {
+                throw new QuestionNotFoundException("NO HAY PREGUNTAS DISPONIBLES");
+            }
         }
 
         return questionPage.getContent().stream().map(q ->
-                new QuestionDTO(q.getId(),
+                new QuestionDTO(
+                        q.getId(),
                         q.getTitle(),
                         null,
                         q.getCategory(),

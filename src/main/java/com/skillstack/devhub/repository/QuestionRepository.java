@@ -16,6 +16,7 @@ public interface QuestionRepository extends MongoRepository<Question, String> {
     Optional<Question> findByTitle(String title);
     Page<Question> findByCategory(Category category, Pageable pageable);
     Page<Question> findByDifficulty(Difficulty difficulty, Pageable pageable);
+    Page<Question> findByCategoryAndDifficulty(Category category, Difficulty difficulty, Pageable pageable);
 }
 
 

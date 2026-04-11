@@ -39,32 +39,14 @@ public class QuestionController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping
-    public ResponseEntity<List<QuestionDTO>> getAllQuestions(@RequestParam(defaultValue = "0") int page) {
-        List<QuestionDTO> questions = questionService.getQuestions(page);
+    public ResponseEntity<List<QuestionDTO>> getQuestions(//tmb se puede hacer con optional
+            @RequestParam(required = false) Category category, @RequestParam(required = false) Difficulty difficulty, @RequestParam(defaultValue = "0") int page) {
+        List<QuestionDTO> questions = questionService.getQuestions(category, difficulty, page);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(questions);
     }
-
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<QuestionDTO>> filterCategory(@PathVariable Category category, @RequestParam(defaultValue = "0") int page) {
-        List<QuestionDTO> questions = questionService.getQuestionByCategory(category, page);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(questions);
-    }
-
-    @GetMapping("/difficulty/{difficulty}")
-    public ResponseEntity<List<QuestionDTO>> filterDifficulty(@PathVariable Difficulty difficulty, @RequestParam(defaultValue = "0") int page){
-        List<QuestionDTO> questions = questionService.getQuestionByDifficulty(difficulty, page);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(questions);
-    }
-
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}")
@@ -74,8 +56,6 @@ public class QuestionController {
                 .status(HttpStatus.OK)
                 .body(question);
     }
-
-
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/answer")
