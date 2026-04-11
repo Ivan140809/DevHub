@@ -1,9 +1,10 @@
 package com.skillstack.devhub.dto;
 
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public class UserUpdateDTO {
-    
+
     private String firstName;
     private String lastName;
     private String username;

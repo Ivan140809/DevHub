@@ -35,11 +35,12 @@ public class UserService {
 
     }
 
-    public UserResponseDTO getProfileUpdate(User user) {
+    public UserResponseDTO getProfile(String userId) {
 
-        int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(user.getId()).size();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
 
-        int totalScore = user.getTotalScore();
+        int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(userId).size();
 
         return new UserResponseDTO(
                 user.getId(),
@@ -50,12 +51,12 @@ public class UserService {
                 user.getPhone(),
                 user.getPreferences(),
                 answeredQuestions,
-                totalScore
+                user.getTotalScore()
         );
     }
 
-    public UserResponseDTO updateUser(String email, UserUpdateDTO userUpdateDTO) {
-        User user = userRepository.findByEmail(email)
+    public UserResponseDTO updateUser(String userId, UserUpdateDTO userUpdateDTO) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
 
         if (userUpdateDTO.getFirstName() != null && !userUpdateDTO.getFirstName().isEmpty()) {
@@ -84,7 +85,7 @@ public class UserService {
 
         userRepository.save(user);
 
-        return getProfileUpdate(user);
+        return getProfile(user.getId());
     }
 
 }
