@@ -32,6 +32,7 @@ public class AnsweredQuestionsStatistic implements Statistics<List<QuestionDTO>>
 
         return questions.stream().map(q ->
                 new QuestionDTO(
+                        q.getId(),
                         q.getTitle(),
                         null,
                         q.getCategory(),

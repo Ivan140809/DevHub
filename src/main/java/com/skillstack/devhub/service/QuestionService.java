@@ -64,6 +64,7 @@ public class QuestionService {
 
         return questionPage.getContent().stream().map(q ->
                 new QuestionDTO(
+                        q.getId(),
                         q.getTitle(),
                         null,
                         q.getCategory(),
@@ -83,6 +84,7 @@ public class QuestionService {
 
         return questionPage.getContent().stream().map(q ->
                 new QuestionDTO(
+                        q.getId(),
                         q.getTitle(),
                         null,
                         q.getCategory(),
@@ -99,6 +101,7 @@ public class QuestionService {
                 .map(r -> new OptionDTO(r.getText(), r.isCorrect())).toList();
 
         return new QuestionDTO(
+                question.getId(),
                 question.getTitle(),
                 question.getStatement(),
                 question.getCategory(),
@@ -116,7 +119,7 @@ public class QuestionService {
         }
 
         return questionPage.getContent().stream().map(q ->
-                new QuestionDTO(
+                new QuestionDTO(q.getId(),
                         q.getTitle(),
                         null,
                         q.getCategory(),
@@ -126,15 +129,23 @@ public class QuestionService {
         ).toList();
     }
 
-    public boolean verifyAnswer(AnswerDTO answerDTO, String id) {
-        Question question = questionRepository.findById(id)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + id + " NO ENCONTRADA"));
+    public boolean verifyAnswer(AnswerDTO answerDTO, String questionid, String userid) {
+        Question question = questionRepository.findById(questionid )
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionid + " NO ENCONTRADA"));
 
-        Answer answer = new Answer(answerDTO.getQuestionId(), answerDTO.getSelectedOption(), answerDTO.getUserId());
+        Answer answer = new Answer(answerDTO.getQuestionId(), answerDTO.getSelectedOption(), userid);
+        User u = userRepository.findById(answer.getUserId()).orElseThrow(()-> new UserNotFoundException(
+                "USUARIO CON ID "+answer.getUserId()+ " NO ENCONTRADA"));
+
         answerRepository.save(answer);
 
         for (Option option : question.getOptions()) {
             if (option.getText().equals(answerDTO.getSelectedOption())) {
+
+                u.setTotalScore(u.getTotalScore()+ question.getDifficulty().getPoints());
+
+                userRepository.save(u);
+
                 return option.isCorrect();
             }
         }
