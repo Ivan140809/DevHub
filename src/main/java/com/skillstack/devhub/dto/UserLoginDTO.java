@@ -16,6 +16,8 @@ public class UserLoginDTO {
     @Size(min = 8, message = "La contrasena debe contener al menos 8 caracteres")
     private String password;
 
+    public UserLoginDTO() {}
+
     public UserLoginDTO(String email, String password) {
         this.email = email;
         this.password = password;

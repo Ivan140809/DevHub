@@ -10,6 +10,8 @@ import java.util.List;
 
 public class QuestionDTO {
 
+    private String id;
+
     @NotBlank(message = "La pregunta debe llevar un titulo")
     private String title;
 
@@ -25,7 +27,8 @@ public class QuestionDTO {
     @NotEmpty(message = "Debe haber al menos una opcion")
     private List<OptionDTO> options;
 
-    public QuestionDTO(String title, String statement, Category category, Difficulty difficulty, List<OptionDTO> options) {
+    public QuestionDTO(String id, String title, String statement, Category category, Difficulty difficulty, List<OptionDTO> options) {
+        this.id=id;
         this.title = title;
         this.statement = statement;
         this.category = category;

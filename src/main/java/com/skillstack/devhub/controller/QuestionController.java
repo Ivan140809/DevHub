@@ -17,7 +17,7 @@ import org.springframework.security.core.Authentication;
 import java.util.List;
 
 @RestController
-@RequestMapping("/question")
+@RequestMapping("/questions")
 @CrossOrigin
 public class QuestionController {
 
@@ -29,7 +29,7 @@ public class QuestionController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<String> createQuestion(@RequestBody QuestionDTO question) {
         String response = questionService.addQuestion(question);
         return ResponseEntity
@@ -37,33 +37,18 @@ public class QuestionController {
                 .body(response);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<QuestionDTO>> getAllQuestions(@RequestParam(defaultValue = "0") int page) {
-        List<QuestionDTO> questions = questionService.getQuestions(page);
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping
+    public ResponseEntity<List<QuestionDTO>> getQuestions(//tmb se puede hacer con optional
+            @RequestParam(required = false) Category category, @RequestParam(required = false) Difficulty difficulty, @RequestParam(defaultValue = "0") int page) {
+        List<QuestionDTO> questions = questionService.getQuestions(category, difficulty, page);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(questions);
     }
 
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<QuestionDTO>> filterCategory(@PathVariable Category category, @RequestParam(defaultValue = "0") int page) {
-        List<QuestionDTO> questions = questionService.getQuestionByCategory(category, page);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(questions);
-    }
-
-    @GetMapping("/difficulty/{difficulty}")
-    public ResponseEntity<List<QuestionDTO>> filterDifficulty(@PathVariable Difficulty difficulty, @RequestParam(defaultValue = "0") int page){
-        List<QuestionDTO> questions = questionService.getQuestionByDifficulty(difficulty, page);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(questions);
-    }
-
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{id}")
     public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable String id) {
         QuestionDTO question = questionService.getQuestionById(id);
@@ -72,16 +57,12 @@ public class QuestionController {
                 .body(question);
     }
 
-    @GetMapping("/categories")
-    public ResponseEntity<Category[]> getCategories() {
-        return ResponseEntity.ok(Category.values());
-    }
-
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/{id}/answer")
-    public ResponseEntity<Boolean> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer){
+    @PostMapping("/{id}/answer")
+    public ResponseEntity<Boolean> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer,
+                                          Authentication authentication){
 
-        boolean response = questionService.verifyAnswer(answer,id);
+        boolean response = questionService.verifyAnswer(answer,id, authentication.getName());
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
@@ -100,9 +81,14 @@ public class QuestionController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/{questionId}/reviews")
-    public ResponseEntity<List<ReviewDTO>> getReviewsByQuestionId(@PathVariable String questionId, @RequestParam(defaultValue = "0") int page){
-        List<ReviewDTO> reviews = questionService.getReviewsByQuestionId(questionId, page);
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<List<ReviewDTO>> getReviewsByQuestionId(@PathVariable String id, @RequestParam(defaultValue = "0") int page){
+        List<ReviewDTO> reviews = questionService.getReviewsByQuestionId(id, page);
         return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<Category[]> getCategories() {
+        return ResponseEntity.ok(Category.values());
     }
 }
