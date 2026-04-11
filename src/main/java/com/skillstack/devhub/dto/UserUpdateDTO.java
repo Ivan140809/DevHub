@@ -7,6 +7,7 @@ public class UserUpdateDTO {
 
     private String firstName;
     private String lastName;
+    @Size(min = 4, max = 15, message = "El username debe tener entre 4 y 15 caracteres")
     private String username;
     private String phone;
     private List<String> preferences;
