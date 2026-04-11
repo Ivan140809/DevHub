@@ -79,9 +79,10 @@ public class QuestionController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/{id}/answer")
-    public ResponseEntity<Boolean> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer){
+    public ResponseEntity<Boolean> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer,
+                                          Authentication authentication){
 
-        boolean response = questionService.verifyAnswer(answer,id);
+        boolean response = questionService.verifyAnswer(answer,id, authentication.getName());
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
