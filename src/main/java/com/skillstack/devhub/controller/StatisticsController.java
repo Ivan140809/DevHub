@@ -40,7 +40,7 @@ public class StatisticsController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/answered")
     public ResponseEntity<List<QuestionDTO>> getAnsweredQuestions(Principal principal) {
-        User user = userRepository.findByEmail(principal.getName())
+        User user = userRepository.findById(principal.getName())
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
 
         List<QuestionDTO> questions = statisticsService.progress("AnsweredQuestionsStatistic", user.getId());
@@ -50,7 +50,7 @@ public class StatisticsController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/progress")
     public ResponseEntity<ProgressDTO> getProgress(Principal principal) {
-        User user = userRepository.findByEmail(principal.getName())
+        User user = userRepository.findById(principal.getName())
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
 
         Progress progress = progressDirector.buildTotalAndPercentage(user.getId());
