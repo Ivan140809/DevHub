@@ -1,7 +1,5 @@
 package com.skillstack.devhub.dto;
 
-import com.skillstack.devhub.model.Role;
-
 public class LoginResponseDTO {
 
     private String token;

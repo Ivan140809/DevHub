@@ -28,6 +28,7 @@ public class UserRegisterDTO {
     @NotBlank(message = "NUMERO DE TELEFONO OBLIGATORIO")
     private String phone;
 
+    public UserRegisterDTO() {}
 
     public UserRegisterDTO(String firstName, String lastName, String username, String email, String password, String phone) {
         this.firstName = firstName;

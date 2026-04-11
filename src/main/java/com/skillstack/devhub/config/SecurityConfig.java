@@ -43,6 +43,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/question/category/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/question/difficulty/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/question/{id}").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/user/ranking").permitAll()
                         //esto es lo q estaba antes
                         //.requestMatchers("/question/**").permitAll()
                                 .anyRequest().authenticated()
