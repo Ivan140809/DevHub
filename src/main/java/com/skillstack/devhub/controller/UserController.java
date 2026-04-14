@@ -46,12 +46,14 @@ public class UserController {
     }
 
     @GetMapping("/ranking")
-    public ResponseEntity<List<UserResponseDTO>> getRanking(@RequestParam(defaultValue = "0") int page) {
-        List<UserResponseDTO> ranking = userRepository
-                .findAll(PageRequest.of(page, 10, Sort.by("totalScore").descending()))
-                .map(u -> new UserResponseDTO(u.getId(), null, null,
-                        u.getUsername(), null, null, null, 0, u.getTotalScore()))
-                .toList();
-        return ResponseEntity.ok(ranking);
+    public ResponseEntity<List<UserResponseDTO>> getRanking() {
+        List<User> topUsers = userRepository.findTop50ByOrderByTotalScoreDesc();
+
+        List<UserResponseDTO> ranking = topUsers.stream()
+            .map(u -> new UserResponseDTO(
+            u.getId(), null, null, u.getUsername(), null, null, null, null, u.getTotalScore()
+        ))
+        .toList();
+    return ResponseEntity.ok(ranking);
     }
 }
