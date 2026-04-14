@@ -2,9 +2,11 @@ name: Daily Scrum Issue
 
 on:
   schedule:
-    - cron: '0 21 * * *' 
+    - cron: '0 21 * * 2-4' 
   workflow_dispatch:
 
+permissions:
+  issues: write
 
 jobs:
   create_issue:
@@ -29,7 +31,7 @@ jobs:
                     - ¿Qué hice ayer?
                     - ¿Qué haré hoy?
                     - ¿Bloqueos?`,
-              assignees: ["brewLux", "KALEL2006", "ana2320-ux", "RichardCastillo-jpg", "Ivan140809", "lorenzoramire-lrc" ] 
+              assignees: ["brewLux", "KALEL2006", "ana2320-ux", "RichardCastillo-jpg", "Ivan140809", "lorenzoramirez-lrc" ] 
             });
 
             console.log(issue.data.html_url);
