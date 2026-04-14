@@ -22,4 +22,8 @@ public class User extends AbstractUser{
         this.totalScore = totalScore;
     }
 
+    public String getId() {
+        return id;
+    }
+
 }
