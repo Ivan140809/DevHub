@@ -45,14 +45,10 @@ public class UserController {
     }
 
     @GetMapping("/ranking")
-    public ResponseEntity<List<UserResponseDTO>> getRanking() {
-        List<User> topUsers = userRepository.findTop50ByOrderByTotalScoreDesc();
+    public ResponseEntity<List<String>> getRanking() {
 
-        List<UserResponseDTO> ranking = topUsers.stream()
-            .map(u -> new UserResponseDTO(
-            u.getId(), null, null, u.getUsername(), null, null, null, null, u.getTotalScore()
-        ))
-        .toList();
+        List<String> ranking = userService.findRanking();
+
     return ResponseEntity.ok(ranking);
     }
 }
