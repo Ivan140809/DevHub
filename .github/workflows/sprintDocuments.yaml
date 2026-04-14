@@ -39,67 +39,69 @@ jobs:
                 "lorenzoramirez-lrc"
               ]
             };
-            
 
-            await github.rest.issues.create({
-              ...common,
-              title: `Sprint Planning #`,
-              body: `
-              # Sprint Planning – Sprint # ${date} 
+            if (day === "1") {
+              await github.rest.issues.create({
+                ...common,
+                title: `Sprint Planning #`,
+                body: `
+                # Sprint Planning – Sprint # ${date} 
+                
+                **Duración del Sprint: 5 dias**  
+                **Fechas: ${date} a ${date}**
+
+                ### Sprint Goal
+
+                >  Completar Historias de Usuario: #, # y # relacionadas con .
+
+                
+                ### Sprint Backlog
+
+                Las historias de usuario del sprint llevo a la definicion de las siguientes tasks en el sprint backlog
+
+                ### Incremento esperado
+                - Una vez finalizado el sprint el usuario podra
+
+                `
+              });
+            }
+
+            if (day === "5") {
               
-              **Duración del Sprint: 5 dias**  
-              **Fechas: ${date} a ${date}**
+              await github.rest.issues.create({
+                ...common,
+                title: `Sprint Retrospective #`,
+                body: `
+                Que salio bien?
 
-              ### Sprint Goal
+                Que no salio bien?
 
-              >  Completar Historias de Usuario: #, # y # relacionadas con .
+                Que podemos mejorar?
+                
+                `
+              });
 
-              
-              ### Sprint Backlog
+              await github.rest.issues.create({
+                ...common,
+                title: `Sprint Review #`,
+                body: `
+                # Fecha: ${date}
+                # Sprint Goal
+                - HU#:
+                - HU#:
 
-              Las historias de usuario del sprint llevo a la definicion de las siguientes tasks en el sprint backlog
+                ## 1. Incremento entregado
 
-              ### Incremento esperado
-              - Una vez finalizado el sprint el usuario podra
+                ## 2. Demostración
+                - Issues cerrados: Se cerraron los siguientes issues mas relevantes al incremento entregado
 
-              `
-            });
-              
-            await github.rest.issues.create({
-              ...common,
-              title: `Sprint Retrospective #`,
-              body: `
-              Que salio bien?
+                - Commits relevantes:  El incremento se ve evidenciado a traves de los siguientes commits
 
-              Que no salio bien?
+                ## 3. Conclusion
 
-              Que podemos mejorar?
-              
-              `
-            });
-
-            
-            await github.rest.issues.create({
-              ...common,
-              title: `Sprint Review #`,
-              body: `
-              # Fecha: ${date}
-              # Sprint Goal
-              - HU#:
-              - HU#:
-
-              ## 1. Incremento entregado
-
-              ## 2. Demostración
-              - Issues cerrados: Se cerraron los siguientes issues mas relevantes al incremento entregado
-
-              - Commits relevantes:  El incremento se ve evidenciado a traves de los siguientes commits
-
-              ## 3. Conclusion
-
-              ## 4. Burnup  Chart del sprint
-              `
-            });
-
+                ## 4. Burnup  Chart del sprint
+                `
+              });
+            }
   
             
