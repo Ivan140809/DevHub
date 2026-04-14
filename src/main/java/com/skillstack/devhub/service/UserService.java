@@ -36,12 +36,11 @@ public class UserService {
     }
 
     public UserResponseDTO getProfile(String userId) {
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
 
         int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(userId).size();
-
+        System.out.println("GET PROFILE USER ID: " + userId);
         return new UserResponseDTO(
                 user.getId(),
                 user.getFirstName(),
@@ -56,11 +55,13 @@ public class UserService {
     }
 
     public UserResponseDTO updateUser(String userId, UserUpdateDTO userUpdateDTO) {
+        System.out.println("BUSCANDO USUARIO POR ID");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
 
         if (userUpdateDTO.getFirstName() != null && !userUpdateDTO.getFirstName().isEmpty()) {
             user.setFirstName(userUpdateDTO.getFirstName());
+
         }
 
         if (userUpdateDTO.getLastName() != null && !userUpdateDTO.getLastName().isEmpty()) {
@@ -87,5 +88,4 @@ public class UserService {
 
         return getProfile(user.getId());
     }
-
 }

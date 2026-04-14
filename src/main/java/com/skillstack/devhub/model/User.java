@@ -6,6 +6,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "users")
 public class User extends AbstractUser{
+    public User() {
+        this.totalScore = 0;
+    }
+
     public User(String firstName, String lastName, String username, String email, String password, String phone, Role role, int totalScore) {
         this.firstName = firstName;
         this.lastName = lastName;
