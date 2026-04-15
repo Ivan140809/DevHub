@@ -44,13 +44,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = header.substring(7);
         try {
             String email = jwtUtil.extractEmail(token);
+            System.out.println("EMAIL JWT: " + email);
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            System.out.println("USERDETAILS: " + userDetails.getUsername());
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities()
                     );
             SecurityContextHolder.getContext().setAuthentication(auth);
+            System.out.println("AUTH NAME: " + SecurityContextHolder.getContext().getAuthentication().getName());
+            System.out.println("AUTHORITIES: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
         } catch (Exception e) {
+            System.out.println("ERROR JWT FILTER: " + e.getMessage());
+             e.printStackTrace();
             SecurityContextHolder.clearContext();
         }
 
