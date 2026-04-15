@@ -1,6 +1,7 @@
 package com.skillstack.devhub.service;
 
 import com.skillstack.devhub.dto.AnswerDTO;
+import com.skillstack.devhub.dto.AnswerResponseDTO;
 import com.skillstack.devhub.dto.OptionDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.dto.ReviewDTO;
@@ -116,24 +117,23 @@ public class QuestionService {
                 .toList();
     }
 
-    public boolean verifyAnswer(AnswerDTO answerDTO, String questionid, String userid) {
-        Question question = questionRepository.findById(questionid )
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionid + " NO ENCONTRADA"));
+    public AnswerResponseDTO verifyAnswer(AnswerDTO answerDTO, String questionId, String userEmail) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + " NO ENCONTRADA"));
 
-        Answer answer = new Answer(answerDTO.getQuestionId(), answerDTO.getSelectedOption(), userid);
-        User u = userRepository.findById(answer.getUserId()).orElseThrow(()-> new UserNotFoundException(
-                "USUARIO CON ID "+answer.getUserId()+ " NO ENCONTRADA"));
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + userEmail + " NO ENCONTRADO"));
 
+        Answer answer = new Answer(questionId, answerDTO.getSelectedOption(), user.getId());
         answerRepository.save(answer);
 
         for (Option option : question.getOptions()) {
             if (option.getText().equals(answerDTO.getSelectedOption())) {
-
-                u.setTotalScore(u.getTotalScore()+ question.getDifficulty().getPoints());
-
-                userRepository.save(u);
-
-                return option.isCorrect();
+                if (option.isCorrect()) {
+                    user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
+                    userRepository.save(user);
+                }
+                return new AnswerResponseDTO(option.isCorrect(), user.getTotalScore());
             }
         }
 
@@ -143,10 +143,11 @@ public class QuestionService {
     }
 
     public String createReview(ReviewDTO reviewDTO, String id, String questionId) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByEmail(id)
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
-
-        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(), questionId, user.getId(), LocalDate.now());
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + " NO ENCONTRADA"));
+        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(),  question.getId(), user.getId(), LocalDate.now());
 
         reviewRepository.save(review);
 
@@ -155,11 +156,9 @@ public class QuestionService {
 
     public List<ReviewDTO> getReviewsByQuestionId(String questionId, int page) {
         Pageable pageable = PageRequest.of(page, 10);
+        questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + " NO ENCONTRADA"));
         Page<Review> reviewPage = reviewRepository.findByQuestionId(questionId, pageable);
-
-        if (reviewPage.isEmpty()) {
-            throw new ReviewNotFoundException("REVIEWS PARA LA PREGUNTA " + questionId + " NO ENCONTRADOS");
-        }
 
         return reviewPage.getContent().stream().map(r ->
                 new ReviewDTO(

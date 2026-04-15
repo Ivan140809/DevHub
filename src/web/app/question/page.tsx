@@ -215,6 +215,7 @@ const SelectStyle: React.CSSProperties = {
   fontSize: 13,
   outline: "none",
   cursor: "pointer",
+  color: "#ddd0ff",
 };
 
 const SubmitButtonStyle: React.CSSProperties = {
@@ -270,8 +271,8 @@ const FixedButtonStyle: React.CSSProperties = {
 };
 
 function diffLabel(d: string) {
-  if (d === "FACIL") return "Fácil";
-  if (d === "DIFICIL") return "Difícil";
+  if (d === "EASY") return "Fácil";
+  if (d === "HARD") return "Difícil";
   return "Media";
 }
 
@@ -303,6 +304,9 @@ export default function QuestionListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalPregunta, setModalPregunta] = useState<Pregunta | null>(null);
   const [modalComment, setModalComment] = useState("");
@@ -354,8 +358,9 @@ export default function QuestionListPage() {
 
       const data: Review[] = await res.json();
       setReviews(data);
-    } catch (error: any) {
-      setReviewsError(error.message || "No se pudieron cargar las reseñas.");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "No se pudieron cargar las reseñas.";
+      setReviewsError(message);
       setReviews([]);
     } finally {
       setReviewsLoading(false);
@@ -389,8 +394,9 @@ export default function QuestionListPage() {
       setModalOk(true);
       setModalComment("");
       setModalRating(5);
-    } catch (error: any) {
-      setModalError(error.message || "No se pudo enviar la reseña. Intenta de nuevo.");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "No se pudo enviar la reseña. Intenta de nuevo.";
+      setModalError(message);
     } finally {
       setModalLoading(false);
     }
@@ -398,8 +404,16 @@ export default function QuestionListPage() {
 
   useEffect(() => {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-    const ENDPOINT = `${BASE_URL}/questions`;
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (selectedCategory) params.append("category", selectedCategory);
+    if (selectedDifficulty) params.append("difficulty", selectedDifficulty);
+    params.append("page", "0");
 
+    const ENDPOINT = `${BASE_URL}/questions?${params.toString()}`;
+
+    setLoading(true);
     fetch(ENDPOINT)
       .then(async (res) => {
         if (!res.ok) throw new Error(`Error ${res.status}`);
@@ -415,11 +429,23 @@ export default function QuestionListPage() {
         setError("No se pudieron cargar las preguntas. Verifica tu conexión.");
       })
       .finally(() => setLoading(false));
+  }, [selectedCategory, selectedDifficulty]);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+    
+    fetch(`${BASE_URL}/questions/categories`)
+      .then(res => res.json())
+      .then(data => {
+        setCategories(Array.isArray(data) ? data : []);
+      })
+      .catch(err => console.error("Error fetching categories:", err));
   }, []);
 
   const filtered = preguntas.filter((p) =>
-    p.title.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase())
+    (p.title.toLowerCase().includes(search.toLowerCase()) ||
+    p.category.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -496,9 +522,45 @@ export default function QuestionListPage() {
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "end", justifyContent: "end", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "end", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ fontSize: 11, fontFamily: "'Space Mono', monospace", textTransform: "uppercase", letterSpacing: "1px", color: "rgba(159, 130, 255, 0.7)" }}>
+                Categoría
+              </label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                style={SelectStyle}
+              >
+                <option value="">Todas</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ fontSize: 11, fontFamily: "'Space Mono', monospace", textTransform: "uppercase", letterSpacing: "1px", color: "rgba(159, 130, 255, 0.7)" }}>
+                Dificultad
+              </label>
+              <select
+                value={selectedDifficulty}
+                onChange={(e) => setSelectedDifficulty(e.target.value)}
+                style={SelectStyle}
+              >
+                <option value="">Todas</option>
+                <option value="EASY">Fácil</option>
+                <option value="MEDIUM">Media</option>
+                <option value="HARD">Difícil</option>
+              </select>
+            </div>
+          </div>
+          
           <button onClick={() => router.push("/filter")} style={FilterButtonStyle}>
-            Filtrar
+            Crear Pregunta
           </button>
         </div>
 

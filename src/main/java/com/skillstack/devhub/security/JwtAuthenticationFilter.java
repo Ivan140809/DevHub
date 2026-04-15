@@ -33,10 +33,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-        if (request.getRequestURI().startsWith("/questions")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
         String header = request.getHeader("Authorization");
 
         if (header == null || !header.startsWith("Bearer ")) {
@@ -48,15 +44,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String email = jwtUtil.extractEmail(token);
             System.out.println("EMAIL JWT: " + email);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            System.out.println("USERDETAILS: " + userDetails.getUsername());
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
-            SecurityContextHolder.getContext().setAuthentication(auth);
-            System.out.println("AUTH NAME: " + SecurityContextHolder.getContext().getAuthentication().getName());
-            System.out.println("AUTHORITIES: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                System.out.println("USERDETAILS: " + userDetails.getUsername());
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities()
+                        );
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                System.out.println("AUTH NAME: " + SecurityContextHolder.getContext().getAuthentication().getName());
+                System.out.println("AUTHORITIES: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+            }
         } catch (Exception e) {
             System.out.println("ERROR JWT FILTER: " + e.getMessage());
              e.printStackTrace();
