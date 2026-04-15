@@ -71,6 +71,10 @@ public class AuthenticationService {
                 user.getPassword(), user.getPhone(), Role.USER, 0);
         u.setPassword(passwordEncoder.encode(user.getPassword()));
 
+        if(userRepository.count()==0){
+            u.setRole(Role.ADMIN);
+        }
+
         userRepository.save(u);
 
         return "USUARIO REGISTRADO CORRECTAMENTE";
