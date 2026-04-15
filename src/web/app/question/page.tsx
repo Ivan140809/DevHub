@@ -166,10 +166,10 @@ const SearchInputStyle: React.CSSProperties = {
 const FilterButtonStyle: React.CSSProperties = {
   height: 36,
   padding: "0 20px",
-  background: "linear-gradient(135deg,#7040ff,#5020e0)",
-  border: "none",
+  background: "rgba(52, 26, 122, 0.3)",
+  border: "1px solid rgb(99, 60, 255)",
   borderRadius: 10,
-  color: "white",
+  color: " rgb(180, 150, 255)",
   fontFamily: "'Syne', sans-serif",
   fontSize: 11,
   fontWeight: 800,
@@ -178,6 +178,7 @@ const FilterButtonStyle: React.CSSProperties = {
   cursor: "pointer",
   boxShadow: "0 4px 16px rgba(91, 40, 220, 0.75)",
   width: "fit-content",
+  
 };
 
 const ContainerStyle: React.CSSProperties = {
@@ -314,12 +315,12 @@ const FloatingButtonStyle: React.CSSProperties = {
 const FixedButtonStyle: React.CSSProperties = {
   height: 36,
   padding: "0 20px",
-  background: "linear-gradient(135deg,#7040ff,#5020e0)",
-  border: "none",
+  background: "rgba(52, 26, 122, 0.3)",
+  border: "1px solid rgb(99, 60, 255)",
   borderRadius: 10,
-  color: "white",
+  color: " rgb(180, 150, 255)",
   fontFamily: "'Syne', sans-serif",
-  fontSize: 10,
+  fontSize: 11,
   fontWeight: 800,
   letterSpacing: "3px",
   textTransform: "uppercase" as const,
@@ -532,7 +533,7 @@ export default function QuestionListPage() {
       </section>
 
       <button onClick={openModal} style={{ ...FixedButtonStyle, bottom: 28, left: 28 }}>Añadir reseña</button>
-      <button onClick={openReviewsModal} style={{ ...FixedButtonStyle, bottom: 28, left: 260 }}>Ver reseñas</button>
+      <button onClick={openReviewsModal} style={{ ...FixedButtonStyle, bottom: 28, left: 270 }}>Ver reseñas</button>
 
       <button className="fab" title="Agregar pregunta" onClick={() => router.push("/question/add")} style={FloatingButtonStyle}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
