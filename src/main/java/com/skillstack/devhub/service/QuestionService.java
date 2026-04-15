@@ -102,16 +102,18 @@ public class QuestionService {
             }
         }
 
-        return questionPage.getContent().stream().map(q ->
-                new QuestionDTO(
-                        q.getId(),
-                        q.getTitle(),
-                        null,
-                        q.getCategory(),
-                        q.getDifficulty(),
-                        null
-                )
-        ).toList();
+        return questionPage.getContent().stream()
+                .map(question -> new QuestionDTO(
+                        question.getId(),
+                        question.getTitle(),
+                        question.getStatement(),
+                        question.getCategory(),
+                        question.getDifficulty(),
+                        question.getOptions().stream()
+                                .map(option -> new OptionDTO(option.getText(), option.isCorrect()))
+                                .toList()
+                ))
+                .toList();
     }
 
     public boolean verifyAnswer(AnswerDTO answerDTO, String questionid, String userid) {
