@@ -2,12 +2,11 @@ package com.skillstack.devhub.controller;
 
 import com.skillstack.devhub.dto.UserResponseDTO;
 import com.skillstack.devhub.dto.UserUpdateDTO;
+import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
 import com.skillstack.devhub.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,14 +30,14 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @PatchMapping("/profile")
     public ResponseEntity<UserResponseDTO> updateUser(Principal principal, @Valid @RequestBody UserUpdateDTO updatedUser) {
         UserResponseDTO user = userService.updateUser(principal.getName(), updatedUser);
         return ResponseEntity.ok(user);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @GetMapping("/profile")
     public ResponseEntity<UserResponseDTO> getProfile(Principal principal) {
         return ResponseEntity
@@ -47,14 +46,10 @@ public class UserController {
     }
 
     @GetMapping("/ranking")
-    public ResponseEntity<List<UserResponseDTO>> getRanking() {
-        List<User> topUsers = userRepository.findTop50ByOrderByTotalScoreDesc();
+    public ResponseEntity<List<String>> getRanking() {
 
-        List<UserResponseDTO> ranking = topUsers.stream()
-             .map(u -> new UserResponseDTO(
-             u.getId(), null, null, u.getUsername(), null, null, null, null, u.getTotalScore()
-         ))
-        .toList();
+        List<String> ranking = userService.findRanking();
+
     return ResponseEntity.ok(ranking);
     }
 }

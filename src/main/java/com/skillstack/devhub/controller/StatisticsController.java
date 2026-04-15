@@ -37,7 +37,7 @@ public class StatisticsController {
         this.progressDirector = progressDirector;
     }
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @GetMapping("/answered")
     public ResponseEntity<List<QuestionDTO>> getAnsweredQuestions(Principal principal) {
         User user = userRepository.findById(principal.getName())
@@ -47,7 +47,7 @@ public class StatisticsController {
         return ResponseEntity.status(HttpStatus.OK).body(questions);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @GetMapping("/progress")
     public ResponseEntity<ProgressDTO> getProgress(Principal principal) {
         User user = userRepository.findById(principal.getName())
