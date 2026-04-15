@@ -7,7 +7,7 @@ if [ -z "$MONGOURI" ]; then
 fi
 mongosh "$MONGOURI" --eval '
   db.getSiblingDB("DevHubDB").createCollection("comments");
-  print("Colección reviews creada");
+  print("Colección comments creada");
 '
 
 ##Compilacion chmod +x setup_comments.sh && ./setup_comments.sh
