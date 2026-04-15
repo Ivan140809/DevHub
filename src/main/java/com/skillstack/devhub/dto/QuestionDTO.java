@@ -75,4 +75,12 @@ public class QuestionDTO {
     public void setOptions(List<OptionDTO> options) {
         this.options = options;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }
