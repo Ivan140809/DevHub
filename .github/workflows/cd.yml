@@ -45,12 +45,28 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
   
       - name: Build and push Docker images
-        run: docker-compose build
+        run: |
+          if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+            docker compose build
+          elif command -v docker-compose >/dev/null 2>&1; then
+            docker-compose build
+          else
+            echo "Error: neither docker compose nor docker-compose is installed"
+            exit 1
+          fi
       
       - name: Deploy docker compose
         run: |
-          docker-compose down
-          docker-compose up -d
+          if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+            docker compose down
+            docker compose up -d
+          elif command -v docker-compose >/dev/null 2>&1; then
+            docker-compose down
+            docker-compose up -d
+          else
+            echo "Error: neither docker compose nor docker-compose is installed"
+            exit 1
+          fi
 
       - name: Verify deployment
         run: |
