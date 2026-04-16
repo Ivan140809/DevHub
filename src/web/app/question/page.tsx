@@ -105,10 +105,10 @@ const SearchInputStyle: React.CSSProperties = {
 const FilterButtonStyle: React.CSSProperties = {
   height: 36,
   padding: "0 20px",
-  background: "linear-gradient(135deg,#7040ff,#5020e0)",
-  border: "none",
+  background: "rgba(52, 26, 122, 0.3)",
+  border: "1px solid rgb(99, 60, 255)",
   borderRadius: 10,
-  color: "white",
+  color: " rgb(180, 150, 255)",
   fontFamily: "'Syne', sans-serif",
   fontSize: 11,
   fontWeight: 800,
@@ -117,6 +117,7 @@ const FilterButtonStyle: React.CSSProperties = {
   cursor: "pointer",
   boxShadow: "0 4px 16px rgba(91, 40, 220, 0.75)",
   width: "fit-content",
+  
 };
 
 const ContainerStyle: React.CSSProperties = {
@@ -254,12 +255,12 @@ const FloatingButtonStyle: React.CSSProperties = {
 const FixedButtonStyle: React.CSSProperties = {
   height: 36,
   padding: "0 20px",
-  background: "linear-gradient(135deg,#7040ff,#5020e0)",
-  border: "none",
+  background: "rgba(52, 26, 122, 0.3)",
+  border: "1px solid rgb(99, 60, 255)",
   borderRadius: 10,
-  color: "white",
+  color: " rgb(180, 150, 255)",
   fontFamily: "'Syne', sans-serif",
-  fontSize: 10,
+  fontSize: 11,
   fontWeight: 800,
   letterSpacing: "3px",
   textTransform: "uppercase" as const,
