@@ -69,6 +69,9 @@ export default function QuestionDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [answerError, setAnswerError] = useState<string | null>(null);
   const [comentario, setComentario] = useState("");
   const [rating, setRating] = useState<number>(5);
   const [comentarioEnviado, setComentarioEnviado] = useState(false);
@@ -100,6 +103,8 @@ export default function QuestionDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const correctaIdx = pregunta?.options.findIndex((o) => o.correct) ?? -1;
+
   async function enviarComentario() {
     if (!comentario.trim() || !id) return;
 
@@ -126,14 +131,83 @@ export default function QuestionDetailPage() {
 
       setComentarioEnviado(true);
       setComentario("");
-    } catch (error: any) {
-      setComentarioError(error.message || "No se pudo enviar el comentario. Intenta de nuevo.");
+    } catch (error: Error | unknown) {
+      const message = error instanceof Error ? error.message : "No se pudo enviar el comentario. Intenta de nuevo.";
+      setComentarioError(message || "No se pudo enviar el comentario. Intenta de nuevo.");
     } finally {
       setComentarioLoading(false);
     }
   }
 
-  const correctaIdx = pregunta?.options.findIndex((o) => o.correct) ?? -1;
+  async function confirmarRespuesta() {
+    if (selected === null || !id) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setAnswerError("Necesitas iniciar sesión para responder.");
+      return;
+    }
+
+    setAnswerError(null);
+    setConfirming(true);
+
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+    const requestUrl = `${BASE_URL}/questions/${id}/answer`;
+    const requestBody = {
+      questionId: id,
+      selectedOption: pregunta?.options[selected]?.text,
+    };
+    console.log("POST answer request:", requestUrl, requestBody);
+
+    try {
+      const res = await fetch(requestUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setAnswerError("Debes iniciar sesión para enviar la respuesta.");
+          return;
+        }
+        if (res.status === 404) {
+          setAnswerError("Pregunta no encontrada o no disponible.");
+          return;
+        }
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error ${res.status}`);
+      }
+
+      const result = await res.json();
+      setIsCorrect(result.correct);
+      setAnswered(true);
+
+      const storedUser = localStorage.getItem("devhub_user");
+      if (storedUser) {
+        try {
+          const parsed = JSON.parse(storedUser);
+          const currentScore = result.totalScore ?? parsed.totalScore ?? parsed.puntosAcumulados ?? 0;
+          parsed.totalScore = currentScore;
+          parsed.puntosAcumulados = currentScore;
+          localStorage.setItem("devhub_user", JSON.stringify(parsed));
+          window.dispatchEvent(new Event("devhub-user-updated"));
+          window.dispatchEvent(new Event("devhub-profile-refresh"));
+        } catch (e) {
+          console.error("Error actualizando puntos en localStorage:", e);
+        }
+      }
+    } catch (error: Error | unknown) {
+      const message = error instanceof Error ? error.message : "No se pudo enviar la respuesta. Intenta de nuevo.";
+      setAnswerError(message || "No se pudo enviar la respuesta. Intenta de nuevo.");
+      console.error("Error enviando respuesta:", error);
+    } finally {
+      setConfirming(false);
+    }
+  }
 
   function optStyle(i: number): React.CSSProperties {
     if (!answered) {
@@ -528,6 +602,44 @@ export default function QuestionDetailPage() {
                 ))}
               </div>
 
+              {selected !== null && !answered && (
+                <button
+                  onClick={confirmarRespuesta}
+                  disabled={confirming}
+                  style={{
+                    alignSelf: "center",
+                    height: 40,
+                    padding: "0 32px",
+                    background: confirming ? "rgba(100,60,255,.2)" : "linear-gradient(135deg,#7040ff,#5020e0)",
+                    border: "none",
+                    borderRadius: 12,
+                    color: "white",
+                    fontFamily: "'Syne', sans-serif",
+                    fontSize: 12,
+                    fontWeight: 800,
+                    letterSpacing: "2px",
+                    textTransform: "uppercase",
+                    cursor: confirming ? "not-allowed" : "pointer",
+                    boxShadow: "0 4px 16px rgba(90,40,220,.25)",
+                  }}
+                >
+                  {confirming ? "Enviando..." : "Confirmar Respuesta"}
+                </button>
+              )}
+
+              {answerError && (
+                <span
+                  style={{
+                    marginTop: 10,
+                    color: "rgba(240,100,100,.85)",
+                    fontFamily: "'Space Mono', monospace",
+                    fontSize: 12,
+                  }}
+                >
+                  {answerError}
+                </span>
+              )}
+
               {answered && (
                 <div
                   style={{
@@ -536,7 +648,7 @@ export default function QuestionDetailPage() {
                     display: "flex",
                     flexDirection: "column",
                     gap: 6,
-                    ...(selected === correctaIdx
+                    ...(isCorrect
                       ? {
                           background: "rgba(30,160,100,.1)",
                           border: "1px solid rgba(30,160,100,.2)",
@@ -551,14 +663,14 @@ export default function QuestionDetailPage() {
                     style={{
                       fontWeight: 800,
                       fontSize: 15,
-                      color: selected === correctaIdx ? "rgba(80,220,150,.9)" : "rgba(240,100,100,.8)",
+                      color: isCorrect ? "rgba(80,220,150,.9)" : "rgba(240,100,100,.8)",
                     }}
                   >
-                    {selected === correctaIdx ? "¡Correcto!" : "Incorrecto"}
+                    {isCorrect ? "¡Correcto!" : "Incorrecto"}
                   </span>
 
                   <span style={{ fontSize: 13, color: "rgba(200,180,255,.65)", lineHeight: 1.6 }}>
-                    {selected === correctaIdx
+                    {isCorrect
                       ? "Muy bien. Respondiste correctamente."
                       : `La respuesta correcta era: ${pregunta.options[correctaIdx]?.text}`}
                   </span>
@@ -695,33 +807,6 @@ export default function QuestionDetailPage() {
               </div>
 
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                {!answered && (
-                  <button
-                    disabled={selected === null}
-                    onClick={() => setAnswered(true)}
-                    style={{
-                      height: 40,
-                      padding: "0 24px",
-                      background:
-                        selected === null
-                          ? "rgba(100,60,255,.3)"
-                          : "linear-gradient(135deg,#7040ff,#5020e0)",
-                      border: "none",
-                      borderRadius: 10,
-                      color: "white",
-                      fontFamily: "'Syne', sans-serif",
-                      fontSize: 11,
-                      fontWeight: 800,
-                      letterSpacing: "3px",
-                      textTransform: "uppercase",
-                      cursor: selected === null ? "not-allowed" : "pointer",
-                      boxShadow: "0 4px 16px rgba(90,40,220,.35)",
-                    }}
-                  >
-                    Confirmar respuesta
-                  </button>
-                )}
-
                 <button
                   onClick={() => router.push("/question")}
                   style={{

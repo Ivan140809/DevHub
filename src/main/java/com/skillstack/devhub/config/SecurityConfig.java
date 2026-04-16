@@ -40,6 +40,9 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/questions").permitAll()
                         .requestMatchers(HttpMethod.POST, "/questions").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/questions/*/answer").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/questions/*/reviews").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/questions/*/reviews").permitAll()
                         .requestMatchers("/questions/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/user/ranking").permitAll()
