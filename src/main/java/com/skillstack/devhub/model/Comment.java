@@ -1,5 +1,7 @@
 package com.skillstack.devhub.model;
 
+import com.skillstack.devhub.Observer.Observer;
+import com.skillstack.devhub.Observer.Subject;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -7,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "comments")
-public class Comment {
+public class Comment implements Subject {
 
     @Id
     private String id;
@@ -17,11 +19,42 @@ public class Comment {
 
     private List<Comment> replies = new ArrayList<>();
 
-    public Comment() {}
+    // usernames de quienes están suscritos — si se persiste en MongoDB
+    private List<String> subscribedUsernames = new ArrayList<>();
+
+    // lista en memoria — no se persiste
+    private transient List<Observer> observers = new ArrayList<>();
 
     public Comment(String content, String username) {
         this.content = content;
         this.username = username;
+    }
+
+    @Override
+    public void attach(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void detach(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(String message) {
+        for (Observer o : observers) {
+            o.update(message, this);
+        }
+    }
+
+    public void addReply(Comment reply) {
+        replies.add(reply);
+        notifyObservers("Nueva respuesta en el comentario de: " + username);
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+        notifyObservers("El comentario de " + username + " fue editado");
     }
 
     public CommentComponent toComponent() {
@@ -50,10 +83,6 @@ public class Comment {
 
     public String getContent() {
         return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public String getUsername() {
