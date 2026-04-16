@@ -1,17 +1,18 @@
 package com.skillstack.devhub.controller;
 
+import com.skillstack.devhub.dto.RankingDTO;
 import com.skillstack.devhub.dto.UserResponseDTO;
 import com.skillstack.devhub.dto.UserUpdateDTO;
+import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
 import com.skillstack.devhub.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.skillstack.devhub.model.User;
 
 import java.security.Principal;
 import java.util.List;
@@ -30,14 +31,14 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @PatchMapping("/profile")
     public ResponseEntity<UserResponseDTO> updateUser(Principal principal, @Valid @RequestBody UserUpdateDTO updatedUser) {
         UserResponseDTO user = userService.updateUser(principal.getName(), updatedUser);
         return ResponseEntity.ok(user);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @GetMapping("/profile")
     public ResponseEntity<UserResponseDTO> getProfile(Principal principal) {
         return ResponseEntity
@@ -46,12 +47,10 @@ public class UserController {
     }
 
     @GetMapping("/ranking")
-    public ResponseEntity<List<UserResponseDTO>> getRanking(@RequestParam(defaultValue = "0") int page) {
-        List<UserResponseDTO> ranking = userRepository
-                .findAll(PageRequest.of(page, 10, Sort.by("totalScore").descending()))
-                .map(u -> new UserResponseDTO(u.getId(), null, null,
-                        u.getUsername(), null, null, null, 0, u.getTotalScore()))
-                .toList();
+    public ResponseEntity<List<RankingDTO>> getRanking() {
+
+        List<RankingDTO> ranking = userService.findRanking();
+
         return ResponseEntity.ok(ranking);
     }
 }

@@ -107,41 +107,63 @@ export default function LoginPage() {
             Inicia sesión en tu cuenta
           </p>
 
-          <form onSubmit={async (e) => {
-            e.preventDefault();
-            
-            if (!username || !password) {
-              alert("Por favor completa todos los campos");
-              return;
-            }
+          <form
+  onSubmit={async (e) => {
+    e.preventDefault();
 
-            try {
-              const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/login`, {
-                method:"POST",
-                headers:{ "Content-Type":"application/json" },
-                body: JSON.stringify({ email: username, password }),
-              });
-              
-              if (r.ok) {
-                const data = await r.json();
-                const userData = {
-                  email: username,
-                  nombre: data.firstName || data.nombre,
-                  apellido: data.lastName || data.apellido,
-                  username: data.username,
-                  phone: data.phone,
-                  preferencias: data.preferencias
-                };
-                localStorage.setItem("devhub_user", JSON.stringify(userData));
-                router.push("/profile"); 
-              } else {
-                const errorData = await r.json().catch(() => ({}));
-                alert(errorData.message || "Credenciales incorrectas");
-              }
-            } catch (error) {
-              alert("Error de conexión. Verifica que el backend esté disponible.");
-            }
-          }}>
+    if (!username || !password) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    try {
+      const r = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: username, password }),
+        }
+      );
+
+      const data = await r.json().catch(() => ({}));
+
+      if (r.ok) {
+        const token =
+          data.token ?? data.accessToken ?? data.jwt ?? data.access_token;
+
+        if (!token) {
+          alert("El backend no devolvió token.");
+          console.log("Respuesta del login:", data);
+          return;
+        }
+
+        const userData = {
+          email: username,
+          nombre: data.firstName || data.nombre || "",
+          apellido: data.lastName || data.apellido || "",
+          username: data.username || "",
+          phone: data.phone || "",
+          preferencias: Array.isArray(data.preferencias)
+            ? data.preferencias.join(", ")
+            : Array.isArray(data.preferences)
+            ? data.preferences.join(", ")
+            : data.preferencias || data.preferences || "",
+        };
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("devhub_user", JSON.stringify(userData));
+
+        router.push("/profile");
+      } else {
+        alert(data.message || "Credenciales incorrectas");
+      }
+    } catch (error) {
+      console.error("Error en login:", error);
+      alert("Error de conexión. Verifica que el backend esté disponible.");
+    }
+  }}
+>
 
             <label style={lbl}>Email</label>
             <input className="dh-inp" type="email" placeholder="tu@email.com"

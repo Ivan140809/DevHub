@@ -1,6 +1,7 @@
 package com.skillstack.devhub.controller;
 
 import com.skillstack.devhub.dto.AnswerDTO;
+import com.skillstack.devhub.dto.AnswerResponseDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.dto.ReviewDTO;
 import com.skillstack.devhub.model.Category;
@@ -28,7 +29,7 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<String> createQuestion(@RequestBody QuestionDTO question) {
         String response = questionService.addQuestion(question);
@@ -37,7 +38,7 @@ public class QuestionController {
                 .body(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @GetMapping
     public ResponseEntity<List<QuestionDTO>> getQuestions(//tmb se puede hacer con optional
             @RequestParam(required = false) Category category, @RequestParam(required = false) Difficulty difficulty, @RequestParam(defaultValue = "0") int page) {
@@ -48,8 +49,8 @@ public class QuestionController {
                 .body(questions);
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/{id}")
+    //@PreAuthorize("hasRole('USER')")
+    @GetMapping("/{id:[0-9a-f]{24}}")
     public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable String id) {
         QuestionDTO question = questionService.getQuestionById(id);
         return ResponseEntity
@@ -57,18 +58,24 @@ public class QuestionController {
                 .body(question);
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/{id}/answer")
-    public ResponseEntity<Boolean> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer,
+    //@PreAuthorize("hasRole('USER')")
+    @PostMapping("/{id:[0-9a-f]{24}}/answer")
+    public ResponseEntity<AnswerResponseDTO> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer,
                                           Authentication authentication){
 
-        boolean response = questionService.verifyAnswer(answer,id, authentication.getName());
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        AnswerResponseDTO response = questionService.verifyAnswer(answer, id, authentication.getName());
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/{id}/reviews")
+
+
+    //@PreAuthorize("hasRole('USER')")
+    @PostMapping("/{id:[0-9a-f]{24}}/reviews")
     public ResponseEntity<String> createReview(
         @PathVariable("id") String questionId,
         @RequestBody ReviewDTO reviewDTO,
@@ -80,8 +87,8 @@ public class QuestionController {
                 .body(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/{id}/reviews")
+    //@PreAuthorize("hasRole('USER')")
+    @GetMapping("/{id:[0-9a-f]{24}}/reviews")
     public ResponseEntity<List<ReviewDTO>> getReviewsByQuestionId(@PathVariable String id, @RequestParam(defaultValue = "0") int page){
         List<ReviewDTO> reviews = questionService.getReviewsByQuestionId(id, page);
         return ResponseEntity.ok(reviews);

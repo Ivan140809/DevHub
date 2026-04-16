@@ -1,14 +1,10 @@
 package com.skillstack.devhub.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.List;
 
-@Document (collection = "users")
+
 public abstract class AbstractUser {
-    @Id
-    protected String id;
+
     protected String firstName;
     protected String lastName;
     protected String username;
@@ -18,10 +14,6 @@ public abstract class AbstractUser {
     protected List<String> preferences;
     protected Role role;
     protected int totalScore;
-
-    public String getId() {
-        return id;
-    }
 
     public String getFirstName() {
         return firstName;

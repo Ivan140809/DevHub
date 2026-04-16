@@ -1,5 +1,6 @@
 package com.skillstack.devhub.service;
 
+import com.skillstack.devhub.dto.RankingDTO;
 import com.skillstack.devhub.dto.UserResponseDTO;
 import com.skillstack.devhub.dto.UserUpdateDTO;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
@@ -24,24 +25,29 @@ public class UserService {
         this.answerRepository = answerRepository;
     }
 
-    public List<String> findRanking(){
+    public List<RankingDTO> findRanking(){
 
         List<User> users = userRepository.findTop50ByOrderByTotalScoreDesc();
 
         if(users.isEmpty()){
             throw new UserNotFoundException("NO HAY USUARIOS ACTUALMENTE EN EL RANKING");
         }
-        return users.stream().map(User::getUsername).toList();
+
+        return users.stream()
+                .map((user) -> {
+                    int position = users.indexOf(user) + 1;
+                    return new RankingDTO(position, user.getUsername(), user.getEmail(), user.getTotalScore());
+                })
+                .toList();
 
     }
 
-    public UserResponseDTO getProfile(String userId) {
-
-        User user = userRepository.findById(userId)
+    public UserResponseDTO getProfile(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
 
-        int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(userId).size();
-
+        int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(user.getId()).size();
+        System.out.println("GET PROFILE USER ID: " + user.getId());
         return new UserResponseDTO(
                 user.getId(),
                 user.getFirstName(),
@@ -55,12 +61,14 @@ public class UserService {
         );
     }
 
-    public UserResponseDTO updateUser(String userId, UserUpdateDTO userUpdateDTO) {
-        User user = userRepository.findById(userId)
+    public UserResponseDTO updateUser(String userEmail, UserUpdateDTO userUpdateDTO) {
+        System.out.println("BUSCANDO USUARIO POR EMAIL");
+        User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
 
         if (userUpdateDTO.getFirstName() != null && !userUpdateDTO.getFirstName().isEmpty()) {
             user.setFirstName(userUpdateDTO.getFirstName());
+
         }
 
         if (userUpdateDTO.getLastName() != null && !userUpdateDTO.getLastName().isEmpty()) {
@@ -87,5 +95,4 @@ public class UserService {
 
         return getProfile(user.getId());
     }
-
 }
