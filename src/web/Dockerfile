@@ -1,11 +1,11 @@
-FROM oven/bun:1 AS build
+FROM oven/bun:1.2.0 AS build
 WORKDIR /app
 COPY package.json bun.lock* ./
 RUN bun install
 COPY . .
 RUN bun run build
 
-FROM oven/bun:1
+FROM oven/bun:1.2.0
 WORKDIR /app
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/node_modules ./node_modules
