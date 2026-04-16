@@ -3,11 +3,22 @@ import { useRouter } from "next/navigation";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import "./Navbar.css";
 import { HelpCircle, Settings,House, Trophy,Crown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const router = useRouter();
   const nombre = useCurrentUser();
+  const [puntosAcumulados, setPuntosAcumulados] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try {
+      const raw = localStorage.getItem("devhub_user");
+      if (!raw) return 0;
+      const user = JSON.parse(raw);
+      return user.totalScore ?? user.puntosAcumulados ?? 0;
+    } catch {
+      return 0;
+    }
+  });
 
   const handleProfileClick = () => {
     const raw = localStorage.getItem("devhub_user");
@@ -15,8 +26,31 @@ export default function Navbar() {
     router.push(isRegistered ? "/profile" : "/login");
   };
 
-  
-  const puntosAcumulados = 0;
+  useEffect(() => {
+    const updatePoints = () => {
+      try {
+        const raw = localStorage.getItem("devhub_user");
+        if (!raw) {
+          setPuntosAcumulados(0);
+          return;
+        }
+        const user = JSON.parse(raw);
+        setPuntosAcumulados(user.totalScore ?? user.puntosAcumulados ?? 0);
+      } catch {
+        setPuntosAcumulados(0);
+      }
+    };
+
+    window.addEventListener("storage", updatePoints);
+    window.addEventListener("devhub-user-updated", updatePoints);
+
+    updatePoints();
+
+    return () => {
+      window.removeEventListener("storage", updatePoints);
+      window.removeEventListener("devhub-user-updated", updatePoints);
+    };
+  }, []);
 
   return (
     <header style={{

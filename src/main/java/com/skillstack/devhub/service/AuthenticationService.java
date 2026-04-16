@@ -6,6 +6,7 @@ import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.exception.IncorrectPasswordException;
 import com.skillstack.devhub.exception.PasswordFormatException;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
+import com.skillstack.devhub.factorymethod.DefaultUserFactory;
 import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
@@ -20,12 +21,14 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final DefaultUserFactory defaultUserFactory;
 
     @Autowired
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, DefaultUserFactory defaultUserFactory) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.defaultUserFactory = defaultUserFactory;
     }
 
     public String validatePassword(String password) {
@@ -64,10 +67,13 @@ public class AuthenticationService {
             throw new PasswordFormatException("CONTRASENA" + result);
         }
 
-        User u = new User(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(),
-                user.getPassword(), Role.USER, "0");
+        User u = (User) defaultUserFactory.createUser(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(),
+                user.getPassword(), user.getPhone(), Role.USER, 0);
         u.setPassword(passwordEncoder.encode(user.getPassword()));
-        u.setPhone(user.getPhone());
+
+        if(userRepository.count()==0){
+            u.setRole(Role.ADMIN);
+        }
 
         userRepository.save(u);
 
@@ -85,6 +91,6 @@ public class AuthenticationService {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return new LoginResponseDTO(token, user.getEmail(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getPhone());
+        return new LoginResponseDTO(token);
     }
 }

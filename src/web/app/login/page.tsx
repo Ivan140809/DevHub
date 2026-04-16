@@ -107,41 +107,63 @@ export default function LoginPage() {
             Inicia sesión en tu cuenta
           </p>
 
-          <form onSubmit={async (e) => {
-            e.preventDefault();
-            
-            if (!username || !password) {
-              alert("Por favor completa todos los campos");
-              return;
-            }
+          <form
+  onSubmit={async (e) => {
+    e.preventDefault();
 
-            try {
-              const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/login`, {
-                method:"POST",
-                headers:{ "Content-Type":"application/json" },
-                body: JSON.stringify({ email: username, password }),
-              });
-              
-              if (r.ok) {
-                const data = await r.json();
-                const userData = {
-                  email: username,
-                  nombre: data.firstName || data.nombre,
-                  apellido: data.lastName || data.apellido,
-                  username: data.username,
-                  phone: data.phone,
-                  preferencias: data.preferencias
-                };
-                localStorage.setItem("devhub_user", JSON.stringify(userData));
-                router.push("/profile"); 
-              } else {
-                const errorData = await r.json().catch(() => ({}));
-                alert(errorData.message || "Credenciales incorrectas");
-              }
-            } catch (error) {
-              alert("Error de conexión. Verifica que el backend esté disponible.");
-            }
-          }}>
+    if (!username || !password) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    try {
+      const r = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: username, password }),
+        }
+      );
+
+      const data = await r.json().catch(() => ({}));
+
+      if (r.ok) {
+        const token =
+          data.token ?? data.accessToken ?? data.jwt ?? data.access_token;
+
+        if (!token) {
+          alert("El backend no devolvió token.");
+          console.log("Respuesta del login:", data);
+          return;
+        }
+
+        const userData = {
+          email: username,
+          nombre: data.firstName || data.nombre || "",
+          apellido: data.lastName || data.apellido || "",
+          username: data.username || "",
+          phone: data.phone || "",
+          preferencias: Array.isArray(data.preferencias)
+            ? data.preferencias.join(", ")
+            : Array.isArray(data.preferences)
+            ? data.preferences.join(", ")
+            : data.preferencias || data.preferences || "",
+        };
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("devhub_user", JSON.stringify(userData));
+
+        router.push("/profile");
+      } else {
+        alert(data.message || "Credenciales incorrectas");
+      }
+    } catch (error) {
+      console.error("Error en login:", error);
+      alert("Error de conexión. Verifica que el backend esté disponible.");
+    }
+  }}
+>
 
             <label style={lbl}>Email</label>
             <input className="dh-inp" type="email" placeholder="tu@email.com"
@@ -155,7 +177,7 @@ export default function LoginPage() {
               ¿Olvidaste la contraseña?
             </div>
 
-            <button type="submit" className="dh-btn" style={{ width:"100%", height:46, background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:11, color:"white", fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, letterSpacing:4, textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 24px rgba(90,40,220,0.4)", transition:"transform .15s, box-shadow .2s" }}>
+            <button onClick={() => router.push("/home")} type="submit" className="dh-btn" style={{ width:"100%", height:46, background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:11, color:"white", fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, letterSpacing:4, textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 24px rgba(90,40,220,0.4)", transition:"transform .15s, box-shadow .2s" }}>
               Login
             </button>
 

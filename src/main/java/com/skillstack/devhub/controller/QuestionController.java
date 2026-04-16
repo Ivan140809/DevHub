@@ -1,6 +1,7 @@
 package com.skillstack.devhub.controller;
 
 import com.skillstack.devhub.dto.AnswerDTO;
+import com.skillstack.devhub.dto.AnswerResponseDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.dto.ReviewDTO;
 import com.skillstack.devhub.model.Category;
@@ -17,7 +18,7 @@ import org.springframework.security.core.Authentication;
 import java.util.List;
 
 @RestController
-@RequestMapping("/question")
+@RequestMapping("/questions")
 @CrossOrigin
 public class QuestionController {
 
@@ -28,8 +29,8 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/add")
+    //@PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
     public ResponseEntity<String> createQuestion(@RequestBody QuestionDTO question) {
         String response = questionService.addQuestion(question);
         return ResponseEntity
@@ -37,34 +38,19 @@ public class QuestionController {
                 .body(response);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<QuestionDTO>> getAllQuestions(@RequestParam(defaultValue = "0") int page) {
-        List<QuestionDTO> questions = questionService.getQuestions(page);
+    //@PreAuthorize("hasRole('USER')")
+    @GetMapping
+    public ResponseEntity<List<QuestionDTO>> getQuestions(//tmb se puede hacer con optional
+            @RequestParam(required = false) Category category, @RequestParam(required = false) Difficulty difficulty, @RequestParam(defaultValue = "0") int page) {
+        List<QuestionDTO> questions = questionService.getQuestions(category, difficulty, page);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(questions);
     }
 
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<QuestionDTO>> filterCategory(@PathVariable Category category, @RequestParam(defaultValue = "0") int page) {
-        List<QuestionDTO> questions = questionService.getQuestionByCategory(category, page);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(questions);
-    }
-
-    @GetMapping("/difficulty/{difficulty}")
-    public ResponseEntity<List<QuestionDTO>> filterDifficulty(@PathVariable Difficulty difficulty, @RequestParam(defaultValue = "0") int page){
-        List<QuestionDTO> questions = questionService.getQuestionByDifficulty(difficulty, page);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(questions);
-    }
-
-    @GetMapping("/{id}")
+    //@PreAuthorize("hasRole('USER')")
+    @GetMapping("/{id:[0-9a-f]{24}}")
     public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable String id) {
         QuestionDTO question = questionService.getQuestionById(id);
         return ResponseEntity
@@ -72,22 +58,24 @@ public class QuestionController {
                 .body(question);
     }
 
-    @GetMapping("/categories")
-    public ResponseEntity<Category[]> getCategories() {
-        return ResponseEntity.ok(Category.values());
-    }
+    //@PreAuthorize("hasRole('USER')")
+    @PostMapping("/{id:[0-9a-f]{24}}/answer")
+    public ResponseEntity<AnswerResponseDTO> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer,
+                                          Authentication authentication){
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/{id}/answer")
-    public ResponseEntity<Boolean> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer){
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
-        boolean response = questionService.verifyAnswer(answer,id);
+        AnswerResponseDTO response = questionService.verifyAnswer(answer, id, authentication.getName());
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/{id}/reviews")
+
+
+    //@PreAuthorize("hasRole('USER')")
+    @PostMapping("/{id:[0-9a-f]{24}}/reviews")
     public ResponseEntity<String> createReview(
         @PathVariable("id") String questionId,
         @RequestBody ReviewDTO reviewDTO,
@@ -99,10 +87,15 @@ public class QuestionController {
                 .body(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/{questionId}/reviews")
-    public ResponseEntity<List<ReviewDTO>> getReviewsByQuestionId(@PathVariable String questionId, @RequestParam(defaultValue = "0") int page){
-        List<ReviewDTO> reviews = questionService.getReviewsByQuestionId(questionId, page);
+    //@PreAuthorize("hasRole('USER')")
+    @GetMapping("/{id:[0-9a-f]{24}}/reviews")
+    public ResponseEntity<List<ReviewDTO>> getReviewsByQuestionId(@PathVariable String id, @RequestParam(defaultValue = "0") int page){
+        List<ReviewDTO> reviews = questionService.getReviewsByQuestionId(id, page);
         return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<Category[]> getCategories() {
+        return ResponseEntity.ok(Category.values());
     }
 }

@@ -1,6 +1,7 @@
 package com.skillstack.devhub.service;
 
 import com.skillstack.devhub.dto.AnswerDTO;
+import com.skillstack.devhub.dto.AnswerResponseDTO;
 import com.skillstack.devhub.dto.OptionDTO;
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.dto.ReviewDTO;
@@ -58,39 +59,6 @@ public class QuestionService {
         return "PREGUNTA CREADA EXITOSAMENTE";
     }
 
-    public List<QuestionDTO> getQuestions(int page) {
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<Question> questionPage = questionRepository.findAll(pageable);
-
-        return questionPage.getContent().stream().map(q ->
-                new QuestionDTO(
-                        q.getTitle(),
-                        null,
-                        q.getCategory(),
-                        q.getDifficulty(),
-                        null
-                )
-        ).toList();
-    }
-
-    public List<QuestionDTO> getQuestionByCategory(Category category, int page) {
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<Question> questionPage = questionRepository.findByCategory(category, pageable);
-
-        if (questionPage.isEmpty()) {
-            throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON CATEGORIA " + category);
-        }
-
-        return questionPage.getContent().stream().map(q ->
-                new QuestionDTO(
-                        q.getTitle(),
-                        null,
-                        q.getCategory(),
-                        q.getDifficulty(),
-                        null
-                )).toList();
-    }
-
     public QuestionDTO getQuestionById(String id) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + id + " NO ENCONTRADA"));
@@ -99,6 +67,7 @@ public class QuestionService {
                 .map(r -> new OptionDTO(r.getText(), r.isCorrect())).toList();
 
         return new QuestionDTO(
+                question.getId(),
                 question.getTitle(),
                 question.getStatement(),
                 question.getCategory(),
@@ -107,35 +76,64 @@ public class QuestionService {
         );
     }
 
-    public List<QuestionDTO> getQuestionByDifficulty(Difficulty difficulty, int page) {
+    public List<QuestionDTO> getQuestions(Category category, Difficulty difficulty, int page) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<Question> questionPage = questionRepository.findByDifficulty(difficulty, pageable);
 
-        if (questionPage.isEmpty()) {
-            throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON DIFICULTAD " + difficulty);
+        Page<Question> questionPage;
+
+        if (category != null && difficulty != null) {
+            questionPage = questionRepository.findByCategoryAndDifficulty(category, difficulty, pageable);
+            if (questionPage.isEmpty()) {
+                throw new QuestionNotFoundException("NO HAY PREGUNTAS CON CATEGORIA " + category + " Y DIFICULTAD " + difficulty);
+            }
+        } else if (category != null){
+            questionPage = questionRepository.findByCategory(category, pageable);
+            if (questionPage.isEmpty()) {
+                throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON CATEGORIA " + category);
+            }
+        } else if(difficulty != null){
+            questionPage = questionRepository.findByDifficulty(difficulty, pageable);
+            if (questionPage.isEmpty()) {
+                throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON DIFICULTAD " + difficulty);
+            }
+        } else {
+            questionPage = questionRepository.findAll(pageable);
+            if (questionPage.isEmpty()) {
+                throw new QuestionNotFoundException("NO HAY PREGUNTAS DISPONIBLES");
+            }
         }
 
-        return questionPage.getContent().stream().map(q ->
-                new QuestionDTO(
-                        q.getTitle(),
-                        null,
-                        q.getCategory(),
-                        q.getDifficulty(),
-                        null
-                )
-        ).toList();
+        return questionPage.getContent().stream()
+                .map(question -> new QuestionDTO(
+                        question.getId(),
+                        question.getTitle(),
+                        question.getStatement(),
+                        question.getCategory(),
+                        question.getDifficulty(),
+                        question.getOptions().stream()
+                                .map(option -> new OptionDTO(option.getText(), option.isCorrect()))
+                                .toList()
+                ))
+                .toList();
     }
 
-    public boolean verifyAnswer(AnswerDTO answerDTO, String id) {
-        Question question = questionRepository.findById(id)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + id + " NO ENCONTRADA"));
+    public AnswerResponseDTO verifyAnswer(AnswerDTO answerDTO, String questionId, String userEmail) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + " NO ENCONTRADA"));
 
-        Answer answer = new Answer(answerDTO.getQuestionId(), answerDTO.getSelectedOption(), answerDTO.getUserId());
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + userEmail + " NO ENCONTRADO"));
+
+        Answer answer = new Answer(questionId, answerDTO.getSelectedOption(), user.getId());
         answerRepository.save(answer);
 
         for (Option option : question.getOptions()) {
             if (option.getText().equals(answerDTO.getSelectedOption())) {
-                return option.isCorrect();
+                if (option.isCorrect()) {
+                    user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
+                    userRepository.save(user);
+                }
+                return new AnswerResponseDTO(option.isCorrect(), user.getTotalScore());
             }
         }
 
@@ -144,11 +142,12 @@ public class QuestionService {
         );
     }
 
-    public String createReview(ReviewDTO reviewDTO, String email, String questionId) {
-        User user = userRepository.findByEmail(email)
+    public String createReview(ReviewDTO reviewDTO, String id, String questionId) {
+        User user = userRepository.findByEmail(id)
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
-
-        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(), questionId, user.getId(), LocalDate.now());
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + " NO ENCONTRADA"));
+        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(),  question.getId(), user.getId(), LocalDate.now());
 
         reviewRepository.save(review);
 
@@ -157,11 +156,9 @@ public class QuestionService {
 
     public List<ReviewDTO> getReviewsByQuestionId(String questionId, int page) {
         Pageable pageable = PageRequest.of(page, 10);
+        questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + " NO ENCONTRADA"));
         Page<Review> reviewPage = reviewRepository.findByQuestionId(questionId, pageable);
-
-        if (reviewPage.isEmpty()) {
-            throw new ReviewNotFoundException("REVIEWS PARA LA PREGUNTA " + questionId + " NO ENCONTRADOS");
-        }
 
         return reviewPage.getContent().stream().map(r ->
                 new ReviewDTO(

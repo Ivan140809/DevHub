@@ -1,18 +1,52 @@
 services:
+  mongo:
+    image: mongo:latest
+    container_name: devhubdb-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - devhubdb-network
+
   backend:
     build:
       context: .
       dockerfile: src/main/Dockerfile
+    container_name: devhubdb-backend
     ports:
       - "8080:8080"
     env_file:
       - .env
+    environment:
+      SPRING_DATA_MONGODB_URI: ${MONGO_URI}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - mongo
+    networks:
+      - devhubdb-network
 
   frontend:
     build:
       context: ./src/web
       dockerfile: Dockerfile
+    container_name: devhubdb-frontend
     ports:
       - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8080
     depends_on:
       - backend
+    networks:
+      - devhubdb-network
+
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  devhubdb-network:
+    driver: bridge
