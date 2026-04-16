@@ -43,16 +43,53 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-  
+
+      - name: Create .env file for Docker Compose
+        run: |
+          set -e
+          echo "PWD=$(pwd)"
+          ls -la
+          if [ -z "${{ secrets.MONGO_URI }}" ] || [ -z "${{ secrets.JWT_SECRET }}" ]; then
+            echo "Missing required secrets MONGO_URI or JWT_SECRET"
+            exit 1
+          fi
+          cat > .env <<EOF
+          MONGO_URI=${{ secrets.MONGO_URI }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          EOF
+          echo ".env created in $(pwd):"
+          ls -la .env
+          echo "---- .env contents ----"
+          cat .env
+          echo "----------------------"
+
       - name: Build and push Docker images
-        run: docker-compose build
-      
+        run: |
+          set -e
+          if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+            docker compose --project-directory . build
+          elif command -v docker-compose >/dev/null 2>&1; then
+            docker-compose --project-directory . build
+          else
+            echo "Error: neither docker compose nor docker-compose is installed"
+            exit 1
+          fi
+       
       - name: Deploy docker compose
         run: |
-          docker-compose down
-          docker-compose up -d
+          set -e
+          if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+            docker compose --project-directory . down
+            docker compose --project-directory . up -d
+          elif command -v docker-compose >/dev/null 2>&1; then
+            docker-compose --project-directory . down
+            docker-compose --project-directory . up -d
+          else
+            echo "Error: neither docker compose nor docker-compose is installed"
+            exit 1
+          fi
 
       - name: Verify deployment
         run: |
           sleep 30
-          curl -f http://localhost:8080/ || exit 1
+          curl -f http://localhost:8080/questions || exit 1

@@ -177,7 +177,7 @@ export default function LoginPage() {
               ¿Olvidaste la contraseña?
             </div>
 
-            <button type="submit" className="dh-btn" style={{ width:"100%", height:46, background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:11, color:"white", fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, letterSpacing:4, textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 24px rgba(90,40,220,0.4)", transition:"transform .15s, box-shadow .2s" }}>
+            <button onClick={() => router.push("/home")} type="submit" className="dh-btn" style={{ width:"100%", height:46, background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:11, color:"white", fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, letterSpacing:4, textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 24px rgba(90,40,220,0.4)", transition:"transform .15s, box-shadow .2s" }}>
               Login
             </button>
 

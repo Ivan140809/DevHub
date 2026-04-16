@@ -1,5 +1,10 @@
 package com.skillstack.devhub.model;
 
 public enum Category {
-    BACKEND
+    FRONTEND,
+    BACKEND,
+    DB,
+    IA,
+    CIBERSEGURIDAD,
+    ESTRUCTURAS
 }

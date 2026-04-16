@@ -35,18 +35,18 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        //esto es lo nuevo q cambie y agregue
-                                .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/question/all").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/question/categories").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/question/category/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/question/difficulty/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/question/{id}").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/user/ranking").permitAll()
-                        //esto es lo q estaba antes
-                        //.requestMatchers("/question/**").permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/questions").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/questions").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/questions/*/answer").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/questions/*/reviews").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/questions/*/reviews").permitAll()
+                        .requestMatchers("/questions/**").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/user/ranking").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

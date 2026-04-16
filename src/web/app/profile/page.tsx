@@ -1,16 +1,22 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Crown, User, MessageSquare, HelpCircle, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 
 const Particles = [
-  { l:"5%",  d:"12s", dl:"0s",  s:3 }, { l:"15%", d:"9s",  dl:"-2s", s:2 },
-  { l:"25%", d:"14s", dl:"-4s", s:4 }, { l:"35%", d:"10s", dl:"-1s", s:2 },
-  { l:"45%", d:"11s", dl:"-6s", s:3 }, { l:"55%", d:"16s", dl:"-3s", s:5 },
-  { l:"65%", d:"8s",  dl:"-7s", s:2 }, { l:"72%", d:"13s", dl:"-5s", s:3 },
-  { l:"80%", d:"10s", dl:"-2s", s:4 }, { l:"88%", d:"15s", dl:"-8s", s:2 },
-  { l:"93%", d:"9s",  dl:"-1s", s:3 }, { l:"10%", d:"12s", dl:"-4s", s:2 },
+  { l: "5%", d: "12s", dl: "0s", s: 3 },
+  { l: "15%", d: "9s", dl: "-2s", s: 2 },
+  { l: "25%", d: "14s", dl: "-4s", s: 4 },
+  { l: "35%", d: "10s", dl: "-1s", s: 2 },
+  { l: "45%", d: "11s", dl: "-6s", s: 3 },
+  { l: "55%", d: "16s", dl: "-3s", s: 5 },
+  { l: "65%", d: "8s", dl: "-7s", s: 2 },
+  { l: "72%", d: "13s", dl: "-5s", s: 3 },
+  { l: "80%", d: "10s", dl: "-2s", s: 4 },
+  { l: "88%", d: "15s", dl: "-8s", s: 2 },
+  { l: "93%", d: "9s", dl: "-1s", s: 3 },
+  { l: "10%", d: "12s", dl: "-4s", s: 2 },
 ];
 
 type UserData = {
@@ -26,6 +32,30 @@ type UserData = {
   totalPreguntas?: number;
   puntosAcumulados?: number;
   totalScore?: number;
+};
+
+type BackendUserData = {
+  firstName?: string;
+  lastName?: string;
+  nombre?: string;
+  apellido?: string;
+  email?: string;
+  username?: string;
+  phone?: string;
+  preferences?: string[];
+  preferencias?: string[] | string;
+  preguntasResueltas?: number;
+  totalPreguntas?: number;
+  puntosAcumulados?: number;
+  totalScore?: number;
+};
+
+type QuestionDTO = {
+  id: string;
+  title: string;
+  statement?: string;
+  category?: string;
+  difficulty?: string;
 };
 
 const applyGlassmorphismDecorator = (
@@ -79,101 +109,141 @@ export default function ProfilePage() {
 
   const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
   const PROFILE_ENDPOINT = `${BASE}/user/profile`;
+  const ANSWERED_ENDPOINT = `${BASE}/statistics/answered`;
 
   function getToken() {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("token");
   }
-  type BackendUserData = {
-  firstName?: string;
-  lastName?: string;
-  nombre?: string;
-  apellido?: string;
-  email?: string;
-  username?: string;
-  phone?: string;
-  preferences?: string[];
-  preferencias?: string[] | string;
-  preguntasResueltas?: number;
-  totalPreguntas?: number;
-  puntosAcumulados?: number;
-  totalScore?: number;
-};
 
   function mapBackendToFrontend(data: BackendUserData): UserData {
-  return {
-    nombre: data.firstName ?? data.nombre ?? "",
-    apellido: data.lastName ?? data.apellido ?? "",
-    email: data.email ?? "",
-    username: data.username ?? "",
-    phone: data.phone ?? "",
-    preferencias: Array.isArray(data.preferences)
-      ? data.preferences.join(", ")
-      : Array.isArray(data.preferencias)
-      ? data.preferencias.join(", ")
-      : data.preferencias ?? "",
-    preguntasResueltas: data.preguntasResueltas ?? 0,
-    totalPreguntas: data.totalPreguntas ?? 100,
-    puntosAcumulados: data.totalScore ?? data.puntosAcumulados ?? 0,
-  };
-}
+    return {
+      nombre: data.firstName ?? data.nombre ?? "",
+      apellido: data.lastName ?? data.apellido ?? "",
+      email: data.email ?? "",
+      username: data.username ?? "",
+      phone: data.phone ?? "",
+      preferencias: Array.isArray(data.preferences)
+        ? data.preferences.join(", ")
+        : Array.isArray(data.preferencias)
+        ? data.preferencias.join(", ")
+        : data.preferencias ?? "",
+      preguntasResueltas: data.preguntasResueltas ?? 0,
+      totalPreguntas: data.totalPreguntas ?? 100,
+      puntosAcumulados: data.totalScore ?? data.puntosAcumulados ?? 0,
+      totalScore: data.totalScore ?? data.puntosAcumulados ?? 0,
+    };
+  }
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      let stored: UserData = {};
-      try {
-        const raw = localStorage.getItem("devhub_user");
-        if (raw) stored = JSON.parse(raw);
-      } catch {}
+  const refreshProfile = useCallback(async () => {
+    const token = getToken();
 
-      setUser(stored);
-      setForm(stored);
+    let stored: UserData = {};
+    try {
+      const raw = localStorage.getItem("devhub_user");
+      if (raw) stored = JSON.parse(raw);
+    } catch {}
 
-      const token = getToken();
+    setUser(stored);
+    setForm(stored);
 
-      if (!token) {
-        setBackendOk(false);
-        setLoading(false);
-        return;
-      }
-console.log("TOKEN USADO:", token);
-console.log("AUTH HEADER:", `Bearer ${token}`);
-console.log("PROFILE_ENDPOINT:", PROFILE_ENDPOINT);
-      try {
-        const res = await fetch(PROFILE_ENDPOINT, {
+    if (!token) {
+      setBackendOk(false);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const [profileRes, answeredRes] = await Promise.all([
+        fetch(PROFILE_ENDPOINT, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        });
+          cache: "no-store",
+        }),
+        fetch(ANSWERED_ENDPOINT, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+        }),
+      ]);
 
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
-        const data = await res.json();
-        const mappedData = mapBackendToFrontend(data);
-
-        setUser(mappedData);
-        setForm(mappedData);
-        setBackendOk(true);
-
-        localStorage.setItem("devhub_user", JSON.stringify(mappedData));
-
-        setPreguntasResueltas(mappedData.preguntasResueltas || 0);
-        setTotalPreguntas(mappedData.totalPreguntas || 100);
-        setPuntosAcumulados(mappedData.puntosAcumulados || 0);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setBackendOk(false);
-      } finally {
-        setLoading(false);
+      if (!profileRes.ok) {
+        throw new Error(`Error perfil: ${profileRes.status}`);
       }
+
+      const profileData: BackendUserData = await profileRes.json();
+      const mappedData = mapBackendToFrontend(profileData);
+
+      let answeredQuestions: QuestionDTO[] = [];
+      if (answeredRes.ok) {
+        answeredQuestions = await answeredRes.json();
+      }
+
+      const totalAnswered = answeredQuestions.length;
+      const totalQuestionsBackend =
+        mappedData.totalPreguntas && mappedData.totalPreguntas > 0
+          ? mappedData.totalPreguntas
+          : 100;
+
+      const mergedData: UserData = {
+        ...mappedData,
+        preguntasResueltas: totalAnswered,
+        totalPreguntas: totalQuestionsBackend,
+        puntosAcumulados: mappedData.totalScore ?? mappedData.puntosAcumulados ?? 0,
+      };
+
+      setUser(mergedData);
+      setForm((prev) => ({
+        ...prev,
+        nombre: mergedData.nombre ?? "",
+        apellido: mergedData.apellido ?? "",
+        email: mergedData.email ?? "",
+        username: mergedData.username ?? "",
+        phone: mergedData.phone ?? "",
+        preferencias: mergedData.preferencias ?? "",
+      }));
+
+      setPreguntasResueltas(totalAnswered);
+      setTotalPreguntas(totalQuestionsBackend);
+      setPuntosAcumulados(mergedData.puntosAcumulados ?? 0);
+
+      localStorage.setItem("devhub_user", JSON.stringify(mergedData));
+      setBackendOk(true);
+    } catch (error) {
+      console.error("Error fetching profile/statistics:", error);
+      setBackendOk(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [ANSWERED_ENDPOINT, PROFILE_ENDPOINT]);
+
+  useEffect(() => {
+    refreshProfile();
+  }, [refreshProfile]);
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      refreshProfile();
     };
 
-    fetchProfile();
-  }, [PROFILE_ENDPOINT]);
+    const handleFocus = () => {
+      refreshProfile();
+    };
+
+    window.addEventListener("devhub-profile-refresh", handleRefresh);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("devhub-profile-refresh", handleRefresh);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [refreshProfile]);
 
   function handleLogout() {
     localStorage.removeItem("devhub_user");
@@ -222,19 +292,12 @@ console.log("PROFILE_ENDPOINT:", PROFILE_ENDPOINT);
         throw new Error(`Error al guardar en el servidor: ${res.status}`);
       }
 
-      const updated = await res.json();
-      const mappedData = mapBackendToFrontend(updated);
-
-      setUser(mappedData);
-      setForm(mappedData);
-      localStorage.setItem("devhub_user", JSON.stringify(mappedData));
       setBackendOk(true);
       setSaved(true);
       setSaveError(null);
 
-      setPreguntasResueltas(mappedData.preguntasResueltas || 0);
-      setTotalPreguntas(mappedData.totalPreguntas || 100);
-      setPuntosAcumulados(mappedData.puntosAcumulados || 0);
+      await refreshProfile();
+      window.dispatchEvent(new Event("devhub-profile-refresh"));
     } catch (error) {
       console.error("Error saving to backend:", error);
       localStorage.setItem("devhub_user", JSON.stringify(form));
@@ -510,8 +573,23 @@ console.log("PROFILE_ENDPOINT:", PROFILE_ENDPOINT);
                 </div>
               </div>
 
-              <StatCard title="Respuestas" value="" icon={MessageSquare} gradientStart="rgba(150,100,255,.2)" gradientEnd="rgba(100,50,255,.05)" accentColor="#9664ff" />
-              <StatCard title="Rating" value="" icon={Star} gradientStart="rgba(255,200,100,.2)" gradientEnd="rgba(255,150,50,.05)" accentColor="#ffc864" />
+              <StatCard
+                title="Respuestas"
+                value={String(preguntasResueltas)}
+                icon={MessageSquare}
+                gradientStart="rgba(150,100,255,.2)"
+                gradientEnd="rgba(100,50,255,.05)"
+                accentColor="#9664ff"
+              />
+
+              <StatCard
+                title="Rating"
+                value="5"
+                icon={Star}
+                gradientStart="rgba(255,200,100,.2)"
+                gradientEnd="rgba(255,150,50,.05)"
+                accentColor="#ffc864"
+              />
             </div>
           </DecoratedStatsCard>
         </div>

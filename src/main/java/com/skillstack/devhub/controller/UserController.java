@@ -1,5 +1,6 @@
 package com.skillstack.devhub.controller;
 
+import com.skillstack.devhub.dto.RankingDTO;
 import com.skillstack.devhub.dto.UserResponseDTO;
 import com.skillstack.devhub.dto.UserUpdateDTO;
 import com.skillstack.devhub.model.User;
@@ -46,10 +47,10 @@ public class UserController {
     }
 
     @GetMapping("/ranking")
-    public ResponseEntity<List<String>> getRanking() {
+    public ResponseEntity<List<RankingDTO>> getRanking() {
 
-        List<String> ranking = userService.findRanking();
+        List<RankingDTO> ranking = userService.findRanking();
 
-    return ResponseEntity.ok(ranking);
+        return ResponseEntity.ok(ranking);
     }
 }
