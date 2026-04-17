@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { Trophy, Book, Award, CloudLightning } from "lucide-react";
 
+
 const PARTICLES = [
   { l: "5%", d: "12s", dl: "0s", s: 3 }, { l: "15%", d: "9s", dl: "-2s", s: 2 },
   { l: "25%", d: "14s", dl: "-4s", s: 4 }, { l: "55%", d: "16s", dl: "-3s", s: 5 },
@@ -36,9 +37,16 @@ const FEATURES = [
   },
 ];
 
+
 export default function HomePage() {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
+
+const handleProfileClick = () => {
+    const raw = localStorage.getItem("devhub_user");
+    const isRegistered = !!raw;
+    router.push(isRegistered ? "/profile" : "/register");
+  };
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 100);
@@ -79,13 +87,18 @@ export default function HomePage() {
 
       {/* Header */}
       <header style={{ position:"relative", zIndex:10, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.8)", backdropFilter:"blur(10px)" }}>
+        <button onClick={() => router.push("/FAQ")}className="cta-btn"
+          style={{ height:36, padding:"0 20px", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", fontFamily:"'Space Mono',monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 16px rgba(90,40,220,.35)" }}>
+          Preguntas Frecuentes
+          </button>
         <span style={{ fontFamily:"'Space Mono',monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)" }}> </span>
+        
         <div style={{ display:"flex", gap:12 }}>
-          <button onClick={() => router.push("/login")} className="cta-btn"
+          <button onClick={handleProfileClick} className="cta-btn"
           style={{ height:36, padding:"0 20px", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", fontFamily:"'Space Mono',monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 16px rgba(90,40,220,.35)" }}>
           Login
           </button>
-          <button onClick={() => router.push("/register")}  className="cta-btn"
+          <button onClick={handleProfileClick}  className="cta-btn"
           style={{ height:36, padding:"0 20px", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", fontFamily:"'Space Mono',monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 16px rgba(90,40,220,.35)" }}>
             Registrarse
           </button>
