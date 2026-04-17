@@ -142,7 +142,7 @@ export default function HomePage() {
 
         {/* cajas azules */}
         <div style={{ display:"flex", gap:24, marginTop:52, flexWrap:"wrap", justifyContent:"center", animation:"fadeUp .8s .5s ease both" }}>
-          {[["Preguntas", "100+"], ["Categorías", "7"], ["Gratuito", "100%"]].map(([label, val]) => (
+          {[["Preguntas", "100+"], ["Categorías", "7"], ["Eficiencia", "100%"]].map(([label, val]) => (
             <div key={label} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"14px 24px", background:"rgba(21, 4, 90, 0.55)", border:"1px solid rgba(99, 60, 255, 0.54)", borderRadius:14, backdropFilter:"blur(10px)" }}>
               <span style={{ fontSize:22, fontWeight:900, color:"#ddd0ff" }}>{val}</span>
               <span style={{ fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(159, 130, 255, 0.92)" }}>{label}</span>
