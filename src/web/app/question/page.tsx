@@ -559,10 +559,6 @@ export default function QuestionListPage() {
               </select>
             </div>
           </div>
-          
-          <button onClick={() => router.push("/filter")} style={FilterButtonStyle}>
-            Crear Pregunta
-          </button>
         </div>
 
         <span
