@@ -4,14 +4,12 @@ public class AnswerDTO {
 
     private String questionId;
     private String selectedOption;
-    private String userId;
 
     public AnswerDTO() {}
 
-    public AnswerDTO(String questionId, String selectedOption, String userId) {
+    public AnswerDTO(String questionId, String selectedOption) {
         this.questionId = questionId;
         this.selectedOption = selectedOption;
-        this.userId=userId;
     }
 
     public String getQuestionId() {
@@ -30,11 +28,5 @@ public class AnswerDTO {
         this.selectedOption = selectedOption;
     }
 
-    public String getUserId() {
-        return userId;
-    }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 }
