@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
 import Navbar from "../components/Navbar";
-import { MessageCircle, Plus, User, Calendar, Tag, ArrowLeft, Send, ThumbsUp, MessageSquare, Hash } from "lucide-react";
+import { MessageCircle, User, Calendar, ArrowLeft, Send, MessageSquare, Sparkles, Zap, Heart } from "lucide-react";
 
+// ============== TIPOS ==============
 type Discussion = {
   id: string;
   title: string;
@@ -27,6 +27,15 @@ type Reply = {
   likesCount: number;
 };
 
+type ViewMode = "list" | "create" | "detail";
+
+type Category = {
+  id: string;
+  name: string;
+  color: string;
+};
+
+// ============== CONSTANTES ==============
 const PARTICLES = [
   { l: "5%", d: "12s", dl: "0s", s: 3 },
   { l: "15%", d: "9s", dl: "-2s", s: 2 },
@@ -38,7 +47,7 @@ const PARTICLES = [
   { l: "45%", d: "14s", dl: "-6s", s: 3 },
 ];
 
-const CATEGORIES = [
+const CATEGORIES: Category[] = [
   { id: "general", name: "General", color: "rgba(100,60,255,.6)" },
   { id: "javascript", name: "JavaScript", color: "rgba(247,223,30,.7)" },
   { id: "java", name: "Java", color: "rgba(176,114,25,.7)" },
@@ -48,14 +57,54 @@ const CATEGORIES = [
   { id: "projects", name: "Proyectos", color: "rgba(150,50,180,.7)" },
 ];
 
-function getCategoryInfo(catId: string) {
-  return CATEGORIES.find(c => c.id === catId) || CATEGORIES[0];
-}
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
-function formatDate(dateStr: string): string {
+const GLOBAL_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
+  @keyframes orbFloat { 0%{transform:translate(0,0)} 100%{transform:translate(20px,20px)} }
+  @keyframes floatUp { 0%{transform:translateY(0);opacity:.7} 100%{transform:translateY(-100vh);opacity:0} }
+  @keyframes slideIn { 0%{opacity:0;transform:translateY(28px)} 100%{opacity:1;transform:translateY(0)} }
+  @keyframes popIn { 0%{opacity:0;transform:scale(.92)} 100%{opacity:1;transform:scale(1)} }
+  @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:.7} }
+  @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+  @keyframes glow { 0%,100%{box-shadow:0 0 5px rgba(112,64,255,.3)} 50%{box-shadow:0 0 20px rgba(112,64,255,.6)} }
+  @keyframes sparkle { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.2)} }
+  @keyframes heartBeat { 0%{transform:scale(1)} 25%{transform:scale(1.3)} 50%{transform:scale(1)} 75%{transform:scale(1.3)} 100%{transform:scale(1)} }
+  @keyframes sendPulse { 0%{transform:translateX(0)} 50%{transform:translateX(4px)} 100%{transform:translateX(0)} }
+  .dh-particle { position:fixed; border-radius:50%; background:rgba(160,100,255,.7); bottom:-10px; animation:floatUp linear infinite; pointer-events:none; z-index:0; }
+  .disc-card { transition: all .25s cubic-bezier(.16,1,.3,1); }
+  .disc-card:hover { transform: translateY(-4px); border-color: rgba(140,80,255,.5) !important; box-shadow: 0 12px 40px rgba(90,40,220,.25) !important; }
+  .cat-btn.active { background: rgba(100,60,255,.25) !important; border-color: rgba(140,80,255,.6) !important; color: #b8a0ff !important; }
+  .cat-btn:hover:not(.active) { border-color: rgba(140,80,255,.4) !important; color: #b8a0ff !important; }
+  .new-disc-btn:hover { transform: translateY(-3px) scale(1.02) !important; box-shadow: 0 8px 30px rgba(90,40,220,.5) !important; }
+  .new-disc-btn:active { transform: translateY(0) scale(1) !important; }
+  .tag-pill { transition: all .2s ease; }
+  .tag-pill:hover { background: rgba(100,60,255,.25) !important; transform: scale(1.05); }
+  .like-btn { transition: all .2s ease; }
+  .like-btn:hover { transform: scale(1.15); }
+  .like-btn.liked { animation: heartBeat 0.6s ease; }
+  .reply-btn { transition: all .25s cubic-bezier(.34,1.56,.64,1); }
+  .reply-btn:hover { transform: translateX(4px) scale(1.02); }
+  .reply-btn:active { transform: translateX(2px) scale(0.98); }
+  .submit-reply { transition: all .25s cubic-bezier(.16,1,.3,1); }
+  .submit-reply:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(90,40,220,.5) !important; }
+  .submit-reply:active:not(:disabled) { transform: translateY(0); }
+  .submit-reply.sending { animation: pulse 1s infinite; }
+  .input-glow:focus { border-color: rgba(140,80,255,.5) !important; box-shadow: 0 0 0 3px rgba(100,60,255,.15), 0 0 20px rgba(100,60,255,.1) !important; }
+  .reply-textarea:focus { border-color: rgba(140,80,255,.5) !important; box-shadow: 0 0 0 3px rgba(100,60,255,.15), 0 0 30px rgba(100,60,255,.15) !important; }
+  .back-btn:hover { background: rgba(100,60,255,.15) !important; transform: translateX(-4px); }
+  .category-select:hover { border-color: rgba(140,80,255,.5) !important; }
+  .category-select.selected { background: rgba(100,60,255,.2) !important; border-color: rgba(140,80,255,.5) !important; }
+`;
+
+// ============== UTILIDADES ==============
+const getCategoryInfo = (catId: string): Category =>
+  CATEGORIES.find(c => c.id === catId) || CATEGORIES[0];
+
+const formatDate = (dateStr: string): string => {
   try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("es-CO", {
+    return new Date(dateStr).toLocaleDateString("es-CO", {
       day: "numeric",
       month: "short",
       hour: "2-digit",
@@ -64,67 +113,388 @@ function formatDate(dateStr: string): string {
   } catch {
     return "Reciente";
   }
+};
+
+// ============== COMPONENTES HIJO ==============
+const LoadingSkeleton = () => (
+  <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 20, padding: 24, display: "flex", flexDirection: "column" as const, gap: 16 }}>
+    {[1, 2, 3, 4].map(i => <div key={i} style={{ height: 80, borderRadius: 14, background: "rgba(100,60,255,.07)", animation: "pulse 1.5s infinite" }} />)}
+  </div>
+);
+
+const EmptyState = ({ message, subMessage }: { message: string; subMessage: string }) => (
+  <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.15)", borderRadius: 20, padding: 50, textAlign: "center" as const }}>
+    <div style={{ width: 64, height: 64, borderRadius: 16, background: "rgba(100,60,255,.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+      <MessageSquare size={32} color="rgba(140,100,255,.4)" />
+    </div>
+    <p style={{ color: "rgba(140,100,255,.6)", margin: 0, fontSize: 15 }}>{message}</p>
+    <p style={{ color: "rgba(140,100,255,.4)", margin: "8px 0 0", fontSize: 13 }}>{subMessage}</p>
+  </div>
+);
+
+const ErrorBanner = ({ message }: { message: string }) => (
+  <div style={{ background: "rgba(200,140,20,.08)", border: "1px solid rgba(200,140,20,.2)", borderRadius: 10, padding: "14px 18px", color: "rgba(240,190,60,.7)", fontFamily: "'Space Mono',monospace", fontSize: 12 }}>
+    ⚠️ {message}
+  </div>
+);
+
+const BackgroundEffects = () => (
+  <>
+    <div style={{ position: "fixed" as const, borderRadius: "50%", width: 500, height: 500, background: "radial-gradient(circle,rgba(90,30,200,.22) 0%,transparent 70%)", top: -150, left: -150, animation: "orbFloat 10s ease-in-out infinite alternate", pointerEvents: "none" as const, zIndex: 0 }} />
+    <div style={{ position: "fixed" as const, borderRadius: "50%", width: 400, height: 400, background: "radial-gradient(circle,rgba(110,50,255,.18) 0%,transparent 70%)", bottom: -100, right: -100, animation: "orbFloat 10s ease-in-out infinite alternate", animationDelay: "-5s", pointerEvents: "none" as const, zIndex: 0 }} />
+    {PARTICLES.map((p, i) => <div key={i} className="dh-particle" style={{ width: p.s, height: p.s, left: p.l, animationDuration: p.d, animationDelay: p.dl }} />)}
+  </>
+);
+
+// ============== COMPONENTES PRINCIPALES ==============
+interface DiscussionListProps {
+  discussions: Discussion[];
+  loading: boolean;
+  error: string | null;
+  selectedCategory: string | null;
+  onCategoryChange: (cat: string | null) => void;
+  onCreateClick: () => void;
+  onDiscussionClick: (disc: Discussion) => void;
+  onLikeToggle: (id: string) => void;
+  likedDiscussions: Set<string>;
 }
 
+function DiscussionList({
+  discussions,
+  loading,
+  error,
+  selectedCategory,
+  onCategoryChange,
+  onCreateClick,
+  onDiscussionClick,
+  onLikeToggle,
+  likedDiscussions,
+}: DiscussionListProps) {
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" as const, gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg,#7040ff,#5020e0)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 24px rgba(90,40,220,.4)", animation: "glow 3s ease-in-out infinite" }}>
+            <MessageCircle size={24} color="rgba(255,255,255,.95)" strokeWidth={1.8} />
+          </div>
+          <div>
+            <h1 style={{ color: "#e0d4ff", fontSize: 28, fontWeight: 800, margin: 0, lineHeight: 1.2 }}>Foro de Discusión</h1>
+            <p style={{ color: "rgba(140,100,255,.6)", fontSize: 13, margin: 0, fontFamily: "'Space Mono',monospace", display: "flex", alignItems: "center", gap: 6 }}>
+              <Sparkles size={12} /> Comparte conocimientos y resuelve dudas
+            </p>
+          </div>
+        </div>
+        <button onClick={onCreateClick} className="new-disc-btn" style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px", background: "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 12, letterSpacing: "1px", cursor: "pointer", boxShadow: "0 6px 20px rgba(90,40,220,.4)", fontWeight: 600 }}>
+          <Zap size={16} /> Nueva Discusión
+        </button>
+      </div>
+
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}>
+        <button onClick={() => onCategoryChange(null)} className={`cat-btn ${!selectedCategory ? "active" : ""}`} style={{ padding: "10px 18px", background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 22, color: !selectedCategory ? "#b8a0ff" : "rgba(140,100,255,.6)", fontSize: 12, fontFamily: "'Space Mono',monospace", cursor: "pointer", transition: "all .2s ease", fontWeight: 600 }}>
+          Todos
+        </button>
+        {CATEGORIES.map(cat => (
+          <button key={cat.id} onClick={() => onCategoryChange(cat.id)} className={`cat-btn ${selectedCategory === cat.id ? "active" : ""}`} style={{ padding: "10px 18px", background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 22, color: selectedCategory === cat.id ? "#b8a0ff" : "rgba(140,100,255,.6)", fontSize: 12, fontFamily: "'Space Mono',monospace", cursor: "pointer", transition: "all .2s ease", fontWeight: 600 }}>
+            {cat.name}
+          </button>
+        ))}
+      </div>
+
+      {error && <ErrorBanner message={error} />}
+
+      {loading && <LoadingSkeleton />}
+
+      {!loading && discussions.length === 0 && <EmptyState message="No hay discusiones en esta categoría." subMessage="¡Sé el primero en iniciar una!" />}
+
+      {!loading && discussions.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
+          {discussions.map((disc, idx) => {
+            const catInfo = getCategoryInfo(disc.category);
+            const isLiked = likedDiscussions.has(disc.id);
+            return (
+              <div key={disc.id} onClick={() => onDiscussionClick(disc)} className="disc-card" style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 18, padding: 22, cursor: "pointer", animation: `slideIn .4s ${idx * 0.06}s ease both` }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg,rgba(100,60,255,.35),rgba(60,30,150,.35))", border: "1px solid rgba(100,60,255,.4)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <User size={24} color="rgba(180,140,255,.9)" />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" as const }}>
+                      <span style={{ background: `${catInfo.color}22`, border: `1px solid ${catInfo.color}44`, borderRadius: 8, padding: "4px 12px", color: catInfo.color, fontSize: 11, fontFamily: "'Space Mono',monospace", fontWeight: 600 }}>
+                        {catInfo.name}
+                      </span>
+                      <span style={{ color: "#e0d4ff", fontWeight: 700, fontSize: 17 }}>{disc.title}</span>
+                    </div>
+                    <p style={{ color: "rgba(200,190,220,.75)", fontSize: 14, margin: "0 0 14px", lineHeight: 1.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                      {disc.content}
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" as const }}>
+                      <span style={{ color: "rgba(140,100,255,.7)", fontSize: 13, fontWeight: 600 }}>{disc.authorUsername}</span>
+                      <span style={{ color: "rgba(140,100,255,.5)", fontSize: 11, fontFamily: "'Space Mono',monospace", display: "flex", alignItems: "center", gap: 5 }}>
+                        <Calendar size={13} /> {formatDate(disc.createdAt)}
+                      </span>
+                      <span style={{ color: "rgba(140,100,255,.5)", fontSize: 13, display: "flex", alignItems: "center", gap: 5 }}>
+                        <MessageCircle size={15} /> {disc.repliesCount}
+                      </span>
+                      <button className={`like-btn ${isLiked ? "liked" : ""}`} onClick={(e) => { e.stopPropagation(); onLikeToggle(disc.id); }} style={{ background: "none", border: "none", display: "flex", alignItems: "center", gap: 5, cursor: "pointer", padding: "4px 8px", borderRadius: 8 }}>
+                        <Heart size={15} fill={isLiked ? "rgba(255,100,150,.6)" : "transparent"} color={isLiked ? "rgba(255,100,150,.8)" : "rgba(140,100,255,.5)"} />
+                        <span style={{ color: isLiked ? "rgba(255,100,150,.8)" : "rgba(140,100,255,.5)", fontSize: 13 }}>{isLiked ? disc.likesCount + 1 : disc.likesCount}</span>
+                      </button>
+                      {disc.tags && disc.tags.length > 0 && (
+                        <div style={{ display: "flex", gap: 8 }}>
+                          {disc.tags.slice(0, 3).map(tag => (
+                            <span key={tag} className="tag-pill" style={{ background: "rgba(100,60,255,.12)", borderRadius: 14, padding: "3px 10px", color: "rgba(140,100,255,.7)", fontSize: 11, fontFamily: "'Space Mono',monospace" }}>
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
+interface CreateDiscussionProps {
+  title: string;
+  content: string;
+  category: string;
+  tags: string;
+  error: string | null;
+  submitting: boolean;
+  onTitleChange: (v: string) => void;
+  onContentChange: (v: string) => void;
+  onCategoryChange: (v: string) => void;
+  onTagsChange: (v: string) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+}
+
+function CreateDiscussion({
+  title,
+  content,
+  category,
+  tags,
+  error,
+  submitting,
+  onTitleChange,
+  onContentChange,
+  onCategoryChange,
+  onTagsChange,
+  onSubmit,
+  onCancel,
+}: CreateDiscussionProps) {
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+        <button onClick={onCancel} className="back-btn" style={{ background: "rgba(100,60,255,.08)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 10, color: "rgba(140,100,255,.7)", cursor: "pointer", padding: 10, display: "flex", transition: "all .2s ease" }}>
+          <ArrowLeft size={22} />
+        </button>
+        <h1 style={{ color: "#e0d4ff", fontSize: 24, fontWeight: 700, margin: 0 }}>Nueva Discusión</h1>
+      </div>
+
+      <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 22, padding: 28, display: "flex", flexDirection: "column" as const, gap: 22 }}>
+        <div>
+          <label style={{ display: "block", color: "rgba(140,100,255,.7)", fontSize: 12, fontFamily: "'Space Mono',monospace", marginBottom: 10, fontWeight: 600 }}>Título de tu discusión</label>
+          <input type="text" value={title} onChange={e => onTitleChange(e.target.value)} placeholder="¿Sobre qué quieres discutir?" className="input-glow" style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 14, padding: 16, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 15, outline: "none", transition: "all .2s ease" }} />
+        </div>
+
+        <div>
+          <label style={{ display: "block", color: "rgba(140,100,255,.7)", fontSize: 12, fontFamily: "'Space Mono',monospace", marginBottom: 10, fontWeight: 600 }}>Categoría</label>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}>
+            {CATEGORIES.map(cat => (
+              <button key={cat.id} onClick={() => onCategoryChange(cat.id)} className={`category-select ${category === cat.id ? "selected" : ""}`} style={{ padding: "10px 16px", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 10, color: category === cat.id ? "#b8a0ff" : "rgba(140,100,255,.6)", fontSize: 12, cursor: "pointer", transition: "all .2s ease", fontWeight: 600 }}>
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label style={{ display: "block", color: "rgba(140,100,255,.7)", fontSize: 12, fontFamily: "'Space Mono',monospace", marginBottom: 10, fontWeight: 600 }}>Contenido</label>
+          <textarea value={content} onChange={e => onContentChange(e.target.value)} placeholder="Comparte tu pregunta, idea o pensamiento..." rows={7} className="input-glow" style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 14, padding: 16, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 15, resize: "vertical" as const, outline: "none", transition: "all .2s ease" }} />
+        </div>
+
+        <div>
+          <label style={{ display: "block", color: "rgba(140,100,255,.7)", fontSize: 12, fontFamily: "'Space Mono',monospace", marginBottom: 10, fontWeight: 600 }}>Etiquetas (separadas por coma)</label>
+          <input type="text" value={tags} onChange={e => onTagsChange(e.target.value)} placeholder="react, hooks, tutorial" className="input-glow" style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 14, padding: 16, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 15, outline: "none", transition: "all .2s ease" }} />
+        </div>
+
+        {error && <ErrorBanner message={error} />}
+
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 14, marginTop: 8 }}>
+          <button onClick={onCancel} style={{ padding: "14px 28px", background: "transparent", border: "1px solid rgba(100,60,255,.3)", borderRadius: 12, color: "rgba(140,100,255,.7)", fontSize: 13, cursor: "pointer", fontWeight: 600, transition: "all .2s ease" }}>
+            Cancelar
+          </button>
+          <button onClick={onSubmit} disabled={submitting} className="new-disc-btn" style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 28px", background: submitting ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 13, letterSpacing: "1px", cursor: submitting ? "not-allowed" : "pointer", boxShadow: submitting ? "none" : "0 6px 20px rgba(90,40,220,.4)", fontWeight: 600 }}>
+            {submitting ? "Publicando..." : (<><Send size={16} /> Publicar</>)}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+interface DiscussionDetailProps {
+  discussion: Discussion;
+  replies: Reply[];
+  loading: boolean;
+  replyContent: string;
+  replyError: string | null;
+  replyFocused: boolean;
+  replySubmitting: boolean;
+  onReplyContentChange: (v: string) => void;
+  onReplyFocus: () => void;
+  onReplyBlur: () => void;
+  onReplySubmit: () => void;
+  onBack: () => void;
+}
+
+function DiscussionDetail({
+  discussion,
+  replies,
+  loading,
+  replyContent,
+  replyError,
+  replyFocused,
+  replySubmitting,
+  onReplyContentChange,
+  onReplyFocus,
+  onReplyBlur,
+  onReplySubmit,
+  onBack,
+}: DiscussionDetailProps) {
+  const catInfo = getCategoryInfo(discussion.category);
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+        <button onClick={onBack} className="back-btn" style={{ background: "rgba(100,60,255,.08)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 10, color: "rgba(140,100,255,.7)", cursor: "pointer", padding: 10, display: "flex", transition: "all .2s ease" }}>
+          <ArrowLeft size={22} />
+        </button>
+        <span style={{ color: "rgba(140,100,255,.5)", fontSize: 12, fontFamily: "'Space Mono',monospace" }}>Volver al foro</span>
+      </div>
+
+      <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 22, padding: 28 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" as const }}>
+          <span style={{ background: `${catInfo.color}22`, border: `1px solid ${catInfo.color}44`, borderRadius: 8, padding: "4px 12px", color: catInfo.color, fontSize: 11, fontFamily: "'Space Mono',monospace", fontWeight: 600 }}>
+            {catInfo.name}
+          </span>
+          {discussion.tags?.map(tag => (
+            <span key={tag} style={{ background: "rgba(100,60,255,.12)", borderRadius: 14, padding: "3px 10px", color: "rgba(140,100,255,.7)", fontSize: 11, fontFamily: "'Space Mono',monospace" }}>
+              #{tag}
+            </span>
+          ))}
+        </div>
+        <h1 style={{ color: "#e0d4ff", fontSize: 26, fontWeight: 800, margin: "0 0 20px", lineHeight: 1.3 }}>
+          {discussion.title}
+        </h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid rgba(100,60,255,.15)" }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,rgba(100,60,255,.35),rgba(60,30,150,.35))", border: "1px solid rgba(100,60,255,.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <User size={22} color="rgba(180,140,255,.9)" />
+          </div>
+          <div>
+            <span style={{ color: "#e0d4ff", fontWeight: 700, fontSize: 15 }}>{discussion.authorUsername}</span>
+            <span style={{ color: "rgba(140,100,255,.5)", fontSize: 12, fontFamily: "'Space Mono',monospace", marginLeft: 16 }}>
+              {formatDate(discussion.createdAt)}
+            </span>
+          </div>
+        </div>
+        <p style={{ color: "rgba(200,190,220,.9)", fontSize: 16, lineHeight: 1.8, margin: 0 }}>
+          {discussion.content}
+        </p>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <h2 style={{ color: "#e0d4ff", fontSize: 20, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+          <MessageCircle size={20} /> Respuestas
+        </h2>
+        <span style={{ background: "rgba(100,60,255,.18)", border: "1px solid rgba(100,60,255,.3)", borderRadius: 20, padding: "5px 14px", color: "rgba(140,100,255,.85)", fontSize: 12, fontFamily: "'Space Mono',monospace", fontWeight: 600 }}>
+          {replies.length}
+        </span>
+      </div>
+
+      <div style={{ background: replyFocused ? "rgba(14,10,28,.95)" : "rgba(14,10,28,.88)", border: `1px solid ${replyFocused ? "rgba(140,80,255,.5)" : "rgba(100,60,255,.2)"}`, borderRadius: 18, padding: 20, transition: "all .3s ease", boxShadow: replyFocused ? "0 0 30px rgba(100,60,255,.15)" : "none" }}>
+        <textarea value={replyContent} onChange={e => onReplyContentChange(e.target.value)} onFocus={onReplyFocus} onBlur={onReplyBlur} placeholder="Escribe tu respuesta..." rows={4} className="reply-textarea" style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 14, padding: 16, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 15, resize: "none" as const, outline: "none", transition: "all .2s ease" }} />
+        {replyError && <div style={{ color: "rgba(240,100,100,.85)", fontSize: 13, marginTop: 12 }}>⚠️ {replyError}</div>}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+          <button onClick={onReplySubmit} disabled={replySubmitting || !replyContent.trim()} className={`submit-reply ${replySubmitting ? "sending" : ""}`} style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px", background: replySubmitting ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontSize: 13, fontWeight: 600, cursor: replySubmitting || !replyContent.trim() ? "not-allowed" : "pointer", boxShadow: replySubmitting ? "none" : "0 6px 20px rgba(90,40,220,.4)", transition: "all .2s ease" }}>
+            {replySubmitting ? "Enviando..." : (<><Send size={16} /> Responder</>)}
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <LoadingSkeleton />
+      ) : replies.length === 0 ? (
+        <EmptyState message="No hay respuestas aún." subMessage="¡Sé el primero en comentar!" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
+          {replies.map((reply, idx) => (
+            <div key={reply.id} className="reply-btn" style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.15)", borderRadius: 16, padding: 18, animation: `slideIn .35s ${idx * 0.08}s ease both` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,rgba(100,60,255,.25),rgba(60,30,150,.25))", border: "1px solid rgba(100,60,255,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <User size={18} color="rgba(180,140,255,.8)" />
+                </div>
+                <span style={{ color: "#b8a0ff", fontWeight: 700, fontSize: 14 }}>{reply.authorUsername}</span>
+                <span style={{ color: "rgba(140,100,255,.5)", fontSize: 11, fontFamily: "'Space Mono',monospace" }}>
+                  {formatDate(reply.createdAt)}
+                </span>
+              </div>
+              <p style={{ color: "rgba(200,190,220,.9)", fontSize: 15, margin: 0, lineHeight: 1.6, paddingLeft: 48 }}>
+                {reply.content}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+// ============== COMPONENTE PRINCIPAL ==============
 export default function ForumPage() {
-  const router = useRouter();
-  const [view, setView] = useState<"list" | "create" | "detail">("list");
+  const [view, setView] = useState<ViewMode>("list");
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
+
   const [selectedDiscussion, setSelectedDiscussion] = useState<Discussion | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
   const [repliesLoading, setRepliesLoading] = useState(false);
-  
+
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [newCategory, setNewCategory] = useState("general");
   const [newTags, setNewTags] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  
+
   const [replyContent, setReplyContent] = useState("");
   const [replySubmitting, setReplySubmitting] = useState(false);
   const [replyError, setReplyError] = useState<string | null>(null);
+  const [replyFocused, setReplyFocused] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("devhub_user");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setCurrentUser(parsed.username || parsed.email || null);
-      } catch {
-        setCurrentUser(null);
-      }
-    }
-  }, []);
+  const [likedDiscussions, setLikedDiscussions] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchDiscussions();
   }, [selectedCategory]);
 
-  async function fetchDiscussions() {
+  const fetchDiscussions = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
     try {
-      const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-      const url = selectedCategory 
-        ? `${BASE_URL}/discussions?category=${selectedCategory}`
-        : `${BASE_URL}/discussions`;
-      
-      const res = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
+      const url = selectedCategory ? `${BASE_URL}/discussions?category=${selectedCategory}` : `${BASE_URL}/discussions`;
+      const res = await fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } });
       if (!res.ok) throw new Error(`Error ${res.status}`);
-      
-      const data: Discussion[] = await res.json();
-      setDiscussions(data);
+      setDiscussions(await res.json());
     } catch (err) {
       console.error("Error fetching discussions:", err);
       setDiscussions([]);
@@ -132,46 +502,28 @@ export default function ForumPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [selectedCategory]);
 
-  async function createDiscussion() {
+  const createDiscussion = useCallback(async () => {
     if (!newTitle.trim() || !newContent.trim()) {
       setSubmitError("El título y contenido son requeridos.");
       return;
     }
-
     const token = localStorage.getItem("token");
     if (!token) {
       setSubmitError("Debes iniciar sesión para crear una discusión.");
       return;
     }
-
     setSubmitting(true);
     setSubmitError(null);
-
     try {
-      const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-      const tags = newTags.split(",").map(t => t.trim()).filter(t => t);
-      
+      const tags = newTags.split(",").map((t: string) => t.trim()).filter((t: string) => t);
       const res = await fetch(`${BASE_URL}/discussions`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title: newTitle,
-          content: newContent,
-          category: newCategory,
-          tags,
-        }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ title: newTitle, content: newContent, category: newCategory, tags }),
       });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Error al crear discusión");
-      }
-
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || "Error al crear discusión");
       const created: Discussion = await res.json();
       setDiscussions([created, ...discussions]);
       setNewTitle("");
@@ -180,322 +532,80 @@ export default function ForumPage() {
       setNewTags("");
       setView("list");
     } catch (err: Error | unknown) {
-      const msg = err instanceof Error ? err.message : "No se pudo crear la discusión.";
-      setSubmitError(msg);
+      setSubmitError(err instanceof Error ? err.message : "No se pudo crear la discusión.");
     } finally {
       setSubmitting(false);
     }
-  }
+  }, [newTitle, newContent, newCategory, newTags, discussions]);
 
-  async function openDiscussion(disc: Discussion) {
+  const openDiscussion = useCallback(async (disc: Discussion) => {
     setSelectedDiscussion(disc);
     setView("detail");
     setRepliesLoading(true);
     setReplies([]);
-
     try {
-      const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-      const res = await fetch(`${BASE_URL}/discussions/${disc.id}/replies`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
+      const res = await fetch(`${BASE_URL}/discussions/${disc.id}/replies`, { method: "GET", headers: { "Content-Type": "application/json" } });
       if (!res.ok) throw new Error(`Error ${res.status}`);
-      
-      const data: Reply[] = await res.json();
-      setReplies(data);
+      setReplies(await res.json());
     } catch (err) {
       console.error("Error fetching replies:", err);
     } finally {
       setRepliesLoading(false);
     }
-  }
+  }, []);
 
-  async function submitReply() {
+  const submitReply = useCallback(async () => {
     if (!replyContent.trim() || !selectedDiscussion) return;
-
     const token = localStorage.getItem("token");
     if (!token) {
       setReplyError("Debes iniciar sesión para responder.");
       return;
     }
-
     setReplySubmitting(true);
     setReplyError(null);
-
     try {
-      const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
       const res = await fetch(`${BASE_URL}/discussions/${selectedDiscussion.id}/replies`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ content: replyContent }),
       });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Error al enviar respuesta");
-      }
-
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || "Error al enviar respuesta");
       const created: Reply = await res.json();
       setReplies([...replies, created]);
       setReplyContent("");
-      
-      setDiscussions(discussions.map(d => 
-        d.id === selectedDiscussion.id 
-          ? { ...d, repliesCount: d.repliesCount + 1 }
-          : d
-      ));
+      setDiscussions(discussions.map(d => d.id === selectedDiscussion.id ? { ...d, repliesCount: d.repliesCount + 1 } : d));
     } catch (err: Error | unknown) {
-      const msg = err instanceof Error ? err.message : "No se pudo enviar la respuesta.";
-      setReplyError(msg);
+      setReplyError(err instanceof Error ? err.message : "No se pudo enviar la respuesta.");
     } finally {
       setReplySubmitting(false);
     }
-  }
+  }, [replyContent, selectedDiscussion, replies, discussions]);
+
+  const toggleLike = useCallback((discId: string) => {
+    setLikedDiscussions(prev => {
+      const newSet = new Set(prev);
+      newSet.has(discId) ? newSet.delete(discId) : newSet.add(discId);
+      return newSet;
+    });
+  }, []);
+
+  const goBack = () => {
+    setView("list");
+    setSelectedDiscussion(null);
+    setReplies([]);
+  };
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#07070f",
-        fontFamily: "'Syne', sans-serif",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
-        @keyframes orbFloat { 0%{transform:translate(0,0)} 100%{transform:translate(20px,20px)} }
-        @keyframes floatUp { 0%{transform:translateY(0);opacity:.7} 100%{transform:translateY(-100vh);opacity:0} }
-        @keyframes slideIn { 0%{opacity:0;transform:translateY(28px)} 100%{opacity:1;transform:translateY(0)} }
-        @keyframes popIn { 0%{opacity:0;transform:scale(.92)} 100%{opacity:1;transform:scale(1)} }
-        @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:.7} }
-        .dh-particle { position:fixed; border-radius:50%; background:rgba(160,100,255,.7); bottom:-10px; animation:floatUp linear infinite; pointer-events:none; z-index:0; }
-        .disc-card { transition: all .25s cubic-bezier(.16,1,.3,1); }
-        .disc-card:hover { transform: translateY(-3px); border-color: rgba(100,60,255,.4) !important; }
-        .cat-btn.active { background: rgba(100,60,255,.2) !important; border-color: rgba(140,80,255,.5) !important; }
-        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(90,40,220,.5) !important; }
-        .tag-pill { transition: all .2s ease; }
-        .tag-pill:hover { background: rgba(100,60,255,.25) !important; }
-      `}</style>
-
-      <>
-        <div style={{ position: "fixed", borderRadius: "50%", width: 500, height: 500, background: "radial-gradient(circle,rgba(90,30,200,.22) 0%,transparent 70%)", top: -150, left: -150, animation: "orbFloat 10s ease-in-out infinite alternate", pointerEvents: "none", zIndex: 0 }} />
-        <div style={{ position: "fixed", borderRadius: "50%", width: 400, height: 400, background: "radial-gradient(circle,rgba(110,50,255,.18) 0%,transparent 70%)", bottom: -100, right: -100, animation: "orbFloat 10s ease-in-out infinite alternate", animationDelay: "-5s", pointerEvents: "none", zIndex: 0 }} />
-        {PARTICLES.map((p, i) => <div key={i} className="dh-particle" style={{ width: p.s, height: p.s, left: p.l, animationDuration: p.d, animationDelay: p.dl }} />)}
-      </>
-
+    <main style={{ minHeight: "100vh", background: "#07070f", fontFamily: "'Syne', sans-serif", position: "relative" as const, overflow: "hidden" }}>
+      <style>{GLOBAL_STYLES}</style>
+      <BackgroundEffects />
       <Navbar />
+      <section style={{ position: "relative" as const, zIndex: 5, padding: "28px 24px", display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 1000, margin: "0 auto", animation: "slideIn .35s ease" }}>
+        {view === "list" && <DiscussionList discussions={discussions} loading={loading} error={error} selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} onCreateClick={() => setView("create")} onDiscussionClick={openDiscussion} onLikeToggle={toggleLike} likedDiscussions={likedDiscussions} />}
 
-      <section style={{ position: "relative", zIndex: 5, padding: "28px 24px", display: "flex", flexDirection: "column", gap: 24, maxWidth: 1000, margin: "0 auto", animation: "slideIn .35s ease" }}>
-        
-        {view === "list" && (
-          <>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#7040ff,#5020e0)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(90,40,220,.35)" }}>
-                  <MessageCircle size={22} color="rgba(255,255,255,.9)" strokeWidth={1.8} />
-                </div>
-                <div>
-                  <h1 style={{ color: "#e0d4ff", fontSize: 26, fontWeight: 800, margin: 0, lineHeight: 1.2 }}>Foro de Discusión</h1>
-                  <p style={{ color: "rgba(140,100,255,.6)", fontSize: 13, margin: 0, fontFamily: "'Space Mono',monospace" }}>Comparte conocimientos y resuelve dudas</p>
-                </div>
-              </div>
-              
-              <button onClick={() => setView("create")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 20px", background: "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 10, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 12, letterSpacing: "1px", cursor: "pointer", boxShadow: "0 4px 16px rgba(90,40,220,.35)" }}>
-                <Plus size={16} />
-                Nueva Discusión
-              </button>
-            </div>
+        {view === "create" && <CreateDiscussion title={newTitle} content={newContent} category={newCategory} tags={newTags} error={submitError} submitting={submitting} onTitleChange={setNewTitle} onContentChange={setNewContent} onCategoryChange={setNewCategory} onTagsChange={setNewTags} onSubmit={createDiscussion} onCancel={goBack} />}
 
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button onClick={() => setSelectedCategory(null)} className={`cat-btn ${!selectedCategory ? "active" : ""}`} style={{ padding: "8px 16px", background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 20, color: !selectedCategory ? "#b8a0ff" : "rgba(140,100,255,.6)", fontSize: 12, fontFamily: "'Space Mono',monospace", cursor: "pointer", transition: "all .2s ease" }}>
-                Todos
-              </button>
-              {CATEGORIES.map(cat => (
-                <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`cat-btn ${selectedCategory === cat.id ? "active" : ""}`} style={{ padding: "8px 16px", background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 20, color: selectedCategory === cat.id ? "#b8a0ff" : "rgba(140,100,255,.6)", fontSize: 12, fontFamily: "'Space Mono',monospace", cursor: "pointer", transition: "all .2s ease" }}>
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-
-            {error && <div style={{ background: "rgba(200,140,20,.08)", border: "1px solid rgba(200,140,20,.2)", borderRadius: 10, padding: "14px 18px", color: "rgba(240,190,60,.7)", fontFamily: "'Space Mono',monospace", fontSize: 12 }}>{error}</div>}
-
-            {loading ? (
-              <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 20, padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
-                {[1, 2, 3, 4].map(i => <div key={i} style={{ height: 80, borderRadius: 14, background: "rgba(100,60,255,.07)", animation: "pulse 1.5s infinite" }} />)}
-              </div>
-            ) : discussions.length === 0 ? (
-              <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.15)", borderRadius: 20, padding: 40, textAlign: "center" }}>
-                <MessageSquare size={40} color="rgba(140,100,255,.3)" style={{ marginBottom: 12 }} />
-                <p style={{ color: "rgba(140,100,255,.6)", margin: 0, fontSize: 14 }}>No hay discusiones en esta categoría. ¡Sé el primero en iniciar una!</p>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {discussions.map((disc, idx) => {
-                  const catInfo = getCategoryInfo(disc.category);
-                  return (
-                    <div key={disc.id} onClick={() => openDiscussion(disc)} className="disc-card" style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 16, padding: 20, cursor: "pointer", animation: `slideIn .3s ${idx * 0.05}s ease both` }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,rgba(100,60,255,.3),rgba(60,30,150,.3))", border: "1px solid rgba(100,60,255,.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <User size={22} color="rgba(180,140,255,.8)" />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
-                            <span style={{ background: `${catInfo.color}22`, border: `1px solid ${catInfo.color}44`, borderRadius: 6, padding: "3px 10px", color: catInfo.color, fontSize: 11, fontFamily: "'Space Mono',monospace" }}>
-                              {catInfo.name}
-                            </span>
-                            <span style={{ color: "#e0d4ff", fontWeight: 700, fontSize: 16 }}>{disc.title}</span>
-                          </div>
-                          <p style={{ color: "rgba(200,190,220,.75)", fontSize: 13, margin: "0 0 10px", lineHeight: 1.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{disc.content}</p>
-                          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-                            <span style={{ color: "rgba(140,100,255,.6)", fontSize: 12 }}>{disc.authorUsername}</span>
-                            <span style={{ color: "rgba(140,100,255,.5)", fontSize: 11, fontFamily: "'Space Mono',monospace", display: "flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> {formatDate(disc.createdAt)}</span>
-                            <span style={{ color: "rgba(140,100,255,.5)", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><MessageCircle size={14} /> {disc.repliesCount} respuestas</span>
-                            <span style={{ color: "rgba(140,100,255,.5)", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><ThumbsUp size={14} /> {disc.likesCount}</span>
-                            {disc.tags && disc.tags.length > 0 && (
-                              <div style={{ display: "flex", gap: 6 }}>
-                                {disc.tags.slice(0, 3).map(tag => (
-                                  <span key={tag} className="tag-pill" style={{ background: "rgba(100,60,255,.1)", borderRadius: 12, padding: "2px 8px", color: "rgba(140,100,255,.6)", fontSize: 10, fontFamily: "'Space Mono',monospace" }}>#{tag}</span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </>
-        )}
-
-        {view === "create" && (
-          <>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <button onClick={() => setView("list")} style={{ background: "none", border: "none", color: "rgba(140,100,255,.7)", cursor: "pointer", padding: 8, display: "flex" }}>
-                <ArrowLeft size={24} />
-              </button>
-              <h1 style={{ color: "#e0d4ff", fontSize: 22, fontWeight: 700, margin: 0 }}>Nueva Discusión</h1>
-            </div>
-
-            <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 20, padding: 24, display: "flex", flexDirection: "column", gap: 20 }}>
-              <div>
-                <label style={{ display: "block", color: "rgba(140,100,255,.7)", fontSize: 12, fontFamily: "'Space Mono',monospace", marginBottom: 8 }}>Título</label>
-                <input type="text" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="¿Sobre qué quieres discutir?" style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 12, padding: 14, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 14, outline: "none" }} />
-              </div>
-
-              <div>
-                <label style={{ display: "block", color: "rgba(140,100,255,.7)", fontSize: 12, fontFamily: "'Space Mono',monospace", marginBottom: 8 }}>Categoría</label>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {CATEGORIES.map(cat => (
-                    <button key={cat.id} onClick={() => setNewCategory(cat.id)} style={{ padding: "8px 14px", background: newCategory === cat.id ? "rgba(100,60,255,.2)" : "rgba(255,255,255,.03)", border: `1px solid ${newCategory === cat.id ? "rgba(140,80,255,.5)" : "rgba(100,60,255,.2)"}`, borderRadius: 8, color: newCategory === cat.id ? "#b8a0ff" : "rgba(140,100,255,.6)", fontSize: 12, cursor: "pointer" }}>
-                      {cat.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: "block", color: "rgba(140,100,255,.7)", fontSize: 12, fontFamily: "'Space Mono',monospace", marginBottom: 8 }}>Contenido</label>
-                <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="Comparte tu pregunta, idea o pensamiento..." rows={6} style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 12, padding: 14, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 14, resize: "vertical", outline: "none" }} />
-              </div>
-
-              <div>
-                <label style={{ display: "block", color: "rgba(140,100,255,.7)", fontSize: 12, fontFamily: "'Space Mono',monospace", marginBottom: 8 }}>Etiquetas (separadas por coma)</label>
-                <input type="text" value={newTags} onChange={e => setNewTags(e.target.value)} placeholder="react, hooks, tutorial" style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 12, padding: 14, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 14, outline: "none" }} />
-              </div>
-
-              {submitError && <div style={{ background: "rgba(200,60,60,.1)", border: "1px solid rgba(200,60,60,.2)", borderRadius: 8, padding: "12px 16px", color: "rgba(240,100,100,.8)", fontSize: 13 }}>{submitError}</div>}
-
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-                <button onClick={() => setView("list")} style={{ padding: "12px 24px", background: "transparent", border: "1px solid rgba(100,60,255,.3)", borderRadius: 10, color: "rgba(140,100,255,.7)", fontSize: 12, cursor: "pointer" }}>Cancelar</button>
-                <button onClick={createDiscussion} disabled={submitting} style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 24px", background: submitting ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 10, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 12, letterSpacing: "1px", cursor: submitting ? "not-allowed" : "pointer", boxShadow: submitting ? "none" : "0 4px 16px rgba(90,40,220,.35)" }}>
-                  {submitting ? "Publicando..." : <>Publicar <Send size={14} /></>}
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {view === "detail" && selectedDiscussion && (
-          <>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <button onClick={() => setView("list")} style={{ background: "none", border: "none", color: "rgba(140,100,255,.7)", cursor: "pointer", padding: 8, display: "flex" }}>
-                <ArrowLeft size={24} />
-              </button>
-              <span style={{ color: "rgba(140,100,255,.5)", fontSize: 12, fontFamily: "'Space Mono',monospace" }}>Volver al foro</span>
-            </div>
-
-            <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 20, padding: 24 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                {(() => { const c = getCategoryInfo(selectedDiscussion.category); return <span style={{ background: `${c.color}22`, border: `1px solid ${c.color}44`, borderRadius: 6, padding: "3px 10px", color: c.color, fontSize: 11, fontFamily: "'Space Mono',monospace" }}>{c.name}</span>; })()}
-                {selectedDiscussion.tags?.map(tag => <span key={tag} style={{ background: "rgba(100,60,255,.1)", borderRadius: 12, padding: "2px 8px", color: "rgba(140,100,255,.6)", fontSize: 10, fontFamily: "'Space Mono',monospace" }}>#{tag}</span>)}
-              </div>
-              
-              <h1 style={{ color: "#e0d4ff", fontSize: 24, fontWeight: 800, margin: "0 0 16px", lineHeight: 1.3 }}>{selectedDiscussion.title}</h1>
-              
-              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid rgba(100,60,255,.15)" }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,rgba(100,60,255,.3),rgba(60,30,150,.3))", border: "1px solid rgba(100,60,255,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <User size={18} color="rgba(180,140,255,.8)" />
-                </div>
-                <div>
-                  <span style={{ color: "#e0d4ff", fontWeight: 600, fontSize: 14 }}>{selectedDiscussion.authorUsername}</span>
-                  <span style={{ color: "rgba(140,100,255,.5)", fontSize: 11, fontFamily: "'Space Mono',monospace", marginLeft: 12 }}>{formatDate(selectedDiscussion.createdAt)}</span>
-                </div>
-              </div>
-
-              <p style={{ color: "rgba(200,190,220,.9)", fontSize: 15, lineHeight: 1.7, margin: 0 }}>{selectedDiscussion.content}</p>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <h2 style={{ color: "#e0d4ff", fontSize: 18, fontWeight: 700, margin: 0 }}>Respuestas</h2>
-              <span style={{ background: "rgba(100,60,255,.15)", border: "1px solid rgba(100,60,255,.25)", borderRadius: 20, padding: "4px 12px", color: "rgba(140,100,255,.8)", fontSize: 12, fontFamily: "'Space Mono',monospace" }}>{replies.length}</span>
-            </div>
-
-            <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 16, padding: 20 }}>
-              <textarea value={replyContent} onChange={e => setReplyContent(e.target.value)} placeholder="Escribe tu respuesta..." rows={3} style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 12, padding: 14, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 14, resize: "none", outline: "none" }} />
-              
-              {replyError && <div style={{ color: "rgba(240,100,100,.8)", fontSize: 12, marginTop: 8 }}>{replyError}</div>}
-              
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
-                <button onClick={submitReply} disabled={replySubmitting || !replyContent.trim()} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", background: replySubmitting ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 8, color: "white", fontSize: 12, cursor: replySubmitting ? "not-allowed" : "pointer" }}>
-                  {replySubmitting ? "Enviando..." : <>Responder <Send size={14} /></>}
-                </button>
-              </div>
-            </div>
-
-            {repliesLoading ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {[1, 2].map(i => <div key={i} style={{ height: 60, borderRadius: 12, background: "rgba(100,60,255,.07)", animation: "pulse 1.5s infinite" }} />)}
-              </div>
-            ) : replies.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 30, color: "rgba(140,100,255,.5)" }}>
-                <MessageSquare size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
-                <p style={{ margin: 0, fontSize: 14 }}>No hay respuestas aún. ¡Sé el primero en responder!</p>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {replies.map((reply, idx) => (
-                  <div key={reply.id} style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.15)", borderRadius: 14, padding: 16, animation: `slideIn .3s ${idx * 0.05}s ease both` }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(100,60,255,.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <User size={16} color="rgba(180,140,255,.7)" />
-                      </div>
-                      <span style={{ color: "#b8a0ff", fontWeight: 600, fontSize: 13 }}>{reply.authorUsername}</span>
-                      <span style={{ color: "rgba(140,100,255,.5)", fontSize: 10, fontFamily: "'Space Mono',monospace" }}>{formatDate(reply.createdAt)}</span>
-                    </div>
-                    <p style={{ color: "rgba(200,190,220,.85)", fontSize: 14, margin: 0, lineHeight: 1.6 }}>{reply.content}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+        {view === "detail" && selectedDiscussion && <DiscussionDetail discussion={selectedDiscussion} replies={replies} loading={repliesLoading} replyContent={replyContent} replyError={replyError} replyFocused={replyFocused} replySubmitting={replySubmitting} onReplyContentChange={setReplyContent} onReplyFocus={() => setReplyFocused(true)} onReplyBlur={() => setReplyFocused(false)} onReplySubmit={submitReply} onBack={goBack} />}
       </section>
     </main>
   );
