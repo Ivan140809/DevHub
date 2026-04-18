@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Navbar from "../components/Navbar";
 import { MessageCircle, User, Calendar, ArrowLeft, Send, MessageSquare, Sparkles, Zap, Heart } from "lucide-react";
 
-// ============== TIPOS ==============
+
 type Discussion = {
   id: string;
   title: string;
@@ -35,7 +35,7 @@ type Category = {
   color: string;
 };
 
-// ============== CONSTANTES ==============
+
 const PARTICLES = [
   { l: "5%", d: "12s", dl: "0s", s: 3 },
   { l: "15%", d: "9s", dl: "-2s", s: 2 },
@@ -98,7 +98,7 @@ const GLOBAL_STYLES = `
   .category-select.selected { background: rgba(100,60,255,.2) !important; border-color: rgba(140,80,255,.5) !important; }
 `;
 
-// ============== UTILIDADES ==============
+
 const getCategoryInfo = (catId: string): Category =>
   CATEGORIES.find(c => c.id === catId) || CATEGORIES[0];
 
@@ -115,7 +115,7 @@ const formatDate = (dateStr: string): string => {
   }
 };
 
-// ============== COMPONENTES HIJO ==============
+
 const LoadingSkeleton = () => (
   <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 20, padding: 24, display: "flex", flexDirection: "column" as const, gap: 16 }}>
     {[1, 2, 3, 4].map(i => <div key={i} style={{ height: 80, borderRadius: 14, background: "rgba(100,60,255,.07)", animation: "pulse 1.5s infinite" }} />)}
@@ -134,7 +134,7 @@ const EmptyState = ({ message, subMessage }: { message: string; subMessage: stri
 
 const ErrorBanner = ({ message }: { message: string }) => (
   <div style={{ background: "rgba(200,140,20,.08)", border: "1px solid rgba(200,140,20,.2)", borderRadius: 10, padding: "14px 18px", color: "rgba(240,190,60,.7)", fontFamily: "'Space Mono',monospace", fontSize: 12 }}>
-    ⚠️ {message}
+     {message}
   </div>
 );
 
@@ -146,7 +146,7 @@ const BackgroundEffects = () => (
   </>
 );
 
-// ============== COMPONENTES PRINCIPALES ==============
+
 interface DiscussionListProps {
   discussions: Discussion[];
   loading: boolean;
@@ -457,7 +457,7 @@ function DiscussionDetail({
   );
 }
 
-// ============== COMPONENTE PRINCIPAL ==============
+
 export default function ForumPage() {
   const [view, setView] = useState<ViewMode>("list");
   const [discussions, setDiscussions] = useState<Discussion[]>([]);

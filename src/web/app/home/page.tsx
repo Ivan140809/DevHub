@@ -2,8 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { Trophy, Book, Award, CloudLightning } from "lucide-react";
-
+import { Trophy, Book, Award, CloudLightning, LogOut } from "lucide-react";
 
 const PARTICLES = [
   { l: "5%", d: "12s", dl: "0s", s: 3 }, { l: "15%", d: "9s", dl: "-2s", s: 2 },
@@ -21,7 +20,7 @@ const FEATURES = [
     desc: "Practica con preguntas usadas en procesos de selección reales en empresas de tecnología.",
   },
   {
-    icon:  <Award />,
+    icon: <Award />,
     title: "Autoevaluación Continua",
     desc: "Mide tu progreso con métricas claras y descubre exactamente dónde mejorar.",
   },
@@ -37,29 +36,71 @@ const FEATURES = [
   },
 ];
 
+const BUTTON_STYLES = {
+  primary: {
+    height: 46,
+    padding: "0 20px",
+    background: "rgba(52, 26, 122, 0.3)",
+    border: "1px solid rgb(99, 60, 255)",
+    borderRadius: 10,
+    color: "rgb(180, 150, 255)",
+    fontFamily: "'Syne', sans-serif",
+    fontSize: 14,
+    fontWeight: 800,
+    letterSpacing: "3px",
+    textTransform: "uppercase" as const,
+    cursor: "pointer",
+    boxShadow: "0 4px 16px rgba(91, 40, 220, 0.75)",
+    width: "fit-content",
+  },
+  header: {
+    height: 36,
+    padding: "0 20px",
+    background: "linear-gradient(135deg,#7040ff,#5020e0)",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontFamily: "'Space Mono',monospace",
+    fontSize: 11,
+    letterSpacing: "2px",
+    textTransform: "uppercase" as const,
+    cursor: "pointer",
+    boxShadow: "0 4px 16px rgba(90,40,220,.35)",
+  },
+};
 
 export default function HomePage() {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
 
-const handleProfileClick = () => {
-    const raw = localStorage.getItem("devhub_user");
-    const isRegistered = !!raw;
-    router.push(isRegistered ? "/profile" : "/register");
+ const [user, setUser] = useState({ isAuthenticated: false, username: "" });
+
+useEffect(() => {
+  const raw = localStorage.getItem("devhub_user");
+  const token = localStorage.getItem("token");
+  if (raw && token) {
+    const parsedUser = JSON.parse(raw);
+    setUser({ isAuthenticated: true, username: parsedUser.username || "Usuario" });
+  }
+  setTimeout(() => setVisible(true), 100);
+}, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("devhub_user");
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    setUsername("");
+    router.push("/");
   };
 
-  useEffect(() => {
-    setTimeout(() => setVisible(true), 100);
-  }, []);
+  const navigateTo = (path: string) => {
+    router.push(path);
+  };
 
   return (
-    <main style={{
-      minHeight: "100vh",
-      background: "#07070f",
-      fontFamily: "'Syne', sans-serif",
-      position: "relative",
-      overflow: "hidden",
-    }}>
+    <main style={{ minHeight: "100vh", background: "#07070f", fontFamily: "'Syne', sans-serif", position: "relative", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
         @keyframes orbFloat { 0%{transform:translate(0,0)} 100%{transform:translate(20px,20px)} }
@@ -77,114 +118,109 @@ const handleProfileClick = () => {
         .sec-btn { transition: all .2s ease; }
       `}</style>
 
-      {/* Orbs de fondo */}
-      <div style={{ position:"fixed", borderRadius:"50%", width:600, height:600, background:"radial-gradient(circle,rgba(90,30,200,.2) 0%,transparent 70%)", top:-200, left:-200, animation:"orbFloat 10s ease-in-out infinite alternate", pointerEvents:"none", zIndex:0 }} />
-      <div style={{ position:"fixed", borderRadius:"50%", width:500, height:500, background:"radial-gradient(circle,rgba(110,50,255,.15) 0%,transparent 70%)", bottom:-150, right:-150, animation:"orbFloat 10s ease-in-out infinite alternate", animationDelay:"-5s", pointerEvents:"none", zIndex:0 }} />
-      <div style={{ position:"fixed", borderRadius:"50%", width:300, height:300, background:"radial-gradient(circle,rgba(80,20,180,.15) 0%,transparent 70%)", top:"40%", left:"60%", animation:"orbFloat 14s ease-in-out infinite alternate", animationDelay:"-3s", pointerEvents:"none", zIndex:0 }} />
-      {PARTICLES.map((p, i) => <div key={i} className="dh-particle" style={{ width:p.s, height:p.s, left:p.l, animationDuration:p.d, animationDelay:p.dl }} />)}
+      <div style={{ position: "fixed", borderRadius: "50%", width: 600, height: 600, background: "radial-gradient(circle,rgba(90,30,200,.2) 0%,transparent 70%)", top: -200, left: -200, animation: "orbFloat 10s ease-in-out infinite alternate", pointerEvents: "none", zIndex: 0 }} />
+      <div style={{ position: "fixed", borderRadius: "50%", width: 500, height: 500, background: "radial-gradient(circle,rgba(110,50,255,.15) 0%,transparent 70%)", bottom: -150, right: -150, animation: "orbFloat 10s ease-in-out infinite alternate", animationDelay: "-5s", pointerEvents: "none", zIndex: 0 }} />
+      <div style={{ position: "fixed", borderRadius: "50%", width: 300, height: 300, background: "radial-gradient(circle,rgba(80,20,180,.15) 0%,transparent 70%)", top: "40%", left: "60%", animation: "orbFloat 14s ease-in-out infinite alternate", animationDelay: "-3s", pointerEvents: "none", zIndex: 0 }} />
+      {PARTICLES.map((p, i) => <div key={i} className="dh-particle" style={{ width: p.s, height: p.s, left: p.l, animationDuration: p.d, animationDelay: p.dl }} />)}
 
-          <Navbar />
+      <Navbar />
 
-      {/* Header */}
-      <header style={{ position:"relative", zIndex:10, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 28px", borderBottom:"1px solid rgba(100,60,255,.15)", background:"rgba(7,7,15,.8)", backdropFilter:"blur(10px)" }}>
-        <button onClick={() => router.push("/FAQ")}className="cta-btn"
-          style={{ height:36, padding:"0 20px", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", fontFamily:"'Space Mono',monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 16px rgba(90,40,220,.35)" }}>
+      <header style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 28px", borderBottom: "1px solid rgba(100,60,255,.15)", background: "rgba(7,7,15,.8)", backdropFilter: "blur(10px)" }}>
+        <button onClick={() => navigateTo("/FAQ")} className="cta-btn" style={BUTTON_STYLES.header}>
           Preguntas Frecuentes
-          </button>
-        <span style={{ fontFamily:"'Space Mono',monospace", fontWeight:700, fontSize:16, letterSpacing:6, color:"#b8a0ff", textShadow:"0 0 20px rgba(150,100,255,.5)" }}> </span>
-        
-        <div style={{ display:"flex", gap:12 }}>
-          <button onClick={handleProfileClick} className="cta-btn"
-          style={{ height:36, padding:"0 20px", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", fontFamily:"'Space Mono',monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 16px rgba(90,40,220,.35)" }}>
-          Login
-          </button>
-          <button onClick={handleProfileClick}  className="cta-btn"
-          style={{ height:36, padding:"0 20px", background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:10, color:"white", fontFamily:"'Space Mono',monospace", fontSize:11, letterSpacing:"2px", textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 16px rgba(90,40,220,.35)" }}>
-            Registrarse
-          </button>
+        </button>
+        <span style={{ fontFamily: "'Space Mono',monospace", fontWeight: 700, fontSize: 16, letterSpacing: 6, color: "#b8a0ff", textShadow: "0 0 20px rgba(150,100,255,.5)" }}> </span>
+
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {isAuthenticated ? (
+            <>
+              <span style={{ color: "rgba(180,150,255,.8)", fontFamily: "'Space Mono',monospace", fontSize: 12 }}>
+                {username}
+              </span>
+              <button onClick={() => navigateTo("/profile")} className="cta-btn" style={BUTTON_STYLES.header}>
+                Mi Perfil
+              </button>
+              <button onClick={handleLogout} className="cta-btn" style={{ ...BUTTON_STYLES.header, background: "rgba(200, 60, 60, 0.3)", borderColor: "rgba(200,60,60,.5)" }}>
+                <LogOut size={14} style={{ marginRight: 6 }} /> Salir
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => navigateTo("/login")} className="cta-btn" style={BUTTON_STYLES.header}>
+                Iniciar Sesión
+              </button>
+              <button onClick={() => navigateTo("/register")} className="cta-btn" style={BUTTON_STYLES.header}>
+                Registrarse
+              </button>
+            </>
+          )}
         </div>
       </header>
 
-      <section style={{ position:"relative", zIndex:5, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", marginTop:-40 , padding:"80px 24px 60px", textAlign:"center", animation: visible ? "fadeUp .8s ease both" : "none" }}>
-        {/* Titulo */}
-        <div style={{ marginBottom:16, animation:"fadeUp .8s .1s ease both" }}>
-          <h1 style={{
-            fontSize: "clamp(36px, 6vw, 72px)",
-            fontWeight: 800,
-            margin: 0,
-            lineHeight: 1.1,
-            background: "linear-gradient(135deg, #ffffff 0%, #b8a0ff 40%, #7040ff 100%)",
-            backgroundSize: "200% auto",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            animation: "shimmer 7s linear infinite",
-          }}>
-            DevHub<span style={{ color:"#7040ff", WebkitTextFillColor:"#a080ff" }}></span>
+      <section style={{ position: "relative", zIndex: 5, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: -40, padding: "80px 24px 60px", textAlign: "center", animation: visible ? "fadeUp .8s ease both" : "none" }}>
+        <div style={{ marginBottom: 16, animation: "fadeUp .8s .1s ease both" }}>
+          <h1 style={{ fontSize: "clamp(36px, 6vw, 72px)", fontWeight: 800, margin: 0, lineHeight: 1.1, background: "linear-gradient(135deg, #ffffff 0%, #b8a0ff 40%, #7040ff 100%)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", animation: "shimmer 7s linear infinite" }}>
+            DevHub
           </h1>
         </div>
 
-        {/* Slogan */}
-        <p style={{ fontFamily:"'Space Mono',monospace", fontSize:13, letterSpacing:"3px", textTransform:"uppercase", color:"rgb(208, 197, 250)", marginBottom:24, animation:"fadeUp .8s .2s ease both" }}>
+        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: 13, letterSpacing: "3px", textTransform: "uppercase", color: "rgb(208, 197, 250)", marginBottom: 24, animation: "fadeUp .8s .2s ease both" }}>
           Entrena hoy, destaca mañana.
         </p>
 
-        {/* Descripcion principal */}
-        <p style={{ maxWidth:620, fontSize:16, lineHeight:1.8, color:"rgb(172, 150, 248)", marginBottom:40, animation:"fadeUp .8s .3s ease both" }}>
+        <p style={{ maxWidth: 620, fontSize: 16, lineHeight: 1.8, color: "rgb(172, 150, 248)", marginBottom: 40, animation: "fadeUp .8s .3s ease both" }}>
           La plataforma especializada en preparación de entrevistas técnicas para ingeniería de sistemas y tecnología. Practica, rompe tus limites, mide tu progreso y llega listo a tu próxima oportunidad laboral!
         </p>
 
-        {/* Botones CTA */}
-        <div style={{ display:"flex", gap:14, flexWrap:"wrap", justifyContent:"center", animation:"fadeUp .8s .4s ease both" }}>
-          <button onClick={() => router.push("/register")} className="cta-btn"
-          style={{ height: 46, padding: "0 20px", background: "rgba(52, 26, 122, 0.3)", border: "1px solid rgb(99, 60, 255)", borderRadius: 10,
-          color: " rgb(180, 150, 255)", fontFamily: "'Syne', sans-serif", fontSize: 14,
-          fontWeight: 800, letterSpacing: "3px", textTransform: "uppercase" as const, cursor: "pointer",
-          boxShadow: "0 4px 16px rgba(91, 40, 220, 0.75)", width: "fit-content", }}>
-            Empezar gratis
-          </button>
-
-          <button onClick={() => router.push("/question")} className="cta-btn"
-           style={{ height: 46, padding: "0 20px", background: "rgba(52, 26, 122, 0.3)", border: "1px solid rgb(99, 60, 255)", borderRadius: 10,
-          color: " rgb(180, 150, 255)", fontFamily: "'Syne', sans-serif", fontSize: 14,
-          fontWeight: 800, letterSpacing: "3px", textTransform: "uppercase" as const, cursor: "pointer",
-          boxShadow: "0 4px 16px rgba(91, 40, 220, 0.75)", width: "fit-content", }}>
-            Ver preguntas
-          </button>
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", animation: "fadeUp .8s .4s ease both" }}>
+          {isAuthenticated ? (
+            <>
+              <button onClick={() => navigateTo("/questions")} className="cta-btn" style={BUTTON_STYLES.primary}>
+                Practicar Preguntas
+              </button>
+              <button onClick={() => navigateTo("/ranking")} className="cta-btn" style={BUTTON_STYLES.primary}>
+                Ver Ranking
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => navigateTo("/register")} className="cta-btn" style={BUTTON_STYLES.primary}>
+                Empezar Gratis
+              </button>
+              <button onClick={() => navigateTo("/questions")} className="cta-btn" style={BUTTON_STYLES.primary}>
+                Ver Preguntas
+              </button>
+            </>
+          )}
         </div>
 
-        {/* cajas azules */}
-        <div style={{ display:"flex", gap:24, marginTop:52, flexWrap:"wrap", justifyContent:"center", animation:"fadeUp .8s .5s ease both" }}>
+        <div style={{ display: "flex", gap: 24, marginTop: 52, flexWrap: "wrap", justifyContent: "center", animation: "fadeUp .8s .5s ease both" }}>
           {[["Preguntas", "100+"], ["Categorías", "7"], ["Eficiencia", "100%"]].map(([label, val]) => (
-            <div key={label} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"14px 24px", background:"rgba(21, 4, 90, 0.55)", border:"1px solid rgba(99, 60, 255, 0.54)", borderRadius:14, backdropFilter:"blur(10px)" }}>
-              <span style={{ fontSize:22, fontWeight:900, color:"#ddd0ff" }}>{val}</span>
-              <span style={{ fontFamily:"'Space Mono',monospace", fontSize:9, letterSpacing:"2px", textTransform:"uppercase", color:"rgba(159, 130, 255, 0.92)" }}>{label}</span>
+            <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "14px 24px", background: "rgba(21, 4, 90, 0.55)", border: "1px solid rgba(99, 60, 255, 0.54)", borderRadius: 14, backdropFilter: "blur(10px)" }}>
+              <span style={{ fontSize: 22, fontWeight: 900, color: "#ddd0ff" }}>{val}</span>
+              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, letterSpacing: "2px", textTransform: "uppercase", color: "rgba(159, 130, 255, 0.92)" }}>{label}</span>
             </div>
           ))}
         </div>
       </section>
 
-        <div style={{ position:"relative", zIndex:5, height:1, background:"linear-gradient(90deg,transparent,rgba(100,60,255,.3),transparent)", margin:"0 24px" }} />
+      <div style={{ position: "relative", zIndex: 5, height: 1, background: "linear-gradient(90deg,transparent,rgba(100,60,255,.3),transparent)", margin: "0 24px" }} />
 
-      
-      <section style={{ position:"relative", zIndex:5, padding:"60px 24px 80px", maxWidth:1100, margin:"0 auto" }}>
-        <div style={{ textAlign:"center", marginBottom:48 }}>
-          <h2 style={{ color:"#ddd0ff", fontSize:28, fontWeight:800, margin:0 }}>Todo lo que necesitas para prepararte</h2>
+      <section style={{ position: "relative", zIndex: 5, padding: "60px 24px 80px", maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <h2 style={{ color: "#ddd0ff", fontSize: 28, fontWeight: 800, margin: 0 }}>Todo lo que necesitas para prepararte</h2>
         </div>
 
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(240px, 1fr))", gap:20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
           {FEATURES.map((f, i) => (
-            <div key={f.title} className="feat-card" style={{ background:"rgba(14,10,28,.88)", border:"1px solid rgba(100,60,255,.18)", borderRadius:18, padding:"28px 24px", backdropFilter:"blur(16px)", animation:`fadeUp .6s ${.1 * i + .2}s ease both` }}>
-              <div style={{ color:"#9973fb",fontSize:32, marginBottom:16 }}>{f.icon}</div>
-              <h3 style={{ color:"#ddd0ff", fontSize:15, fontWeight:800, marginBottom:10, letterSpacing:.3 }}>{f.title}</h3>
-              <p style={{ color:"rgba(180,160,255,.55)", fontSize:13, lineHeight:1.7, margin:0 }}>{f.desc}</p>
+            <div key={f.title} className="feat-card" style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.18)", borderRadius: 18, padding: "28px 24px", backdropFilter: "blur(16px)", animation: `fadeUp .6s ${.1 * i + .2}s ease both` }}>
+              <div style={{ color: "#9973fb", fontSize: 32, marginBottom: 16 }}>{f.icon}</div>
+              <h3 style={{ color: "#ddd0ff", fontSize: 15, fontWeight: 800, marginBottom: 10, letterSpacing: .3 }}>{f.title}</h3>
+              <p style={{ color: "rgba(180,160,255,.55)", fontSize: 13, lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
             </div>
-          ))}    
+          ))}
         </div>
       </section>
-
-    
-
     </main>
   );
 }
