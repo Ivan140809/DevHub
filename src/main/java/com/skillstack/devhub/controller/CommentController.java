@@ -8,8 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/questions/{questionId}/comments")
-@CrossOrigin
+@RequestMapping("/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -20,9 +19,7 @@ public class CommentController {
     }
 
     @GetMapping("/{commentId:[0-9a-f]{24}}")
-    public ResponseEntity<CommentDTO> getComment(
-            @PathVariable String questionId,
-            @PathVariable String commentId) {
+    public ResponseEntity<CommentDTO> getComment(@PathVariable String commentId) {
         CommentDTO comment = commentService.getCommentTree(commentId);
         return ResponseEntity
                 .status(HttpStatus.OK)
