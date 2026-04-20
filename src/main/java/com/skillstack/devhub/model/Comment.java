@@ -100,4 +100,18 @@ public class Comment implements Subject {
     public void setReplies(List<Comment> replies) {
         this.replies = replies;
     }
+
+    public List<String> getSubscribedUsernames() {
+        return subscribedUsernames;
+    }
+
+    public void subscribe(String username) {
+        if (!subscribedUsernames.contains(username)) {
+            subscribedUsernames.add(username);
+        }
+    }
+
+    public void unsubscribe(String username) {
+        subscribedUsernames.remove(username);
+    }
 }
