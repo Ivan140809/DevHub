@@ -7,18 +7,47 @@ import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.model.Comment;
 import com.skillstack.devhub.model.CommentComponent;
 import com.skillstack.devhub.model.CommentComposite;
+import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.CommentRepository;
+import com.skillstack.devhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CommentService {
+
     private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-
-    public CommentService(CommentRepository commentRepository) {
+    public CommentService(CommentRepository commentRepository,
+                          UserRepository userRepository) {
         this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
+    }
+
+    // esto sirve para reconectar observers desde BD
+    private void reattachObservers(Comment comment) {
+        for (String username : comment.getSubscribedUsernames()) {
+            userRepository.findByUsername(username)
+                    .ifPresent(comment::attach);
+        }
+    }
+
+    public CommentDTO createComment(String content, String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "Usuario no encontrado: " + username));
+
+        Comment comment = new Comment(content, username);
+
+        comment.attach(user);
+        comment.subscribe(username);
+
+        commentRepository.save(comment);
+
+        return comment.toComponent().toDTO();
     }
 
     public CommentDTO getCommentTree(String id){
@@ -27,6 +56,38 @@ public class CommentService {
         CommentComponent commentTree = comment.toComponent();
 
         return commentTree.toDTO();
+    }
+
+    public CommentDTO editComment(String commentId, String newContent) {
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO"));
+
+        reattachObservers(comment);
+        comment.setContent(newContent);
+        commentRepository.save(comment);
+
+        return comment.toComponent().toDTO();
+    }
+
+    public CommentDTO addReply(String parentId, String content, String replyUsername) {
+        Comment parent = commentRepository.findById(parentId)
+                .orElseThrow(() -> new CommentNotFoundException(
+                        "COMENTARIO CON ID " + parentId + " NO ENCONTRADO"));
+
+        reattachObservers(parent);
+
+        User replier = userRepository.findByUsername(replyUsername)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "Usuario no encontrado: " + replyUsername));
+        parent.attach(replier);
+        parent.subscribe(replyUsername);
+
+        Comment reply = new Comment(content, replyUsername);
+        parent.addReply(reply);
+        commentRepository.save(parent);
+
+        return parent.toComponent().toDTO();
     }
 
 }
