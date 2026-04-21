@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, useCallback } from "react";
 import Navbar from "../components/Navbar";
 import { MessageCircle, User, Calendar, ArrowLeft, Send, MessageSquare, Sparkles, Zap, Heart } from "lucide-react";
@@ -18,6 +17,12 @@ type Discussion = {
   tags?: string[];
 };
 
+type Reaction = {
+  emoji: string;
+  count: number;
+  userReacted: boolean;
+};
+
 type Reply = {
   id: string;
   content: string;
@@ -25,7 +30,12 @@ type Reply = {
   authorUsername: string;
   createdAt: string;
   likesCount: number;
+  reactions?: Reaction[];
+  replies?: Reply[];
 };
+
+
+
 
 type ViewMode = "list" | "create" | "detail";
 
@@ -96,6 +106,8 @@ const GLOBAL_STYLES = `
   .back-btn:hover { background: rgba(100,60,255,.15) !important; transform: translateX(-4px); }
   .category-select:hover { border-color: rgba(140,80,255,.5) !important; }
   .category-select.selected { background: rgba(100,60,255,.2) !important; border-color: rgba(140,80,255,.5) !important; }
+  .reaction-btn { transition: all .2s ease; }
+  .reaction-btn:hover { transform: scale(1.1); background: rgba(100,60,255,.15) !important; }
 `;
 
 
@@ -332,7 +344,7 @@ function CreateDiscussion({
             Cancelar
           </button>
           <button onClick={onSubmit} disabled={submitting} className="new-disc-btn" style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 28px", background: submitting ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 13, letterSpacing: "1px", cursor: submitting ? "not-allowed" : "pointer", boxShadow: submitting ? "none" : "0 6px 20px rgba(90,40,220,.4)", fontWeight: 600 }}>
-            {submitting ? "Publicando..." : (<><Send size={16} /> Publicar</>)}
+            {submitting ? "Publicando " : (<><Send size={16} /> Publicar</>)}
           </button>
         </div>
       </div>
