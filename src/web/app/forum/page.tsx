@@ -108,6 +108,8 @@ const GLOBAL_STYLES = `
   .category-select.selected { background: rgba(100,60,255,.2) !important; border-color: rgba(140,80,255,.5) !important; }
   .reaction-btn { transition: all .2s ease; }
   .reaction-btn:hover { transform: scale(1.1); background: rgba(100,60,255,.15) !important; }
+  .popular-btn { transition: all .2s ease; }
+  .popular-btn:hover { border-color: rgba(255,100,150,.5) !important; color: rgba(255,150,180,.9) !important; }
 `;
 
 
@@ -164,7 +166,9 @@ interface DiscussionListProps {
   loading: boolean;
   error: string | null;
   selectedCategory: string | null;
+  sortByPopular: boolean;
   onCategoryChange: (cat: string | null) => void;
+  onSortByPopularChange: (sort: boolean) => void;
   onCreateClick: () => void;
   onDiscussionClick: (disc: Discussion) => void;
   onLikeToggle: (id: string) => void;
@@ -176,7 +180,9 @@ function DiscussionList({
   loading,
   error,
   selectedCategory,
+  sortByPopular,
   onCategoryChange,
+  onSortByPopularChange,
   onCreateClick,
   onDiscussionClick,
   onLikeToggle,
@@ -210,6 +216,9 @@ function DiscussionList({
             {cat.name}
           </button>
         ))}
+        <button onClick={() => onSortByPopularChange(!sortByPopular)} className={`cat-btn ${sortByPopular ? "active" : ""}`} style={{ padding: "10px 18px", background: sortByPopular ? "rgba(255,100,150,.15)" : "rgba(14,10,28,.88)", border: "1px solid rgba(255,100,150,.3)", borderRadius: 22, color: sortByPopular ? "rgba(255,150,180,.9)" : "rgba(140,100,255,.6)", fontSize: 12, fontFamily: "'Space Mono',monospace", cursor: "pointer", transition: "all .2s ease", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <Heart size={14} fill={sortByPopular ? "rgba(255,100,150,.6)" : "none"} /> Más Populares
+        </button>
       </div>
 
       {error && <ErrorBanner message={error} />}
@@ -220,7 +229,11 @@ function DiscussionList({
 
       {!loading && discussions.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
-          {discussions.map((disc, idx) => {
+          {(() => {
+            const sortedDiscussions = sortByPopular 
+              ? [...discussions].sort((a, b) => (b.likesCount + b.repliesCount) - (a.likesCount + a.repliesCount))
+              : discussions;
+            return sortedDiscussions.map((disc, idx) => {
             const catInfo = getCategoryInfo(disc.category);
             const isLiked = likedDiscussions.has(disc.id);
             return (
@@ -265,7 +278,7 @@ function DiscussionList({
                 </div>
               </div>
             );
-          })}
+            }))}
         </div>
       )}
     </>
@@ -476,6 +489,7 @@ export default function ForumPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sortByPopular, setSortByPopular] = useState(false);
 
   const [selectedDiscussion, setSelectedDiscussion] = useState<Discussion | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -613,7 +627,7 @@ export default function ForumPage() {
       <BackgroundEffects />
       <Navbar />
       <section style={{ position: "relative" as const, zIndex: 5, padding: "28px 24px", display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 1000, margin: "0 auto", animation: "slideIn .35s ease" }}>
-        {view === "list" && <DiscussionList discussions={discussions} loading={loading} error={error} selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} onCreateClick={() => setView("create")} onDiscussionClick={openDiscussion} onLikeToggle={toggleLike} likedDiscussions={likedDiscussions} />}
+        {view === "list" && <DiscussionList discussions={discussions} loading={loading} error={error} selectedCategory={selectedCategory} sortByPopular={sortByPopular} onCategoryChange={setSelectedCategory} onSortByPopularChange={setSortByPopular} onCreateClick={() => setView("create")} onDiscussionClick={openDiscussion} onLikeToggle={toggleLike} likedDiscussions={likedDiscussions} />}
 
         {view === "create" && <CreateDiscussion title={newTitle} content={newContent} category={newCategory} tags={newTags} error={submitError} submitting={submitting} onTitleChange={setNewTitle} onContentChange={setNewContent} onCategoryChange={setNewCategory} onTagsChange={setNewTags} onSubmit={createDiscussion} onCancel={goBack} />}
 
