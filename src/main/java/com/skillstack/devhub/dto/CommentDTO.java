@@ -33,4 +33,9 @@ public class CommentDTO {
     public List<CommentDTO> getReplies() {
         return replies;
     }
+
+    public boolean isStarred() {
+        return isStarred;
+    }
+
 }

@@ -13,6 +13,8 @@ import com.skillstack.devhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CommentService {
 
@@ -90,4 +92,14 @@ public class CommentService {
         return parent.toComponent().toDTO();
     }
 
+    public List<CommentDTO> getStarredComments(){
+
+        List<Comment> starred = commentRepository.findByIsStarred(true);
+
+        if(starred.isEmpty()){
+            throw new CommentNotFoundException("No se ha encontrado ningun comentario destacado");
+        }
+
+        return starred.stream().map(c -> c.toComponent().toDTO()).toList();
+    }
 }
