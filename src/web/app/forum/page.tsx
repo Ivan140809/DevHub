@@ -229,11 +229,10 @@ function DiscussionList({
 
       {!loading && discussions.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
-          {(() => {
-            const sortedDiscussions = sortByPopular 
-              ? [...discussions].sort((a, b) => (b.likesCount + b.repliesCount) - (a.likesCount + a.repliesCount))
-              : discussions;
-            return sortedDiscussions.map((disc, idx) => {
+          {(sortByPopular
+            ? [...discussions].sort((a, b) => (b.likesCount + b.repliesCount) - (a.likesCount + a.repliesCount))
+            : discussions
+          ).map((disc, idx) => {
             const catInfo = getCategoryInfo(disc.category);
             const isLiked = likedDiscussions.has(disc.id);
             return (
@@ -278,7 +277,7 @@ function DiscussionList({
                 </div>
               </div>
             );
-            }))}
+          })}
         </div>
       )}
     </>
