@@ -16,6 +16,7 @@ public class Comment implements Subject {
 
     private String content;
     private String username;
+    private boolean isStarred;
 
     private List<Comment> replies = new ArrayList<>();
 
@@ -25,9 +26,10 @@ public class Comment implements Subject {
     // lista en memoria — no se persiste
     private transient List<Observer> observers = new ArrayList<>();
 
-    public Comment(String content, String username) {
+    public Comment(String content, String username, boolean isStarred) {
         this.content = content;
         this.username = username;
+        this.isStarred = isStarred;
     }
 
     @Override
@@ -60,11 +62,11 @@ public class Comment implements Subject {
     public CommentComponent toComponent() {
 
         if (replies == null || replies.isEmpty()) {
-            return new CommentLeaf(id, content, username);
+            return new CommentLeaf(id, content, username, isStarred);
         }
 
         CommentComposite composite =
-                new CommentComposite(id, content, username);
+                new CommentComposite(id, content, username, isStarred);
 
         for (Comment child : replies) {
             composite.add(child.toComponent());

@@ -7,12 +7,14 @@ public class CommentDTO {
     private String id;
     private String content;
     private String username;
+    private boolean isStarred;
     private List<CommentDTO> replies;
 
-    public CommentDTO(String id, String content, String username, List<CommentDTO> replies) {
+    public CommentDTO(String id, String content, String username, boolean isStarred, List<CommentDTO> replies) {
         this.id = id;
         this.content = content;
         this.username = username;
+        this.isStarred = isStarred;
         this.replies = replies;
     }
 
