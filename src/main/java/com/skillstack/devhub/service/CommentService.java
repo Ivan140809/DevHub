@@ -34,13 +34,13 @@ public class CommentService {
         }
     }
 
-    public CommentDTO createComment(String content, String username) {
+    public CommentDTO createComment(String content, String username, boolean isStarred) {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(
                         "Usuario no encontrado: " + username));
 
-        Comment comment = new Comment(content, username);
+        Comment comment = new Comment(content, username, isStarred);
 
         comment.attach(user);
         comment.subscribe(username);
@@ -70,7 +70,7 @@ public class CommentService {
         return comment.toComponent().toDTO();
     }
 
-    public CommentDTO addReply(String parentId, String content, String replyUsername) {
+    public CommentDTO addReply(String parentId, String content, String replyUsername, boolean isStarred) {
         Comment parent = commentRepository.findById(parentId)
                 .orElseThrow(() -> new CommentNotFoundException(
                         "COMENTARIO CON ID " + parentId + " NO ENCONTRADO"));
@@ -83,7 +83,7 @@ public class CommentService {
         parent.attach(replier);
         parent.subscribe(replyUsername);
 
-        Comment reply = new Comment(content, replyUsername);
+        Comment reply = new Comment(content, replyUsername, isStarred);
         parent.addReply(reply);
         commentRepository.save(parent);
 

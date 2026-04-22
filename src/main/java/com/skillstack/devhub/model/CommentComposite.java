@@ -9,8 +9,8 @@ public class CommentComposite extends CommentComponent{
 
     private List<CommentComponent> replies = new ArrayList<>();
 
-    public CommentComposite(String id,String content, String username){
-        super(id, content,username);
+    public CommentComposite(String id,String content, String username, boolean isStarred){
+        super(id, content,username, isStarred);
     }
 
     public void add(CommentComponent c){
@@ -23,6 +23,7 @@ public class CommentComposite extends CommentComponent{
                 id,
                 content,
                 username,
+                isStarred,
                 replies.stream().map(CommentComponent::toDTO).toList()
         );
     }
