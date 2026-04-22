@@ -103,6 +103,10 @@ public class Comment implements Subject {
         this.replies = replies;
     }
 
+    public boolean isStarred() {
+        return isStarred;
+    }
+
     public List<String> getSubscribedUsernames() {
         return subscribedUsernames;
     }
