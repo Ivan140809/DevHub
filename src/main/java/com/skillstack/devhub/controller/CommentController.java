@@ -26,4 +26,18 @@ public class CommentController {
                 .body(comment);
     }
 
+    @PostMapping("/{commentId:[0-9a-f]{24}}/reactions")
+    public ResponseEntity<CommentDTO> addReaction(
+            @PathVariable String commentId, @RequestParam Reaction reaction, Authentication authentication) {
+ 
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+ 
+        CommentDTO updated = commentService.addReaction(commentId, authentication.getName(), reaction);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(updated);
+    }
+
 }
