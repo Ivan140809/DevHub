@@ -24,7 +24,7 @@ public class EmailSenderService {
         mailMessage.setText(body);
         mailSender.send(mailMessage);
 
-        System.out.println("EMAIL ENVIADO CORRECTSMENTE");
+        System.out.println("EMAIL ENVIADO CORRECTAMENTE");
 
     }
 }
