@@ -51,4 +51,12 @@ public class CommentController {
                 .status(HttpStatus.OK)
                 .body(starred);
     }
+
+    @GetMapping("/top")
+    public ResponseEntity<List<CommentDTO>> getCommentsMostReactions() {
+        List<CommentDTO> topComments = commentService.getCommentsMostReactions();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(topComments);
+    }
 }
