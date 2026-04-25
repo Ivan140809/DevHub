@@ -11,6 +11,7 @@ import com.skillstack.devhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,5 +116,21 @@ public class CommentService {
         }
 
         return comment.toComponent().toDTO();
+    }
+
+    public List<CommentDTO> getCommentsMostReactions(){
+
+        List<Comment> commentList= commentRepository.findTop7ByOrderByHappyFaceDesc();
+
+        List<CommentComponent> commentComponents = new ArrayList<>();
+        for(Comment c : commentList){
+            commentComponents.add(c.toComponent());
+        }
+        List<CommentDTO> commentDTOS = new ArrayList<>();
+
+        for(CommentComponent c : commentComponents){
+            commentDTOS.add(c.toDTO());
+        }
+        return commentDTOS;
     }
 }
