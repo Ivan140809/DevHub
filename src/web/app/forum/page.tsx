@@ -5,7 +5,6 @@ import Navbar from "../components/Navbar";
 import { useState, useEffect, useCallback } from "react";
 import { MessageCircle, User, Calendar, ArrowLeft, Send, MessageSquare, Sparkles, Zap, Heart } from "lucide-react";
 
-
 type Discussion = {
   id: string;
   title: string;
@@ -70,7 +69,7 @@ const REACTION_OPTIONS = [
   { emoji: "😢", label: "Triste" },
   { emoji: "👍", label: "Me gusta" },
   { emoji: "🔥", label: "Fuego" },
-  { emoji: "🤔", label: "Pensativo" },
+  { emoji: "🖕", label: "No me gusta" },
 ];
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -219,10 +218,9 @@ function ReactionBar({ replyId }: { replyId: string }) {
             fontSize: 16, transition: "all .2s ease",
           }}
         >
-          
+          ➕
         </button>
 
-       
         {showPicker && (
           <div
             className="reaction-picker"
@@ -416,6 +414,21 @@ interface DiscussionDetailProps {
 
 function DiscussionDetail({ discussion, replies, loading, replyContent, replyError, replyFocused, replySubmitting, onReplyContentChange, onReplyFocus, onReplyBlur, onReplySubmit, onBack }: DiscussionDetailProps) {
   const catInfo = getCategoryInfo(discussion.category);
+  const [sortByReactions, setSortByReactions] = useState(false);
+
+  // Helper para sumar las reacciones de una respuesta
+  const getReactionCount = (reply: Reply) => {
+    let count = reply.likesCount || 0;
+    if (reply.reactions) {
+      count += reply.reactions.reduce((sum, r) => sum + r.count, 0);
+    }
+    return count;
+  };
+
+  const sortedReplies = sortByReactions
+    ? [...replies].sort((a, b) => getReactionCount(b) - getReactionCount(a))
+    : replies;
+
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
@@ -439,9 +452,33 @@ function DiscussionDetail({ discussion, replies, loading, replyContent, replyErr
         <p style={{ color: "rgba(200,190,220,.9)", fontSize: 16, lineHeight: 1.8, margin: 0 }}>{discussion.content}</p>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        <h2 style={{ color: "#e0d4ff", fontSize: 20, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><MessageCircle size={20} /> Respuestas</h2>
-        <span style={{ background: "rgba(100,60,255,.18)", border: "1px solid rgba(100,60,255,.3)", borderRadius: 20, padding: "5px 14px", color: "rgba(140,100,255,.85)", fontSize: 12, fontFamily: "'Space Mono',monospace", fontWeight: 600 }}>{replies.length}</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <h2 style={{ color: "#e0d4ff", fontSize: 20, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><MessageCircle size={20} /> Respuestas</h2>
+          <span style={{ background: "rgba(100,60,255,.18)", border: "1px solid rgba(100,60,255,.3)", borderRadius: 20, padding: "5px 14px", color: "rgba(140,100,255,.85)", fontSize: 12, fontFamily: "'Space Mono',monospace", fontWeight: 600 }}>{replies.length}</span>
+        </div>
+        <button
+          onClick={() => setSortByReactions(!sortByReactions)}
+          className={`cat-btn ${sortByReactions ? "active" : ""}`}
+          style={{
+            padding: "8px 16px",
+            background: sortByReactions ? "rgba(255,100,150,.15)" : "rgba(14,10,28,.88)",
+            border: sortByReactions ? "1px solid rgba(255,100,150,.3)" : "1px solid rgba(100,60,255,.2)",
+            borderRadius: 22,
+            color: sortByReactions ? "rgba(255,150,180,.9)" : "rgba(140,100,255,.6)",
+            fontSize: 12,
+            fontFamily: "'Space Mono',monospace",
+            cursor: "pointer",
+            fontWeight: 600,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            transition: "all .2s ease"
+          }}
+        >
+          <Heart size={14} fill={sortByReactions ? "rgba(255,100,150,.6)" : "none"} />
+          Más Reaccionados
+        </button>
       </div>
 
       <div style={{ background: replyFocused ? "rgba(14,10,28,.95)" : "rgba(14,10,28,.88)", border: `1px solid ${replyFocused ? "rgba(140,80,255,.5)" : "rgba(100,60,255,.2)"}`, borderRadius: 18, padding: 20, transition: "all .3s ease" }}>
@@ -454,11 +491,11 @@ function DiscussionDetail({ discussion, replies, loading, replyContent, replyErr
         </div>
       </div>
 
-      {loading ? <LoadingSkeleton /> : replies.length === 0 ? (
+      {loading ? <LoadingSkeleton /> : sortedReplies.length === 0 ? (
         <EmptyState message="No hay respuestas aún." subMessage="¡Sé el primero en comentar!" />
       ) : (
         <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
-          {replies.map((reply, idx) => (
+          {sortedReplies.map((reply, idx) => (
             <div key={reply.id} className="reply-btn" style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.15)", borderRadius: 16, padding: 18, animation: `slideIn .35s ${idx * 0.08}s ease both` }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,rgba(100,60,255,.25),rgba(60,30,150,.25))", border: "1px solid rgba(100,60,255,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}><User size={18} color="rgba(180,140,255,.8)" /></div>
@@ -467,7 +504,6 @@ function DiscussionDetail({ discussion, replies, loading, replyContent, replyErr
               </div>
               <p style={{ color: "rgba(200,190,220,.9)", fontSize: 15, margin: 0, lineHeight: 1.6, paddingLeft: 48 }}>{reply.content}</p>
 
-              
               <ReactionBar replyId={reply.id} />
             </div>
           ))}
