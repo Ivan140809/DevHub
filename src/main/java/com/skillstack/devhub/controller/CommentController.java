@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/comments")
 public class CommentController {
@@ -42,4 +44,11 @@ public class CommentController {
                 .body(updated);
     }
 
+    @GetMapping("/starred")
+    public ResponseEntity <List<CommentDTO>> getStarredComments(){
+        List<CommentDTO> starred = commentService.getStarredComments();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(starred);
+    }
 }
