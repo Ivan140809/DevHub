@@ -17,6 +17,8 @@ public class Comment implements Subject {
     private String content;
     private String username;
     private boolean isStarred;
+    private int happyFace;
+    private int sadFace;
 
     private List<Comment> replies = new ArrayList<>();
 
@@ -26,10 +28,12 @@ public class Comment implements Subject {
     // lista en memoria — no se persiste
     private transient List<Observer> observers = new ArrayList<>();
 
-    public Comment(String content, String username, boolean isStarred) {
+    public Comment(String content, String username, boolean isStarred, int happyFace, int sadFace) {
         this.content = content;
         this.username = username;
         this.isStarred = isStarred;
+        this.happyFace = happyFace;
+        this.sadFace = sadFace;
     }
 
     @Override
@@ -62,11 +66,11 @@ public class Comment implements Subject {
     public CommentComponent toComponent() {
 
         if (replies == null || replies.isEmpty()) {
-            return new CommentLeaf(id, content, username, isStarred);
+            return new CommentLeaf(id, content, username, isStarred, happyFace, sadFace);
         }
 
         CommentComposite composite =
-                new CommentComposite(id, content, username, isStarred);
+                new CommentComposite(id, content, username, isStarred, happyFace, sadFace);
 
         for (Comment child : replies) {
             composite.add(child.toComponent());
@@ -105,6 +109,22 @@ public class Comment implements Subject {
 
     public boolean isStarred() {
         return isStarred;
+    }
+
+    public int getHappyFace() {
+        return happyFace;
+    }
+
+    public void setHappyFace(int happyFace) {
+        this.happyFace = happyFace;
+    }
+
+    public int getSadFace() {
+        return sadFace;
+    }
+
+    public void setSadFace(int sadFace) {
+        this.sadFace = sadFace;
     }
 
     public List<String> getSubscribedUsernames() {

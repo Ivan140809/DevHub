@@ -36,7 +36,7 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
  
-        CommentDTO updated = commentService.addReaction(commentId, authentication.getName(), reaction);
+        CommentDTO updated = commentService.addReaction(commentId, reaction);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(updated);
