@@ -6,13 +6,13 @@ import java.util.List;
 
 public class CommentLeaf extends CommentComponent{
 
-    public CommentLeaf(String id, String content, String username, boolean isStarred){
-        super(id,content, username, isStarred);
+    public CommentLeaf(String id, String content, String username, boolean isStarred, int happyFace, int sadFace){
+        super(id,content, username, isStarred, happyFace, sadFace);
     }
 
     @Override
     public CommentDTO toDTO(){
-        return new CommentDTO(id,content, username, isStarred,List.of());
+        return new CommentDTO(id,content, username, isStarred,List.of(), happyFace, sadFace);
     }
 
 
