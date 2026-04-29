@@ -1,9 +1,8 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useCurrentUser } from "../hooks/useCurrentUser";
 import Navbar from "../components/Navbar";
+import { MessageCircle, User, Calendar, ArrowLeft, Send, MessageSquare, Sparkles, Zap, Heart, Trash2 } from "lucide-react";
+import { useCurrentUser, UserRole } from "../hooks/useCurrentUser";
 import { useState, useEffect, useCallback } from "react";
-import { MessageCircle, User, Calendar, ArrowLeft, Send, MessageSquare, Sparkles, Zap, Heart } from "lucide-react";
 
 type Discussion = {
   id: string;
@@ -273,9 +272,23 @@ interface DiscussionListProps {
   onDiscussionClick: (disc: Discussion) => void;
   onLikeToggle: (id: string) => void;
   likedDiscussions: Set<string>;
+  isAuthenticated: boolean;
 }
 
-function DiscussionList({ discussions, loading, error, selectedCategory, sortByPopular, onCategoryChange, onSortByPopularChange, onCreateClick, onDiscussionClick, onLikeToggle, likedDiscussions }: DiscussionListProps) {
+function DiscussionList({
+  discussions,
+  loading,
+  error,
+  selectedCategory,
+  sortByPopular,
+  onCategoryChange,
+  onSortByPopularChange,
+  onCreateClick,
+  onDiscussionClick,
+  onLikeToggle,
+  likedDiscussions,
+  isAuthenticated,
+}: DiscussionListProps) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" as const, gap: 16 }}>
@@ -290,9 +303,11 @@ function DiscussionList({ discussions, loading, error, selectedCategory, sortByP
             </p>
           </div>
         </div>
-        <button onClick={onCreateClick} className="new-disc-btn" style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px", background: "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 12, letterSpacing: "1px", cursor: "pointer", boxShadow: "0 6px 20px rgba(90,40,220,.4)", fontWeight: 600, transition: "all .2s ease" }}>
-          <Zap size={16} /> Nueva Discusión
-        </button>
+        {isAuthenticated && (
+          <button onClick={onCreateClick} className="new-disc-btn" style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px", background: "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 12, letterSpacing: "1px", cursor: "pointer", boxShadow: "0 6px 20px rgba(90,40,220,.4)", fontWeight: 600 }}>
+            <Zap size={16} /> Nueva Discusión
+          </button>
+        )}
       </div>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}>
@@ -406,13 +421,38 @@ function CreateDiscussion({ title, content, category, tags, error, submitting, o
 }
 
 interface DiscussionDetailProps {
-  discussion: Discussion; replies: Reply[]; loading: boolean;
-  replyContent: string; replyError: string | null; replyFocused: boolean; replySubmitting: boolean;
-  onReplyContentChange: (v: string) => void; onReplyFocus: () => void; onReplyBlur: () => void;
-  onReplySubmit: () => void; onBack: () => void;
+  discussion: Discussion;
+  replies: Reply[];
+  loading: boolean;
+  replyContent: string;
+  replyError: string | null;
+  replyFocused: boolean;
+  replySubmitting: boolean;
+  onReplyContentChange: (v: string) => void;
+  onReplyFocus: () => void;
+  onReplyBlur: () => void;
+  onReplySubmit: () => void;
+  onBack: () => void;
+  currentUserRole: UserRole;
+  onDeleteReply: (replyId: string) => void;
 }
 
-function DiscussionDetail({ discussion, replies, loading, replyContent, replyError, replyFocused, replySubmitting, onReplyContentChange, onReplyFocus, onReplyBlur, onReplySubmit, onBack }: DiscussionDetailProps) {
+function DiscussionDetail({
+  discussion,
+  replies,
+  loading,
+  replyContent,
+  replyError,
+  replyFocused,
+  replySubmitting,
+  onReplyContentChange,
+  onReplyFocus,
+  onReplyBlur,
+  onReplySubmit,
+  onBack,
+  currentUserRole,
+  onDeleteReply,
+}: DiscussionDetailProps) {
   const catInfo = getCategoryInfo(discussion.category);
   const [sortByReactions, setSortByReactions] = useState(false);
 
@@ -497,10 +537,45 @@ function DiscussionDetail({ discussion, replies, loading, replyContent, replyErr
         <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
           {sortedReplies.map((reply, idx) => (
             <div key={reply.id} className="reply-btn" style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.15)", borderRadius: 16, padding: 18, animation: `slideIn .35s ${idx * 0.08}s ease both` }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,rgba(100,60,255,.25),rgba(60,30,150,.25))", border: "1px solid rgba(100,60,255,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}><User size={18} color="rgba(180,140,255,.8)" /></div>
-                <span style={{ color: "#b8a0ff", fontWeight: 700, fontSize: 14 }}>{reply.authorUsername}</span>
-                <span style={{ color: "rgba(140,100,255,.5)", fontSize: 11, fontFamily: "'Space Mono',monospace" }}>{formatDate(reply.createdAt)}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,rgba(100,60,255,.25),rgba(60,30,150,.25))", border: "1px solid rgba(100,60,255,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <User size={18} color="rgba(180,140,255,.8)" />
+                  </div>
+                  <span style={{ color: "#b8a0ff", fontWeight: 700, fontSize: 14 }}>{reply.authorUsername}</span>
+                  <span style={{ color: "rgba(140,100,255,.5)", fontSize: 11, fontFamily: "'Space Mono',monospace" }}>
+                    {formatDate(reply.createdAt)}
+                  </span>
+                </div>
+                {currentUserRole === "ADMIN" && (
+                  <button
+                    onClick={() => onDeleteReply(reply.id)}
+                    style={{
+                      background: "rgba(200,100,100,.15)",
+                      border: "1px solid rgba(200,100,100,.3)",
+                      borderRadius: 8,
+                      padding: "6px 12px",
+                      color: "rgba(240,120,120,.8)",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      transition: "all .2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(200,100,100,.25)";
+                      e.currentTarget.style.borderColor = "rgba(200,100,100,.5)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "rgba(200,100,100,.15)";
+                      e.currentTarget.style.borderColor = "rgba(200,100,100,.3)";
+                    }}
+                  >
+                    <Trash2 size={14} /> Eliminar
+                  </button>
+                )}
               </div>
               <p style={{ color: "rgba(200,190,220,.9)", fontSize: 15, margin: 0, lineHeight: 1.6, paddingLeft: 48 }}>{reply.content}</p>
 
@@ -514,6 +589,9 @@ function DiscussionDetail({ discussion, replies, loading, replyContent, replyErr
 }
 
 export default function ForumPage() {
+  const currentUser = useCurrentUser();
+  const isAuthenticated = !!currentUser.email;
+
   const [view, setView] = useState<ViewMode>("list");
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -592,7 +670,41 @@ export default function ForumPage() {
     setLikedDiscussions(prev => { const n = new Set(prev); n.has(discId) ? n.delete(discId) : n.add(discId); return n; });
   }, []);
 
-  const goBack = () => { setView("list"); setSelectedDiscussion(null); setReplies([]); };
+  const deleteReply = useCallback(async (replyId: string) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este comentario?")) return;
+    
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setReplyError("Debes iniciar sesión para eliminar comentarios.");
+      return;
+    }
+    
+    try {
+      const res = await fetch(`${BASE_URL}/discussions/${selectedDiscussion?.id}/replies/${replyId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      
+      if (!res.ok) throw new Error("Error al eliminar comentario");
+      
+      setReplies(replies.filter(r => r.id !== replyId));
+      if (selectedDiscussion) {
+        setDiscussions(discussions.map(d => 
+          d.id === selectedDiscussion.id 
+            ? { ...d, repliesCount: Math.max(0, d.repliesCount - 1) } 
+            : d
+        ));
+      }
+    } catch (err: Error | unknown) {
+      setReplyError(err instanceof Error ? err.message : "No se pudo eliminar el comentario.");
+    }
+  }, [selectedDiscussion, replies, discussions]);
+
+  const goBack = () => {
+    setView("list");
+    setSelectedDiscussion(null);
+    setReplies([]);
+  };
 
   return (
     <main style={{ minHeight: "100vh", background: "#07070f", fontFamily: "'Syne', sans-serif", position: "relative" as const, overflow: "hidden" }}>
@@ -600,9 +712,11 @@ export default function ForumPage() {
       <BackgroundEffects />
       <Navbar />
       <section style={{ position: "relative" as const, zIndex: 5, padding: "28px 24px", display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 1000, margin: "0 auto", animation: "slideIn .35s ease" }}>
-        {view === "list" && <DiscussionList discussions={discussions} loading={loading} error={error} selectedCategory={selectedCategory} sortByPopular={sortByPopular} onCategoryChange={setSelectedCategory} onSortByPopularChange={setSortByPopular} onCreateClick={() => setView("create")} onDiscussionClick={openDiscussion} onLikeToggle={toggleLike} likedDiscussions={likedDiscussions} />}
+        {view === "list" && <DiscussionList discussions={discussions} loading={loading} error={error} selectedCategory={selectedCategory} sortByPopular={sortByPopular} onCategoryChange={setSelectedCategory} onSortByPopularChange={setSortByPopular} onCreateClick={() => setView("create")} onDiscussionClick={openDiscussion} onLikeToggle={toggleLike} likedDiscussions={likedDiscussions} isAuthenticated={isAuthenticated} />}
+
         {view === "create" && <CreateDiscussion title={newTitle} content={newContent} category={newCategory} tags={newTags} error={submitError} submitting={submitting} onTitleChange={setNewTitle} onContentChange={setNewContent} onCategoryChange={setNewCategory} onTagsChange={setNewTags} onSubmit={createDiscussion} onCancel={goBack} />}
-        {view === "detail" && selectedDiscussion && <DiscussionDetail discussion={selectedDiscussion} replies={replies} loading={repliesLoading} replyContent={replyContent} replyError={replyError} replyFocused={replyFocused} replySubmitting={replySubmitting} onReplyContentChange={setReplyContent} onReplyFocus={() => setReplyFocused(true)} onReplyBlur={() => setReplyFocused(false)} onReplySubmit={submitReply} onBack={goBack} />}
+
+        {view === "detail" && selectedDiscussion && <DiscussionDetail discussion={selectedDiscussion} replies={replies} loading={repliesLoading} replyContent={replyContent} replyError={replyError} replyFocused={replyFocused} replySubmitting={replySubmitting} onReplyContentChange={setReplyContent} onReplyFocus={() => setReplyFocused(true)} onReplyBlur={() => setReplyFocused(false)} onReplySubmit={submitReply} onBack={goBack} currentUserRole={currentUser.role} onDeleteReply={deleteReply} />}
       </section>
     </main>
   );

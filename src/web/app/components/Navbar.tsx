@@ -7,7 +7,8 @@ import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const router = useRouter();
-  const nombre = useCurrentUser();
+  const currentUser = useCurrentUser();
+  const nombre = currentUser.nombre ?? currentUser.username ?? "";
   const [puntosAcumulados, setPuntosAcumulados] = useState<number>(() => {
     if (typeof window === "undefined") return 0;
     try {
