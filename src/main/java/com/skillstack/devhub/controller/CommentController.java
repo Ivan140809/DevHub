@@ -117,7 +117,7 @@ public class CommentController {
 
     @PutMapping("/{commentId:[0-9a-f]{24}}")
     public ResponseEntity<CommentDTO> editComment(@PathVariable String commentId, @RequestParam String newContent, Authentication authentication) {
- i
+ 
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
