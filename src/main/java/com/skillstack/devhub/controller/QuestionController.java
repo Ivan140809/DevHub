@@ -60,8 +60,7 @@ public class QuestionController {
 
     //@PreAuthorize("hasRole('USER')")
     @PostMapping("/{id:[0-9a-f]{24}}/answer")
-    public ResponseEntity<AnswerResponseDTO> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer,
-                                          Authentication authentication){
+    public ResponseEntity<AnswerResponseDTO> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer, Authentication authentication){
 
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

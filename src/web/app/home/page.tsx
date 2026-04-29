@@ -92,7 +92,8 @@ const SUBMODULES = [
     icon: <Target size={26} />,
     title: "Entrenamiento Personalizado",
     shortDesc: "Enfócate solo en lo que necesitas mejorar.",
-    longDesc:
+    longDesc:  
+    
       "Filtra preguntas por categoría y dificultad para crear una ruta de preparación más precisa según tus objetivos laborales.",
     path: "/questions",
     cta: "Explorar módulos",
