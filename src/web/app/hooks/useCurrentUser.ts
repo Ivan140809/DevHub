@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export type UserRole = "ADMIN" | "USER" | null;
 
@@ -10,29 +10,30 @@ export interface CurrentUser {
   role: UserRole;
 }
 
-export function useCurrentUser(): CurrentUser {
-  const [user, setUser] = useState<CurrentUser>({
+const initializeUser = (): CurrentUser => {
+  try {
+    const raw = localStorage.getItem("devhub_user");
+    if (raw) {
+      const u = JSON.parse(raw);
+      return {
+        nombre: u.nombre ?? u.username ?? null,
+        username: u.username ?? null,
+        email: u.email ?? null,
+        role: u.role ?? u.rol ?? null,
+      };
+    }
+  } catch {}
+  
+  return {
     nombre: null,
     username: null,
     email: null,
     role: null,
-  });
+  };
+};
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("devhub_user");
-      if (raw) {
-        const u = JSON.parse(raw);
-        setUser({
-          nombre: u.nombre ?? u.username ?? null,
-          username: u.username ?? null,
-          email: u.email ?? null,
-          role: u.role ?? u.rol ?? null,
-        });
-      }
-    } catch {}
-  }, []);
-
+export function useCurrentUser(): CurrentUser {
+  const [user] = useState<CurrentUser>(initializeUser);
   return user;
 }
  
