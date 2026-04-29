@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../../components/Navbar";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
+import { Lock } from "lucide-react";
 
 type Dificultad = "EASY" | "MEDIUM" | "HARD";
 type Categoria =
@@ -26,6 +28,8 @@ const PARTICLES = [
 
 export default function AddQuestionPage() {
   const router = useRouter();
+  const currentUser = useCurrentUser();
+  const isAdmin = currentUser.role === "ADMIN";
 
   const [titulo, setTitulo] = useState("");
   const [enunciado, setEnunciado] = useState("");
@@ -264,8 +268,73 @@ export default function AddQuestionPage() {
           flexDirection: "column",
           gap: 20,
           animation: "slideIn .35s ease",
+          maxWidth: 800,
+          margin: "0 auto",
         }}
       >
+        {!isAdmin && (
+          <div
+            style={{
+              background: "rgba(14,10,28,.88)",
+              border: "1px solid rgba(200,100,100,.3)",
+              borderRadius: 20,
+              padding: 40,
+              backdropFilter: "blur(16px)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 16,
+              textAlign: "center",
+            }}
+          >
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: 16,
+                background: "rgba(200,100,100,.15)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Lock size={32} color="rgba(240,120,120,.8)" />
+            </div>
+            <h2 style={{ color: "#e0d4ff", fontSize: 24, fontWeight: 800, margin: 0 }}>
+              Acceso Denegado
+            </h2>
+            <p
+              style={{
+                color: "rgba(200,190,220,.7)",
+                fontSize: 15,
+                margin: 0,
+                lineHeight: 1.6,
+              }}
+            >
+              Solo los administradores pueden crear nuevas preguntas. Si tienes una pregunta que te gustaría contribuir, contacta a un administrador.
+            </p>
+            <button
+              onClick={() => router.push("/question")}
+              style={{
+                marginTop: 16,
+                padding: "12px 24px",
+                background: "linear-gradient(135deg,#7040ff,#5020e0)",
+                border: "none",
+                borderRadius: 10,
+                color: "white",
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+                boxShadow: "0 4px 15px rgba(90,40,220,.3)",
+              }}
+            >
+              Volver a Preguntas
+            </button>
+          </div>
+        )}
+
+        {isAdmin && (
+          <>
         <div
           style={{
             background: "rgba(14,10,28,.88)",
@@ -590,6 +659,8 @@ export default function AddQuestionPage() {
             </button>
           </div>
         </div>
+          </>
+        )}
       </section>
     </main>
   );
