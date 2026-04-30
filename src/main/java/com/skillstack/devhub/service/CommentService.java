@@ -64,6 +64,7 @@ public class CommentService {
         return commentTree.toDTO();
     }
 
+    // Permite editar el contenido de un comentario existente y notifica a observadores
     public CommentDTO editComment(String commentId, String newContent) {
 
         Comment comment = commentRepository.findById(commentId)
