@@ -40,16 +40,17 @@ public class CommentService {
         }
     }
 
-    public CommentDTO createComment(String content, String username, boolean isStarred, int happyFace, int sadFace) {
+    public CommentDTO createComment(String title, String content, String category, List<String> tags, String userEmail, boolean isStarred, int happyFace, int sadFace) {
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + userEmail));
 
-        Comment comment = new Comment(content, username, isStarred, 0, 0);
+        String authorUsername = user.getUsername() != null ? user.getUsername() : userEmail;
+        Comment comment = new Comment(title, content, category, tags, authorUsername, isStarred, happyFace, sadFace);
 
         user.setEmailSenderService(emailSenderService);
         comment.attach(user);
-        comment.subscribe(username);
+        comment.subscribe(authorUsername);
 
         commentRepository.save(comment);
 
@@ -90,7 +91,7 @@ public class CommentService {
         parent.attach(replier);
         parent.subscribe(replyUsername);
 
-        Comment reply = new Comment(content, replyUsername, isStarred, 0, 0);
+        Comment reply = new Comment(content, replyUsername, replyUsername, null, replyUsername, isStarred, 0, 0);
         parent.addReply(reply);
         commentRepository.save(parent);
 

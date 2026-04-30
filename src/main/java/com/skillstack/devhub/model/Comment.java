@@ -3,6 +3,7 @@ package com.skillstack.devhub.model;
 import com.skillstack.devhub.Observer.Observer;
 import com.skillstack.devhub.Observer.Subject;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -14,7 +15,10 @@ public class Comment implements Subject {
     @Id
     private String id;
 
+    private String title;
     private String content;
+    private String category;
+    private List<String> tags;
     private String username;
     private boolean isStarred;
     private int happyFace;
@@ -26,10 +30,17 @@ public class Comment implements Subject {
     private List<String> subscribedUsernames = new ArrayList<>();
 
     // lista en memoria — no se persiste
+    @Transient
     private transient List<Observer> observers = new ArrayList<>();
 
-    public Comment(String content, String username, boolean isStarred, int happyFace, int sadFace) {
+    public Comment() {
+    }
+
+    public Comment(String title, String content, String category, List<String> tags, String username, boolean isStarred, int happyFace, int sadFace) {
+        this.title = title;
         this.content = content;
+        this.category = category;
+        this.tags = tags != null ? tags : new ArrayList<>();
         this.username = username;
         this.isStarred = isStarred;
         this.happyFace = happyFace;
@@ -66,11 +77,11 @@ public class Comment implements Subject {
     public CommentComponent toComponent() {
 
         if (replies == null || replies.isEmpty()) {
-            return new CommentLeaf(id, content, username, isStarred, happyFace, sadFace);
+            return new CommentLeaf(id, title, content, category, tags, username, isStarred, happyFace, sadFace);
         }
 
         CommentComposite composite =
-                new CommentComposite(id, content, username, isStarred, happyFace, sadFace);
+                new CommentComposite(id, title, content, category, tags, username, isStarred, happyFace, sadFace);
 
         for (Comment child : replies) {
             composite.add(child.toComponent());
@@ -89,6 +100,30 @@ public class Comment implements Subject {
 
     public String getContent() {
         return content;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     public String getUsername() {

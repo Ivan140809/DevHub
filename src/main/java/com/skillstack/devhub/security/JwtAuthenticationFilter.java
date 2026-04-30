@@ -44,16 +44,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String email = jwtUtil.extractEmail(token);
             System.out.println("EMAIL JWT: " + email);
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                System.out.println("USERDETAILS: " + userDetails.getUsername());
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities()
-                        );
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                System.out.println("AUTH NAME: " + SecurityContextHolder.getContext().getAuthentication().getName());
-                System.out.println("AUTHORITIES: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+            if (email != null) {
+                var currentAuth = SecurityContextHolder.getContext().getAuthentication();
+                boolean shouldAuthenticate = currentAuth == null
+                        || !currentAuth.isAuthenticated()
+                        || "anonymousUser".equals(currentAuth.getName());
+
+                if (shouldAuthenticate) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                    System.out.println("USERDETAILS: " + userDetails.getUsername());
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities()
+                            );
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    System.out.println("AUTH NAME: " + SecurityContextHolder.getContext().getAuthentication().getName());
+                    System.out.println("AUTHORITIES: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+                }
             }
         } catch (Exception e) {
             System.out.println("ERROR JWT FILTER: " + e.getMessage());
