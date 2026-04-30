@@ -40,6 +40,13 @@ public class CommentService {
         }
     }
 
+    public void deleteComment(String commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO"));
+
+        commentRepository.delete(comment);
+    }
+
     public CommentDTO createComment(String content, String username, boolean isStarred, int happyFace, int sadFace) {
 
         User user = userRepository.findByUsername(username)
