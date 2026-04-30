@@ -1,8 +1,10 @@
 package com.skillstack.devhub.controller;
 
 import com.skillstack.devhub.dto.CommentDTO;
-import com.skillstack.devhub.service.CommentService;
+import com.skillstack.devhub.dto.CreateCommentRequest;
 import com.skillstack.devhub.model.Reaction;
+import com.skillstack.devhub.service.CommentService;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,19 @@ public class CommentController {
     @Autowired
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
+    }
+
+    @PostMapping
+    public ResponseEntity<CommentDTO> createComment(@RequestBody CreateCommentRequest request, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String userEmail = authentication.getName();
+        CommentDTO created = commentService.createComment(request.getTitle(), request.getContent(), request.getCategory(), request.getTags(), userEmail, false, 0, 0);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(created);
     }
 
     @GetMapping("/{commentId:[0-9a-f]{24}}")

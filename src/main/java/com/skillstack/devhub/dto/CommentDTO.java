@@ -5,16 +5,22 @@ import java.util.List;
 public class CommentDTO {
 
     private String id;
+    private String title;
     private String content;
+    private String category;
+    private List<String> tags;
     private String username;
     private boolean isStarred;
     private List<CommentDTO> replies;
     private int happyFace;
     private int sadFace;
 
-    public CommentDTO(String id, String content, String username, boolean isStarred, List<CommentDTO> replies, int happyFace, int sadFace) {
+    public CommentDTO(String id, String title, String content, String category, List<String> tags, String username, boolean isStarred, List<CommentDTO> replies, int happyFace, int sadFace) {
         this.id = id;
+        this.title = title;
         this.content = content;
+        this.category = category;
+        this.tags = tags;
         this.username = username;
         this.isStarred = isStarred;
         this.replies = replies;
@@ -28,6 +34,18 @@ public class CommentDTO {
 
     public String getContent() {
         return content;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public List<String> getTags() {
+        return tags;
     }
 
     public String getUsername() {

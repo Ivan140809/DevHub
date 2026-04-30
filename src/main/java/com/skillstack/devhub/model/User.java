@@ -3,6 +3,7 @@ package com.skillstack.devhub.model;
 import com.skillstack.devhub.Observer.Observer;
 import com.skillstack.devhub.service.EmailSenderService;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
@@ -12,7 +13,11 @@ public class User extends AbstractUser implements Observer {
     private String id;
 
     // transient: no se persiste en MongoDB, se inyecta desde el service
+    @Transient
     private transient EmailSenderService emailSenderService;
+
+    public User() {
+    }
 
     public User(String firstName, String lastName, String username, String email, String password, String phone, Role role, int totalScore) {
         this.firstName = firstName;
