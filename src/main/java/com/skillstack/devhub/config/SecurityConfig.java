@@ -30,30 +30,34 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
-        http
-                .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
+    http
+            .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers("/auth/**").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/questions").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/questions").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/questions/*/answer").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/questions/*/reviews").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/questions/*/reviews").permitAll()
-                        .requestMatchers("/questions/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/questions").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/questions").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/questions/*/answer").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/questions/*/reviews").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/questions/*/reviews").permitAll()
+                    .requestMatchers("/questions/**").permitAll()
+                    
+                    .requestMatchers(HttpMethod.GET, "/comments/top").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/comments/starred").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/comments/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/comments").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/comments/**").authenticated()
 
-                        .requestMatchers("/comments/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/user/ranking").permitAll()
+                    .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-                        .requestMatchers(HttpMethod.GET, "/user/ranking").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
+    return http.build();
+}
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

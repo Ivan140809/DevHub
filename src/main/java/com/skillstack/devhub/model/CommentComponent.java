@@ -12,17 +12,19 @@ public abstract class CommentComponent {
     protected String category;
     protected List<String> tags;
     protected String username;
+    protected String createdAt;
     protected boolean isStarred;
     protected int happyFace;
     protected int sadFace;
 
-    public CommentComponent(String id, String title, String content, String category, List<String> tags, String username, boolean isStarred, int happyFace, int sadFace){
+    public CommentComponent(String id, String title, String content, String category, List<String> tags, String username, String createdAt, boolean isStarred, int happyFace, int sadFace){
         this.id = id;
         this.title = title;
         this.content= content;
         this.category = category;
         this.tags = tags;
         this.username = username;
+        this.createdAt = createdAt;
         this.isStarred = isStarred;
         this.happyFace = happyFace;
         this.sadFace=sadFace;
