@@ -5,11 +5,15 @@ import com.skillstack.devhub.service.EmailSenderService;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 
 @Document(collection = "users")
 public class User extends AbstractUser implements Observer {
     @Id
     private String id;
+    protected List<String> preferences;
+    protected int totalScore;
 
     // transient: no se persiste en MongoDB, se inyecta desde el service
     private transient EmailSenderService emailSenderService;
@@ -50,6 +54,22 @@ public class User extends AbstractUser implements Observer {
 
     public String getId() {
         return id;
+    }
+
+    public List<String> getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(List<String> preferences) {
+        this.preferences = preferences;
+    }
+
+    public int getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(int totalScore) {
+        this.totalScore = totalScore;
     }
 
 }
