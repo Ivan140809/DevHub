@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class Comment implements Subject {
     private String category;
     private List<String> tags;
     private String username;
+    private String createdAt;
     private boolean isStarred;
     private int happyFace;
     private int sadFace;
@@ -42,6 +44,7 @@ public class Comment implements Subject {
         this.category = category;
         this.tags = tags != null ? tags : new ArrayList<>();
         this.username = username;
+        this.createdAt = Instant.now().toString();
         this.isStarred = isStarred;
         this.happyFace = happyFace;
         this.sadFace = sadFace;
@@ -74,14 +77,22 @@ public class Comment implements Subject {
         notifyObservers("El comentario de " + username + " fue editado");
     }
 
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public CommentComponent toComponent() {
 
         if (replies == null || replies.isEmpty()) {
-            return new CommentLeaf(id, title, content, category, tags, username, isStarred, happyFace, sadFace);
+            return new CommentLeaf(id, title, content, category, tags, username, createdAt, isStarred, happyFace, sadFace);
         }
 
         CommentComposite composite =
-                new CommentComposite(id, title, content, category, tags, username, isStarred, happyFace, sadFace);
+                new CommentComposite(id, title, content, category, tags, username, createdAt, isStarred, happyFace, sadFace);
 
         for (Comment child : replies) {
             composite.add(child.toComponent());

@@ -43,6 +43,7 @@ type BackendComment = {
   category: string;
   tags: string[];
   username: string;
+  createdAt?: string;
   replies?: BackendComment[];
   happyFace: number;
   sadFace: number;
@@ -62,7 +63,7 @@ const mapCommentToDiscussion = (comment: BackendComment): Discussion => ({
   category: comment.category || "general",
   authorId: "",
   authorUsername: comment.username,
-  createdAt: "",
+  createdAt: comment.createdAt || new Date().toISOString(),
   repliesCount: comment.replies?.length ?? 0,
   likesCount: comment.happyFace + comment.sadFace,
   tags: comment.tags || [],
@@ -73,7 +74,7 @@ const mapCommentToReply = (comment: BackendComment): Reply => ({
   content: comment.content,
   authorId: "",
   authorUsername: comment.username,
-  createdAt: "",
+  createdAt: comment.createdAt || new Date().toISOString(),
   likesCount: comment.happyFace + comment.sadFace,
   happyFace: comment.happyFace,
   sadFace: comment.sadFace,
@@ -161,11 +162,16 @@ const getCategoryInfo = (catId: string): Category =>
   CATEGORIES.find(c => c.id === catId) || CATEGORIES[0];
 
 const formatDate = (dateStr: string): string => {
-  try {
-    return new Date(dateStr).toLocaleDateString("es-CO", {
+  const date = dateStr ? new Date(dateStr) : new Date();
+  if (Number.isNaN(date.getTime())) {
+    return new Date().toLocaleDateString("es-CO", {
       day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
     });
-  } catch { return "Reciente"; }
+  }
+
+  return date.toLocaleDateString("es-CO", {
+    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+  });
 };
 
 const LoadingSkeleton = () => (
@@ -458,7 +464,7 @@ function DiscussionDetail({
 }: DiscussionDetailProps) {
   const catInfo = getCategoryInfo(discussion.category);
   const [sortByReactions, setSortByReactions] = useState(false);
-  const canReply = false;
+  const canReply = true;
   const canDeleteReply = false;
 
   // Helper para sumar las reacciones de una respuesta
@@ -717,8 +723,45 @@ export default function ForumPage() {
   }, []);
 
   const submitReply = useCallback(async () => {
-    setReplyError("Responder no está disponible con el backend actual.");
-  }, []);
+    if (!replyContent.trim()) {
+      setReplyError("El contenido de la respuesta no puede estar vacío.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setReplyError("Debes iniciar sesión para responder.");
+      return;
+    }
+
+    setReplySubmitting(true);
+    setReplyError(null);
+
+    try {
+      const res = await fetch(`${BASE_URL}/comments/${selectedDiscussion?.id}/replies`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: replyContent }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Error ${res.status}: ${errorText}`);
+      }
+
+      const updatedComment: BackendComment = await res.json();
+      setReplies(updatedComment.replies?.map(mapCommentToReply) ?? []);
+      setReplyContent("");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Error al enviar la respuesta.";
+      setReplyError(errorMessage);
+    } finally {
+      setReplySubmitting(false);
+    }
+  }, [replyContent, selectedDiscussion]);
 
   const toggleLike = useCallback((discId: string) => {
     setLikedDiscussions(prev => { const n = new Set(prev); n.has(discId) ? n.delete(discId) : n.add(discId); return n; });
