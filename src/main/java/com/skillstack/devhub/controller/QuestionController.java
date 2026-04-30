@@ -29,7 +29,7 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<String> createQuestion(@RequestBody QuestionDTO question) {
         String response = questionService.addQuestion(question);
