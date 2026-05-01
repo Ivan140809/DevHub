@@ -33,8 +33,8 @@ public class AuthenticationService {
 
     public String validatePassword(String password) {
 
-        if(password.length()<8){
-            return "DEBE TENER POR LO MENOS 8 CARACTERES";
+        if(password.length()<6){
+            return "DEBE TENER POR LO MENOS 6 CARACTERES";
 
         }
 
