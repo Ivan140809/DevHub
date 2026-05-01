@@ -11,6 +11,7 @@ import com.skillstack.devhub.model.Question;
 import com.skillstack.devhub.model.Review;
 import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
+import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.QuestionRepository;
 import com.skillstack.devhub.repository.ReviewRepository;
 import com.skillstack.devhub.repository.UserRepository;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,17 +43,25 @@ class QuestionTest {
     @Mock
     private ReviewRepository reviewRepository;
 
+    @Mock
+    private AnswerRepository answerRepository;
+
     @InjectMocks
     private QuestionService questionService;
 
     // CP14 - Normal: Verificar pregunta con respuesta correcta
     @Test
-    @CasoPrueba(id = "CP14", descripcion = "Verificar pregunta con respuesta correcta",
-                tipo = "Normal")
+    @CasoPrueba(
+        id          = "CP14",
+        descripcion = "Verificar pregunta con respuesta correcta",
+        entrada     = "questionId=69e005ee4d818c49ab701225, userEmail=verify@test.com, selectedOption=Contenedor",
+        tipo        = "Normal",
+        esperado    = "isCorrect=true, totalScore incrementado en 1 punto (dificultad EASY)"
+    )
     void verifyAnswer_whenCorrectAnswer_returnsIsCorrectTrueAndIncreasesScore() {
 
         String questionId = "69e005ee4d818c49ab701225";
-        String userEmail  = "test@pepe.com";
+        String userEmail  = "verify@test.com";
 
         Option optionCorrecta   = new Option("Contenedor", true);
         Option optionIncorrecta = new Option("Imagen", false);
@@ -65,22 +75,20 @@ class QuestionTest {
         userFake.setEmail(userEmail);
         userFake.setTotalScore(0);
 
-        AnswerDTO answerDTO = new AnswerDTO("Contenedor");
+        AnswerDTO answerDTO = new AnswerDTO();
+        answerDTO.setSelectedOption("Contenedor");
 
         when(questionRepository.findById(questionId))
                 .thenReturn(Optional.of(questionFake));
-
         when(userRepository.findByEmail(userEmail))
                 .thenReturn(Optional.of(userFake));
-
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        AnswerResponseDTO response = questionService.verifyAnswer(questionId, userEmail, answerDTO);
+        AnswerResponseDTO response = questionService.verifyAnswer(answerDTO, questionId, userEmail);
 
         assertTrue(response.isCorrect(),
                 "La respuesta es marcada como correcta");
-
         assertEquals(1, userFake.getTotalScore(),
                 "El totalScore se incrementa 1 punto");
 
@@ -92,12 +100,22 @@ class QuestionTest {
 
     // CP15 - Normal: Obtener lista de reviews de una pregunta
     @Test
-    @CasoPrueba(id = "CP15", descripcion = "Obtener lista de reviews de una pregunta", tipo = "Normal")
-
+    @CasoPrueba(
+        id          = "CP15",
+        descripcion = "Obtener lista de reviews de una pregunta",
+        entrada     = "questionId=69e005ee4d818c49ab701225, page=0",
+        tipo        = "Normal",
+        esperado    = "Se retorna una lista de ReviewDTO con comment y rating de cada review"
+    )
     void getReviewsByQuestionId_whenValidId_returnsReviewDTOList() {
 
         String questionId = "69e005ee4d818c49ab701225";
         int page = 0;
+
+        Question questionFake = new Question();
+        questionFake.setId(questionId);
+        when(questionRepository.findById(questionId))
+                .thenReturn(Optional.of(questionFake));
 
         Review review1 = new Review();
         review1.setComment("Muy fácil");
@@ -107,24 +125,19 @@ class QuestionTest {
         review2.setComment("Bastante clara");
         review2.setRating(4);
 
-        List<Review> reviewsFake = List.of(review1, review2);
-
         when(reviewRepository.findByQuestionId(eq(questionId), any()))
-                .thenReturn(reviewsFake);
+                .thenReturn(new PageImpl<>(List.of(review1, review2)));
 
-        List<ReviewDTO> result =
-                questionService.getReviewsByQuestionId(questionId, page);
+        List<ReviewDTO> result = questionService.getReviewsByQuestionId(questionId, page);
 
         assertNotNull(result, "El resultado no debería ser nulo");
         assertFalse(result.isEmpty(), "La lista de reviews no debería estar vacía");
-
         assertEquals("Muy fácil",      result.get(0).getComment());
         assertEquals(3,                result.get(0).getRating());
         assertEquals("Bastante clara", result.get(1).getComment());
         assertEquals(4,                result.get(1).getRating());
 
-        verify(reviewRepository, times(1))
-                .findByQuestionId(eq(questionId), any());
+        verify(reviewRepository, times(1)).findByQuestionId(eq(questionId), any());
 
         System.out.println("CP15 — Reviews retornados: " + result.size());
         result.forEach(r ->
@@ -132,16 +145,22 @@ class QuestionTest {
         );
     }
 
-    // CP19 — Borde: Crear review utilizando rating minimo
+    // CP19 - Borde: Crear review utilizando rating mínimo
     @Test
-    @CasoPrueba(id = "CP19", descripcion = "Crear review utilizando rating mínimo", tipo = "Borde")
+    @CasoPrueba(
+        id          = "CP19",
+        descripcion = "Crear review utilizando rating mínimo",
+        entrada     = "questionId=69e005ee4d818c49ab701225, userEmail=verify@test.com, reviewDTO={Imposible, 1}",
+        tipo        = "Borde",
+        esperado    = "Review creado correctamente con rating mínimo de 1"
+    )
     void createReview_whenMinimumRating_createsReviewSuccessfully() {
 
         String questionId = "69e005ee4d818c49ab701225";
 
         User userFake = new User();
         userFake.setUsername("pepe");
-        userFake.setEmail("test@pepe.com");
+        userFake.setEmail("verify@test.com");
         userFake.setRole(Role.USER);
 
         Question questionFake = new Question();
@@ -151,19 +170,18 @@ class QuestionTest {
 
         when(questionRepository.findById(questionId))
                 .thenReturn(Optional.of(questionFake));
-
         when(userRepository.findByEmail(userFake.getEmail()))
                 .thenReturn(Optional.of(userFake));
-
         when(reviewRepository.save(any(Review.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        String expectedMessage = "REVIEW CREADO EXITOSAMENTE PARA "
-                + userFake.getUsername().toUpperCase()
+        // El servicio retorna: "REVIEW CREADO CORRECTAMENTE PARA USUARIO " + user.getId() + " EN LA PREGUNTA " + questionId
+        // Como userFake se crea con new User() y no se persiste, getId() retorna null
+        String expectedMessage = "REVIEW CREADO CORRECTAMENTE PARA USUARIO "
+                + userFake.getId()
                 + " EN LA PREGUNTA " + questionId;
 
-        String result =
-                questionService.createReview(questionId, userFake.getEmail(), reviewDTO);
+        String result = questionService.createReview(questionId, userFake.getEmail(), reviewDTO);
 
         assertNotNull(result, "El mensaje de resultado no debería ser nulo");
         assertEquals(expectedMessage, result,
@@ -174,15 +192,20 @@ class QuestionTest {
         System.out.println("CP19 — " + result);
     }
 
-    // CP20 — Logica Negocio: Verificar pregunta con respuesta incorrecta
+    // CP20 - Lógica de Negocio: Verificar pregunta con respuesta incorrecta
     @Test
-    @CasoPrueba(id = "CP20", descripcion = "Verificar pregunta con respuesta incorrecta",
-                tipo = "Logica Negocio")
+    @CasoPrueba(
+        id          = "CP20",
+        descripcion = "Verificar pregunta con respuesta incorrecta",
+        entrada     = "questionId=69e005ee4d818c49ab701225, userEmail=verify@test.com, selectedOption=Imagen",
+        tipo        = "Logica Negocio",
+        esperado    = "isCorrect=false, totalScore sin cambios"
+    )
     void verifyAnswer_whenIncorrectAnswer_returnsIsCorrectFalseAndScoreUnchanged() {
 
-        String questionId     = "69e005ee4d818c49ab701225";
-        String userEmail      = "test@pepe.com";
-        int    scoreInicial   = 5;
+        String questionId   = "69e005ee4d818c49ab701225";
+        String userEmail    = "verify@test.com";
+        int    scoreInicial = 5;
 
         Option optionCorrecta   = new Option("Contenedor", true);
         Option optionIncorrecta = new Option("Imagen", false);
@@ -196,19 +219,18 @@ class QuestionTest {
         userFake.setEmail(userEmail);
         userFake.setTotalScore(scoreInicial);
 
-        AnswerDTO answerDTO = new AnswerDTO("Nose");
+        AnswerDTO answerDTO = new AnswerDTO();
+        answerDTO.setSelectedOption("Imagen");
 
         when(questionRepository.findById(questionId))
                 .thenReturn(Optional.of(questionFake));
         when(userRepository.findByEmail(userEmail))
                 .thenReturn(Optional.of(userFake));
 
-        AnswerResponseDTO response =
-                questionService.verifyAnswer(questionId, userEmail, answerDTO);
+        AnswerResponseDTO response = questionService.verifyAnswer(answerDTO, questionId, userEmail);
 
         assertFalse(response.isCorrect(),
                 "La respuesta incorrecta debe retornar isCorrect = false");
-
         assertEquals(scoreInicial, userFake.getTotalScore(),
                 "El totalScore no debio modificarse");
 
