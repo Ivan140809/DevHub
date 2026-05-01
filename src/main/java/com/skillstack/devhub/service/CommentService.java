@@ -40,6 +40,10 @@ public class CommentService {
 
     public CommentDTO createComment(String title, String content, String category, List<String> tags, String userEmail, boolean isStarred, int happyFace, int sadFace) {
 
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("El título no puede estar vacío");
+        }
+
         User user = userRepository.findByEmail(userEmail)
                 .or(() -> userRepository.findByUsername(userEmail))
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + userEmail));
