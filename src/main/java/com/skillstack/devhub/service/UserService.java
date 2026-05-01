@@ -47,7 +47,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
 
         int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(user.getId()).size();
-        System.out.println("GET PROFILE USER ID: " + user.getId());
+        System.out.println("GET PROFILE USER EMAIL: " + user.getEmail());
         return new UserResponseDTO(
                 user.getId(),
                 user.getFirstName(),
@@ -77,10 +77,18 @@ public class UserService {
 
         if (userUpdateDTO.getUsername() != null && !userUpdateDTO.getUsername().isEmpty()
                 && !userUpdateDTO.getUsername().equals(user.getUsername())) {
-            if (userRepository.existsByUsername(userUpdateDTO.getUsername())) {
+
+            String username = userUpdateDTO.getUsername();
+
+            if (username.length() < 4 || username.length() > 15) {
+                throw new IllegalArgumentException("El username debe tener entre 4 y 15 caracteres");
+            }
+
+            if (userRepository.existsByUsername(username)) {
                 throw new UserAlreadyExistsException("USERNAME YA EN USO");
             }
-            user.setUsername(userUpdateDTO.getUsername());
+
+            user.setUsername(username);
         }
 
         if (userUpdateDTO.getPhone() != null && !userUpdateDTO.getPhone().isEmpty()) {
@@ -93,6 +101,6 @@ public class UserService {
 
         userRepository.save(user);
 
-        return getProfile(user.getId());
+        return getProfile(user.getEmail());
     }
 }
