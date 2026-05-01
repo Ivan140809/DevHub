@@ -30,9 +30,56 @@ type Reply = {
   authorUsername: string;
   createdAt: string;
   likesCount: number;
+  happyFace?: number;
+  sadFace?: number;
   reactions?: Reaction[];
   replies?: Reply[];
 };
+
+type BackendComment = {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  tags: string[];
+  username: string;
+  createdAt?: string;
+  replies?: BackendComment[];
+  happyFace: number;
+  sadFace: number;
+};
+
+type ReactionChoice = "HAPPYFACE" | "SADFACE";
+
+const EMOJI_REACTIONS: Array<{ emoji: string; label: string; type: ReactionChoice }> = [
+  { emoji: "😊", label: "Feliz", type: "HAPPYFACE" },
+  { emoji: "😢", label: "Triste", type: "SADFACE" },
+];
+
+const mapCommentToDiscussion = (comment: BackendComment): Discussion => ({
+  id: comment.id,
+  title: comment.title || (comment.content.length > 70 ? `${comment.content.slice(0, 70).trim()}...` : comment.content),
+  content: comment.content,
+  category: comment.category || "general",
+  authorId: "",
+  authorUsername: comment.username,
+  createdAt: comment.createdAt || new Date().toISOString(),
+  repliesCount: comment.replies?.length ?? 0,
+  likesCount: comment.happyFace + comment.sadFace,
+  tags: comment.tags || [],
+});
+
+const mapCommentToReply = (comment: BackendComment): Reply => ({
+  id: comment.id,
+  content: comment.content,
+  authorId: "",
+  authorUsername: comment.username,
+  createdAt: comment.createdAt || new Date().toISOString(),
+  likesCount: comment.happyFace + comment.sadFace,
+  happyFace: comment.happyFace,
+  sadFace: comment.sadFace,
+  replies: comment.replies?.map(mapCommentToReply),
+});
 
 type ViewMode = "list" | "create" | "detail";
 
@@ -115,11 +162,16 @@ const getCategoryInfo = (catId: string): Category =>
   CATEGORIES.find(c => c.id === catId) || CATEGORIES[0];
 
 const formatDate = (dateStr: string): string => {
-  try {
-    return new Date(dateStr).toLocaleDateString("es-CO", {
+  const date = dateStr ? new Date(dateStr) : new Date();
+  if (Number.isNaN(date.getTime())) {
+    return new Date().toLocaleDateString("es-CO", {
       day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
     });
-  } catch { return "Reciente"; }
+  }
+
+  return date.toLocaleDateString("es-CO", {
+    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+  });
 };
 
 const LoadingSkeleton = () => (
@@ -153,109 +205,66 @@ const BackgroundEffects = () => (
 );
 
 // ── COMPONENTE DE REACCIONES ──
-function ReactionBar({ replyId }: { replyId: string }) {
-  const [showPicker, setShowPicker] = useState(false);
-  // { emoji -> count }
-  const [counts, setCounts] = useState<Record<string, number>>({});
-  // emojis que el usuario ya reaccionó
-  const [myReactions, setMyReactions] = useState<Set<string>>(new Set());
+function ReactionBar({ replyId, initialHappyFace, initialSadFace, onReactionUpdate }: { replyId: string; initialHappyFace: number; initialSadFace: number; onReactionUpdate: (happyFace: number, sadFace: number) => void }) {
+  const [counts, setCounts] = useState<{ HAPPYFACE: number; SADFACE: number }>({ HAPPYFACE: initialHappyFace, SADFACE: initialSadFace });
+  const [sending, setSending] = useState(false);
 
-  function toggleReaction(emoji: string) {
-    setMyReactions(prev => {
-      const next = new Set(prev);
-      if (next.has(emoji)) {
-        next.delete(emoji);
-        setCounts(c => ({ ...c, [emoji]: Math.max(0, (c[emoji] || 1) - 1) }));
-      } else {
-        next.add(emoji);
-        setCounts(c => ({ ...c, [emoji]: (c[emoji] || 0) + 1 }));
-      }
-      return next;
-    });
-    setShowPicker(false);
-    // Backend connection logic — enviar reacción al endpoint
+  useEffect(() => {
+    setCounts({ HAPPYFACE: initialHappyFace, SADFACE: initialSadFace });
+  }, [initialHappyFace, initialSadFace]);
+
+  async function toggleReaction(type: ReactionChoice) {
+    if (sending) return;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Debes iniciar sesión para reaccionar.");
+      return;
+    }
+
+    setSending(true);
+    try {
+      const res = await fetch(`${BASE_URL}/comments/${replyId}/reactions?reaction=${type}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      const updated: BackendComment = await res.json();
+      setCounts({ HAPPYFACE: updated.happyFace, SADFACE: updated.sadFace });
+      onReactionUpdate(updated.happyFace, updated.sadFace);
+    } catch (err) {
+      console.error("No se pudo enviar la reacción", err);
+      alert("Error al enviar la reacción. Intenta de nuevo.");
+    } finally {
+      setSending(false);
+    }
   }
 
-  const activeReactions = REACTION_OPTIONS.filter(r => (counts[r.emoji] || 0) > 0);
-
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const, marginTop: 10, paddingLeft: 48 }}>
-
-      {/* Reacciones activas */}
-      {activeReactions.map(r => (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" as const, marginTop: 10, paddingLeft: 48 }}>
+      {EMOJI_REACTIONS.map(r => (
         <button
           key={r.emoji}
-          className={`reaction-btn ${myReactions.has(r.emoji) ? "reacted" : ""}`}
-          onClick={() => toggleReaction(r.emoji)}
+          onClick={() => toggleReaction(r.type)}
           title={r.label}
+          disabled={sending}
+          className="reaction-btn"
           style={{
-            display: "flex", alignItems: "center", gap: 5,
-            padding: "4px 10px",
-            background: myReactions.has(r.emoji) ? "rgba(100,60,255,.25)" : "rgba(100,60,255,.08)",
-            border: myReactions.has(r.emoji) ? "1px solid rgba(140,80,255,.5)" : "1px solid rgba(100,60,255,.2)",
-            borderRadius: 999, cursor: "pointer", fontSize: 15,
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "8px 12px",
+            background: "rgba(100,60,255,.08)",
+            border: "1px solid rgba(100,60,255,.2)",
+            borderRadius: 999,
+            cursor: sending ? "not-allowed" : "pointer",
+            fontSize: 14,
+            color: "rgba(230,220,255,.9)",
           }}
         >
           <span>{r.emoji}</span>
-          <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 11, color: myReactions.has(r.emoji) ? "#b8a0ff" : "rgba(140,100,255,.6)", fontWeight: 700 }}>
-            {counts[r.emoji]}
+          <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 12, color: "rgba(140,100,255,.75)", fontWeight: 700 }}>
+            {counts[r.type]}
           </span>
         </button>
       ))}
-
-      {/* Botón para abrir picker */}
-      <div style={{ position: "relative" as const }}>
-        <button
-          onClick={() => setShowPicker(p => !p)}
-          title="Reaccionar"
-          style={{
-            width: 32, height: 32,
-            background: showPicker ? "rgba(100,60,255,.2)" : "rgba(100,60,255,.08)",
-            border: "1px solid rgba(100,60,255,.25)",
-            borderRadius: "50%", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 16, transition: "all .2s ease",
-          }}
-        >
-          ➕
-        </button>
-
-        {showPicker && (
-          <div
-            className="reaction-picker"
-            style={{
-              position: "absolute" as const,
-              bottom: 40, left: 0,
-              display: "flex", gap: 6, padding: "10px 14px",
-              background: "rgba(14,10,28,.97)",
-              border: "1px solid rgba(100,60,255,.3)",
-              borderRadius: 16,
-              backdropFilter: "blur(20px)",
-              boxShadow: "0 8px 32px rgba(80,40,200,.35)",
-              zIndex: 50,
-            }}
-          >
-            {REACTION_OPTIONS.map(r => (
-              <button
-                key={r.emoji}
-                className="reaction-btn"
-                onClick={() => toggleReaction(r.emoji)}
-                title={r.label}
-                style={{
-                  background: myReactions.has(r.emoji) ? "rgba(100,60,255,.25)" : "transparent",
-                  border: "none", borderRadius: 10,
-                  padding: "6px 8px", cursor: "pointer",
-                  fontSize: 22, lineHeight: 1,
-                  display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 3,
-                }}
-              >
-                <span>{r.emoji}</span>
-                <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, color: "rgba(140,100,255,.5)" }}>{r.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
@@ -303,11 +312,9 @@ function DiscussionList({
             </p>
           </div>
         </div>
-        {isAuthenticated && (
-          <button onClick={onCreateClick} className="new-disc-btn" style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px", background: "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 12, letterSpacing: "1px", cursor: "pointer", boxShadow: "0 6px 20px rgba(90,40,220,.4)", fontWeight: 600 }}>
-            <Zap size={16} /> Nueva Discusión
-          </button>
-        )}
+        <button onClick={onCreateClick} className="new-disc-btn" style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px", background: "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 12, letterSpacing: "1px", cursor: "pointer", boxShadow: "0 6px 20px rgba(90,40,220,.4)", fontWeight: 600 }}>
+          <Zap size={16} /> Nueva Discusión
+        </button>
       </div>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}>
@@ -412,7 +419,7 @@ function CreateDiscussion({ title, content, category, tags, error, submitting, o
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 14, marginTop: 8 }}>
           <button onClick={onCancel} style={{ padding: "14px 28px", background: "transparent", border: "1px solid rgba(100,60,255,.3)", borderRadius: 12, color: "rgba(140,100,255,.7)", fontSize: 13, cursor: "pointer", fontWeight: 600, transition: "all .2s ease" }}>Cancelar</button>
           <button onClick={onSubmit} disabled={submitting} className="new-disc-btn" style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 28px", background: submitting ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontFamily: "'Space Mono',monospace", fontSize: 13, letterSpacing: "1px", cursor: submitting ? "not-allowed" : "pointer", boxShadow: submitting ? "none" : "0 6px 20px rgba(90,40,220,.4)", fontWeight: 600, transition: "all .2s ease" }}>
-            {submitting ? "Publicando..." : (<><Send size={16} /> Publicar</>)}
+            {submitting ? "Publicando " : (<><Send size={16} /> Publicar</>)}
           </button>
         </div>
       </div>
@@ -435,6 +442,7 @@ interface DiscussionDetailProps {
   onBack: () => void;
   currentUserRole: UserRole;
   onDeleteReply: (replyId: string) => void;
+  onReplyReactionUpdate: (replyId: string, happyFace: number, sadFace: number) => void;
 }
 
 function DiscussionDetail({
@@ -452,9 +460,12 @@ function DiscussionDetail({
   onBack,
   currentUserRole,
   onDeleteReply,
+  onReplyReactionUpdate,
 }: DiscussionDetailProps) {
   const catInfo = getCategoryInfo(discussion.category);
   const [sortByReactions, setSortByReactions] = useState(false);
+  const canReply = true;
+  const canDeleteReply = false;
 
   // Helper para sumar las reacciones de una respuesta
   const getReactionCount = (reply: Reply) => {
@@ -521,15 +532,21 @@ function DiscussionDetail({
         </button>
       </div>
 
-      <div style={{ background: replyFocused ? "rgba(14,10,28,.95)" : "rgba(14,10,28,.88)", border: `1px solid ${replyFocused ? "rgba(140,80,255,.5)" : "rgba(100,60,255,.2)"}`, borderRadius: 18, padding: 20, transition: "all .3s ease" }}>
-        <textarea value={replyContent} onChange={e => onReplyContentChange(e.target.value)} onFocus={onReplyFocus} onBlur={onReplyBlur} placeholder="Escribe tu respuesta..." rows={4} className="reply-textarea" style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 14, padding: 16, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 15, resize: "none" as const, outline: "none", transition: "all .2s ease" }} />
-        {replyError && <div style={{ color: "rgba(240,100,100,.85)", fontSize: 13, marginTop: 12 }}>⚠️ {replyError}</div>}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
-          <button onClick={onReplySubmit} disabled={replySubmitting || !replyContent.trim()} className={`submit-reply ${replySubmitting ? "sending" : ""}`} style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px", background: replySubmitting ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontSize: 13, fontWeight: 600, cursor: replySubmitting || !replyContent.trim() ? "not-allowed" : "pointer", boxShadow: replySubmitting ? "none" : "0 6px 20px rgba(90,40,220,.4)", transition: "all .2s ease" }}>
-            {replySubmitting ? "Enviando..." : (<><Send size={16} /> Responder</>)}
-          </button>
+      {canReply ? (
+        <div style={{ background: replyFocused ? "rgba(14,10,28,.95)" : "rgba(14,10,28,.88)", border: `1px solid ${replyFocused ? "rgba(140,80,255,.5)" : "rgba(100,60,255,.2)"}`, borderRadius: 18, padding: 20, transition: "all .3s ease" }}>
+          <textarea value={replyContent} onChange={e => onReplyContentChange(e.target.value)} onFocus={onReplyFocus} onBlur={onReplyBlur} placeholder="Escribe tu respuesta..." rows={4} className="reply-textarea" style={{ width: "100%", background: "rgba(255,255,255,.03)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 14, padding: 16, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 15, resize: "none" as const, outline: "none", transition: "all .2s ease" }} />
+          {replyError && <div style={{ color: "rgba(240,100,100,.85)", fontSize: 13, marginTop: 12 }}>⚠️ {replyError}</div>}
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+            <button onClick={onReplySubmit} disabled={replySubmitting || !replyContent.trim()} className={`submit-reply ${replySubmitting ? "sending" : ""}`} style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 24px", background: replySubmitting ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 12, color: "white", fontSize: 13, fontWeight: 600, cursor: replySubmitting || !replyContent.trim() ? "not-allowed" : "pointer", boxShadow: replySubmitting ? "none" : "0 6px 20px rgba(90,40,220,.4)", transition: "all .2s ease" }}>
+              {replySubmitting ? "Enviando..." : (<><Send size={16} /> Responder</>)}
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 18, padding: 20, color: "rgba(180,180,255,.85)", fontSize: 14, fontFamily: "'Space Mono',monospace" }}>
+          Responder no está disponible con el backend actual.
+        </div>
+      )}
 
       {loading ? <LoadingSkeleton /> : sortedReplies.length === 0 ? (
         <EmptyState message="No hay respuestas aún." subMessage="¡Sé el primero en comentar!" />
@@ -547,7 +564,7 @@ function DiscussionDetail({
                     {formatDate(reply.createdAt)}
                   </span>
                 </div>
-                {currentUserRole === "ADMIN" && (
+                {currentUserRole === "ADMIN" && canDeleteReply && (
                   <button
                     onClick={() => onDeleteReply(reply.id)}
                     style={{
@@ -579,7 +596,9 @@ function DiscussionDetail({
               </div>
               <p style={{ color: "rgba(200,190,220,.9)", fontSize: 15, margin: 0, lineHeight: 1.6, paddingLeft: 48 }}>{reply.content}</p>
 
-              <ReactionBar replyId={reply.id} />
+              <ReactionBar replyId={reply.id} initialHappyFace={reply.happyFace ?? 0} initialSadFace={reply.sadFace ?? 0} onReactionUpdate={(happyFace, sadFace) => {
+                onReplyReactionUpdate(reply.id, happyFace, sadFace);
+              }} />
             </div>
           ))}
         </div>
@@ -613,92 +632,148 @@ export default function ForumPage() {
   const [replyFocused, setReplyFocused] = useState(false);
   const [likedDiscussions, setLikedDiscussions] = useState<Set<string>>(new Set());
 
+  const canCreateDiscussion = true;
+
   useEffect(() => { fetchDiscussions(); }, [selectedCategory]);
 
   const fetchDiscussions = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const url = selectedCategory ? `${BASE_URL}/discussions?category=${selectedCategory}` : `${BASE_URL}/discussions`;
+      const url = `${BASE_URL}/comments/top`;
       const res = await fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } });
       if (!res.ok) throw new Error(`Error ${res.status}`);
-      setDiscussions(await res.json());
-    } catch { setDiscussions([]); setError("No se pudieron cargar las discusiones."); }
-    finally { setLoading(false); }
+      const backendComments: BackendComment[] = await res.json();
+      setDiscussions(backendComments.map(mapCommentToDiscussion));
+    } catch {
+      setDiscussions([]);
+      setError("No se pudieron cargar las discusiones.");
+    } finally {
+      setLoading(false);
+    }
   }, [selectedCategory]);
 
   const createDiscussion = useCallback(async () => {
-    if (!newTitle.trim() || !newContent.trim()) { setSubmitError("El título y contenido son requeridos."); return; }
+    if (!newTitle.trim() || !newContent.trim()) {
+      setSubmitError("Título y contenido son requeridos.");
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError(null);
+
     const token = localStorage.getItem("token");
-    if (!token) { setSubmitError("Debes iniciar sesión para crear una discusión."); return; }
-    setSubmitting(true); setSubmitError(null);
+    if (!token) {
+      setSubmitError("Debes iniciar sesión para crear una discusión.");
+      setSubmitting(false);
+      return;
+    }
+
     try {
-      const tags = newTags.split(",").map((t: string) => t.trim()).filter((t: string) => t);
-      const res = await fetch(`${BASE_URL}/discussions`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ title: newTitle, content: newContent, category: newCategory, tags }) });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || "Error al crear discusión");
-      const created: Discussion = await res.json();
-      setDiscussions([created, ...discussions]);
-      setNewTitle(""); setNewContent(""); setNewCategory("general"); setNewTags(""); setView("list");
-    } catch (err: Error | unknown) { setSubmitError(err instanceof Error ? err.message : "No se pudo crear la discusión."); }
-    finally { setSubmitting(false); }
-  }, [newTitle, newContent, newCategory, newTags, discussions]);
+      const tagsArray = newTags.split(",").map(t => t.trim()).filter(t => t);
+      const res = await fetch(`${BASE_URL}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: newTitle,
+          content: newContent,
+          category: newCategory,
+          tags: tagsArray,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Error ${res.status}: ${errorText}`);
+      }
+
+      
+      setNewTitle("");
+      setNewContent("");
+      setNewCategory("general");
+      setNewTags("");
+
+      
+      await fetchDiscussions();
+
+      
+      setView("list");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Error al crear la discusión.";
+      setSubmitError(errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [newTitle, newContent, newCategory, newTags, fetchDiscussions]);
 
   const openDiscussion = useCallback(async (disc: Discussion) => {
     setSelectedDiscussion(disc); setView("detail"); setRepliesLoading(true); setReplies([]);
     try {
-      const res = await fetch(`${BASE_URL}/discussions/${disc.id}/replies`, { method: "GET", headers: { "Content-Type": "application/json" } });
+      const res = await fetch(`${BASE_URL}/comments/${disc.id}`, { method: "GET", headers: { "Content-Type": "application/json" } });
       if (!res.ok) throw new Error(`Error ${res.status}`);
-      setReplies(await res.json());
-    } catch { } finally { setRepliesLoading(false); }
+      const backendComment: BackendComment = await res.json();
+      setReplies(backendComment.replies?.map(mapCommentToReply) ?? []);
+    } catch {
+      setReplies([]);
+    } finally {
+      setRepliesLoading(false);
+    }
   }, []);
 
   const submitReply = useCallback(async () => {
-    if (!replyContent.trim() || !selectedDiscussion) return;
+    if (!replyContent.trim()) {
+      setReplyError("El contenido de la respuesta no puede estar vacío.");
+      return;
+    }
+
     const token = localStorage.getItem("token");
-    if (!token) { setReplyError("Debes iniciar sesión para responder."); return; }
-    setReplySubmitting(true); setReplyError(null);
+    if (!token) {
+      setReplyError("Debes iniciar sesión para responder.");
+      return;
+    }
+
+    setReplySubmitting(true);
+    setReplyError(null);
+
     try {
-      const res = await fetch(`${BASE_URL}/discussions/${selectedDiscussion.id}/replies`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ content: replyContent }) });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || "Error al enviar respuesta");
-      const created: Reply = await res.json();
-      setReplies([...replies, created]); setReplyContent("");
-      setDiscussions(discussions.map(d => d.id === selectedDiscussion.id ? { ...d, repliesCount: d.repliesCount + 1 } : d));
-    } catch (err: Error | unknown) { setReplyError(err instanceof Error ? err.message : "No se pudo enviar la respuesta."); }
-    finally { setReplySubmitting(false); }
-  }, [replyContent, selectedDiscussion, replies, discussions]);
+      const res = await fetch(`${BASE_URL}/comments/${selectedDiscussion?.id}/replies`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: replyContent }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Error ${res.status}: ${errorText}`);
+      }
+
+      const updatedComment: BackendComment = await res.json();
+      setReplies(updatedComment.replies?.map(mapCommentToReply) ?? []);
+      setReplyContent("");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Error al enviar la respuesta.";
+      setReplyError(errorMessage);
+    } finally {
+      setReplySubmitting(false);
+    }
+  }, [replyContent, selectedDiscussion]);
 
   const toggleLike = useCallback((discId: string) => {
     setLikedDiscussions(prev => { const n = new Set(prev); n.has(discId) ? n.delete(discId) : n.add(discId); return n; });
   }, []);
 
   const deleteReply = useCallback(async (replyId: string) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar este comentario?")) return;
-    
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setReplyError("Debes iniciar sesión para eliminar comentarios.");
-      return;
-    }
-    
-    try {
-      const res = await fetch(`${BASE_URL}/discussions/${selectedDiscussion?.id}/replies/${replyId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      });
-      
-      if (!res.ok) throw new Error("Error al eliminar comentario");
-      
-      setReplies(replies.filter(r => r.id !== replyId));
-      if (selectedDiscussion) {
-        setDiscussions(discussions.map(d => 
-          d.id === selectedDiscussion.id 
-            ? { ...d, repliesCount: Math.max(0, d.repliesCount - 1) } 
-            : d
-        ));
-      }
-    } catch (err: Error | unknown) {
-      setReplyError(err instanceof Error ? err.message : "No se pudo eliminar el comentario.");
-    }
-  }, [selectedDiscussion, replies, discussions]);
+    setReplyError("Eliminar comentarios no está disponible con el backend actual.");
+  }, []);
+
+  const updateReplyReaction = useCallback((replyId: string, happyFace: number, sadFace: number) => {
+    setReplies(prev => prev.map(r => r.id === replyId ? { ...r, happyFace, sadFace, likesCount: happyFace + sadFace } : r));
+  }, []);
 
   const goBack = () => {
     setView("list");
@@ -712,11 +787,11 @@ export default function ForumPage() {
       <BackgroundEffects />
       <Navbar />
       <section style={{ position: "relative" as const, zIndex: 5, padding: "28px 24px", display: "flex", flexDirection: "column" as const, gap: 24, maxWidth: 1000, margin: "0 auto", animation: "slideIn .35s ease" }}>
-        {view === "list" && <DiscussionList discussions={discussions} loading={loading} error={error} selectedCategory={selectedCategory} sortByPopular={sortByPopular} onCategoryChange={setSelectedCategory} onSortByPopularChange={setSortByPopular} onCreateClick={() => setView("create")} onDiscussionClick={openDiscussion} onLikeToggle={toggleLike} likedDiscussions={likedDiscussions} isAuthenticated={isAuthenticated} />}
+        {view === "list" && <DiscussionList discussions={discussions} loading={loading} error={error} selectedCategory={selectedCategory} sortByPopular={sortByPopular} onCategoryChange={setSelectedCategory} onSortByPopularChange={setSortByPopular} onCreateClick={() => setView("create")} onDiscussionClick={openDiscussion} onLikeToggle={toggleLike} likedDiscussions={likedDiscussions} isAuthenticated={isAuthenticated && canCreateDiscussion} />}
 
         {view === "create" && <CreateDiscussion title={newTitle} content={newContent} category={newCategory} tags={newTags} error={submitError} submitting={submitting} onTitleChange={setNewTitle} onContentChange={setNewContent} onCategoryChange={setNewCategory} onTagsChange={setNewTags} onSubmit={createDiscussion} onCancel={goBack} />}
 
-        {view === "detail" && selectedDiscussion && <DiscussionDetail discussion={selectedDiscussion} replies={replies} loading={repliesLoading} replyContent={replyContent} replyError={replyError} replyFocused={replyFocused} replySubmitting={replySubmitting} onReplyContentChange={setReplyContent} onReplyFocus={() => setReplyFocused(true)} onReplyBlur={() => setReplyFocused(false)} onReplySubmit={submitReply} onBack={goBack} currentUserRole={currentUser.role} onDeleteReply={deleteReply} />}
+        {view === "detail" && selectedDiscussion && <DiscussionDetail discussion={selectedDiscussion} replies={replies} loading={repliesLoading} replyContent={replyContent} replyError={replyError} replyFocused={replyFocused} replySubmitting={replySubmitting} onReplyContentChange={setReplyContent} onReplyFocus={() => setReplyFocused(true)} onReplyBlur={() => setReplyFocused(false)} onReplySubmit={submitReply} onBack={goBack} currentUserRole={currentUser.role} onDeleteReply={deleteReply} onReplyReactionUpdate={updateReplyReaction} />}
       </section>
     </main>
   );
