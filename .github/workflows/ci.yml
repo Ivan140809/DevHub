@@ -24,7 +24,7 @@ jobs:
       
       - name: Build with Maven and Test
         run: mvn clean verify
-            
+      
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:

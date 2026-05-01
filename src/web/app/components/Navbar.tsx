@@ -2,12 +2,13 @@
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import "./Navbar.css";
-import { HelpCircle, Settings,House, Trophy,Crown } from "lucide-react";
+import { HelpCircle, Settings,House, Trophy,Crown, MessageCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const router = useRouter();
-  const nombre = useCurrentUser();
+  const currentUser = useCurrentUser();
+  const nombre = currentUser.nombre ?? currentUser.username ?? "";
   const [puntosAcumulados, setPuntosAcumulados] = useState<number>(() => {
     if (typeof window === "undefined") return 0;
     try {
@@ -96,6 +97,17 @@ export default function Navbar() {
         >
           <svg width="156" height="18" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2">
             <Trophy size={28}/>
+          </svg>
+        </button>
+
+        <button 
+          type="button"
+          title="Foro"
+          onClick={() => router.push("/forum")} 
+          className="nav-icon-btn"
+        >
+          <svg width="156" height="18" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2">
+            <MessageCircle size={28}/>
           </svg>
         </button>
       </div>

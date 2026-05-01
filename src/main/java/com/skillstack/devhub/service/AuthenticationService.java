@@ -33,6 +33,11 @@ public class AuthenticationService {
 
     public String validatePassword(String password) {
 
+        if(password.length()<6){
+            return "DEBE TENER POR LO MENOS 6 CARACTERES";
+
+        }
+
         if (!password.matches(".*[A-Z].*")) {
             return " DEBE CONTENER AL MENOS UNA MAYUSCULA";
         }
@@ -68,7 +73,7 @@ public class AuthenticationService {
         }
 
         User u = (User) defaultUserFactory.createUser(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(),
-                user.getPassword(), user.getPhone(), Role.USER, 0);
+                user.getPassword(), user.getPhone(), Role.USER);
         u.setPassword(passwordEncoder.encode(user.getPassword()));
 
         if(userRepository.count()==0){

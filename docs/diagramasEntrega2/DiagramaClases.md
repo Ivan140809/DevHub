@@ -1,1 +1,1 @@
-<img width="2632" height="1202" alt="Clases" src="https://github.com/user-attachments/assets/629235a9-64e3-43f9-bdc1-b80ecda7d10f" />
+<img width="1206" height="609" alt="DiagramaClases" src="https://github.com/user-attachments/assets/33fc3c45-5a18-4b0c-949a-40ee2defbd99" />
