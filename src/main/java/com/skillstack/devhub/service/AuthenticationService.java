@@ -69,7 +69,7 @@ public class AuthenticationService {
 
         String result = validatePassword(user.getPassword());
         if (!result.equals("OK")) {
-            throw new PasswordFormatException("CONTRASENA" + result);
+            throw new PasswordFormatException("CONTRASENA " + result);
         }
 
         User u = (User) defaultUserFactory.createUser(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(),
