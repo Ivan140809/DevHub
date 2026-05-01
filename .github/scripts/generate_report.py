@@ -10,8 +10,11 @@ try:
         for line in f:
             line = line.strip()
             if line:
-                entry = json.loads(line)
-                meta[entry["method"]] = entry
+                try:
+                    entry = json.loads(line)
+                    meta[entry["method"]] = entry
+                except (json.JSONDecodeError, KeyError) as e:
+                    print(f"Warning: JSONL line ignorada ({e}): {repr(line[:80])}")
 except FileNotFoundError:
     pass
 
