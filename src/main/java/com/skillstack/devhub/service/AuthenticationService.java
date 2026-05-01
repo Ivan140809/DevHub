@@ -33,6 +33,11 @@ public class AuthenticationService {
 
     public String validatePassword(String password) {
 
+        if(password.length()<6){
+            return "DEBE TENER POR LO MENOS 6 CARACTERES";
+
+        }
+
         if (!password.matches(".*[A-Z].*")) {
             return " DEBE CONTENER AL MENOS UNA MAYUSCULA";
         }
