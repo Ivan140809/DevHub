@@ -28,21 +28,22 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<CommentDTO> createComment(
-            @RequestBody CreateCommentRequest request, 
+            @RequestBody CreateCommentRequest request,
             Authentication authentication) {
+
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         String userEmail = authentication.getName();
         CommentDTO created = commentService.createComment(
-                request.getTitle(), 
-                request.getContent(), 
-                request.getCategory(), 
-                request.getTags(), 
-                userEmail, 
-                false, 
-                0, 
+                request.getTitle(),
+                request.getContent(),
+                request.getCategory(),
+                request.getTags(),
+                userEmail,
+                false,
+                0,
                 0);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -59,13 +60,10 @@ public class CommentController {
 
     @PostMapping("/{commentId:[0-9a-f]{24}}/replies")
     public ResponseEntity<CommentDTO> addReply(
-            @PathVariable String commentId, 
-            @RequestBody CreateReplyRequest request, 
+            @PathVariable String commentId,
+            @RequestBody CreateReplyRequest request,
             Authentication authentication) {
 
-    @PostMapping("/{commentId:[0-9a-f]{24}}/reactions")
-    public ResponseEntity<CommentDTO> addReaction(@PathVariable String commentId, @RequestParam Reaction reaction, Authentication authentication) {
- 
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -77,8 +75,8 @@ public class CommentController {
 
     @PostMapping("/{commentId:[0-9a-f]{24}}/reactions")
     public ResponseEntity<CommentDTO> addReaction(
-            @PathVariable String commentId, 
-            @RequestParam String reaction, 
+            @PathVariable String commentId,
+            @RequestParam String reaction,
             Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
@@ -113,15 +111,17 @@ public class CommentController {
                 .status(HttpStatus.OK)
                 .body(topComments);
     }
-}
 
     @PutMapping("/{commentId:[0-9a-f]{24}}")
-    public ResponseEntity<CommentDTO> editComment(@PathVariable String commentId, @RequestParam String newContent, Authentication authentication) {
- 
+    public ResponseEntity<CommentDTO> editComment(
+            @PathVariable String commentId,
+            @RequestParam String newContent,
+            Authentication authentication) {
+
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
- 
+
         CommentDTO updated = commentService.editComment(commentId, newContent);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -129,12 +129,14 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId:[0-9a-f]{24}}")
-    public ResponseEntity<Void> deleteComment(@PathVariable String commentId, Authentication authentication) {
- 
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable String commentId,
+            Authentication authentication) {
+
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
- 
+
         String userEmail = authentication.getName();
         commentService.deleteComment(commentId, userEmail);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
