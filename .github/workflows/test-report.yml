@@ -1,0 +1,47 @@
+name: Test Report - Unit Tests Backend
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+  workflow_dispatch:
+
+jobs:
+  unit-tests-report:
+    name: Run Unit Tests & Generate HTML Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run unit tests
+        run: mvn test --no-transfer-progress
+        continue-on-error: true
+
+      - name: Generate HTML report
+        run: python3 .github/scripts/generate_report.py
+
+      - name: Upload HTML report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pruebas-unitarias
+          path: target/test-report.html
+          retention-days: 30
+      - name: Print report summary
+        run: |
+          echo " Reporte resumen de pruebas"
+          grep -o 'Total.*Passed.*Failed.*Skipped' target/test-report.html | head -1 || true
+          echo "Artifact: informe-pruebas-unitarias"
+          echo "File: target/test-report.html"
+
+
+

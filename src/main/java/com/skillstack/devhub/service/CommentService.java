@@ -2,7 +2,6 @@ package com.skillstack.devhub.service;
 
 
 import com.skillstack.devhub.dto.CommentDTO;
-import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.exception.CommentNotFoundException;
 import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.model.*;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -40,16 +38,22 @@ public class CommentService {
         }
     }
 
-    public CommentDTO createComment(String content, String username, boolean isStarred, int happyFace, int sadFace) {
+    public CommentDTO createComment(String title, String content, String category, List<String> tags, String userEmail, boolean isStarred, int happyFace, int sadFace) {
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + username));
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("El título no puede estar vacío");
+        }
 
-        Comment comment = new Comment(content, username, isStarred, 0, 0);
+        User user = userRepository.findByEmail(userEmail)
+                .or(() -> userRepository.findByUsername(userEmail))
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + userEmail));
+
+        String authorUsername = user.getUsername() != null ? user.getUsername() : userEmail;
+        Comment comment = new Comment(title, content, category, tags, authorUsername, isStarred, happyFace, sadFace);
 
         user.setEmailSenderService(emailSenderService);
         comment.attach(user);
-        comment.subscribe(username);
+        comment.subscribe(authorUsername);
 
         commentRepository.save(comment);
 
@@ -64,6 +68,7 @@ public class CommentService {
         return commentTree.toDTO();
     }
 
+    // Permite editar el contenido de un comentario existente y notifica a observadores
     public CommentDTO editComment(String commentId, String newContent) {
 
         Comment comment = commentRepository.findById(commentId)
@@ -82,14 +87,15 @@ public class CommentService {
 
         reattachObservers(parent);
 
-        User replier = userRepository.findByUsername(replyUsername)
+        User replier = userRepository.findByEmail(replyUsername)
+                .or(() -> userRepository.findByUsername(replyUsername))
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + replyUsername));
 
         replier.setEmailSenderService(emailSenderService);
         parent.attach(replier);
-        parent.subscribe(replyUsername);
+        parent.subscribe(replier.getUsername());
 
-        Comment reply = new Comment(content, replyUsername, isStarred, 0, 0);
+        Comment reply = new Comment("", content, parent.getCategory(), null, replier.getUsername(), isStarred, 0, 0);
         parent.addReply(reply);
         commentRepository.save(parent);
 
@@ -108,14 +114,48 @@ public class CommentService {
     }
 
     public CommentDTO addReaction (String commentId, Reaction reaction){
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("Comentario no encontrado"));;
-        if (reaction.equals(Reaction.HAPPYFACE)){
-            comment.setHappyFace(comment.getHappyFace()+1);
-        }else {
-            comment.setSadFace(comment.getSadFace()+1);
+        Comment rootComment = findRootCommentById(commentId);
+        Comment targetComment = findCommentInTree(rootComment, commentId);
+        if (targetComment == null) {
+            throw new RuntimeException("Comentario no encontrado");
         }
 
-        return comment.toComponent().toDTO();
+        if (reaction.equals(Reaction.HAPPYFACE)){
+            targetComment.setHappyFace(targetComment.getHappyFace()+1);
+        } else {
+            targetComment.setSadFace(targetComment.getSadFace()+1);
+        }
+
+        commentRepository.save(rootComment);
+        return targetComment.toComponent().toDTO();
+    }
+
+    private Comment findRootCommentById(String commentId) {
+        return commentRepository.findById(commentId)
+                .orElseGet(() -> {
+                    for (Comment root : commentRepository.findAll()) {
+                        if (findCommentInTree(root, commentId) != null) {
+                            return root;
+                        }
+                    }
+                    throw new RuntimeException("Comentario no encontrado");
+                });
+    }
+
+    private Comment findCommentInTree(Comment comment, String commentId) {
+        if (comment.getId().equals(commentId)) {
+            return comment;
+        }
+        if (comment.getReplies() == null) {
+            return null;
+        }
+        for (Comment reply : comment.getReplies()) {
+            Comment found = findCommentInTree(reply, commentId);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
     }
 
     public List<CommentDTO> getCommentsMostReactions(){
