@@ -159,7 +159,6 @@ public class CommentService {
     }
 
     public List<CommentDTO> getCommentsMostReactions(){
-
         List<Comment> commentList= commentRepository.findTop7ByOrderByHappyFaceDesc();
 
         List<CommentComponent> commentComponents = new ArrayList<>();
