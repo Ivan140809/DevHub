@@ -14,6 +14,8 @@ public class User extends AbstractUser implements Observer {
     // transient: no se persiste en MongoDB, se inyecta desde el service
     private transient EmailSenderService emailSenderService;
 
+    public User(){}
+
     public User(String firstName, String lastName, String username, String email, String password, String phone, Role role, int totalScore) {
         this.firstName = firstName;
         this.lastName = lastName;
