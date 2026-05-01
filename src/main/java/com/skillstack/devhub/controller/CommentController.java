@@ -127,4 +127,16 @@ public class CommentController {
                 .status(HttpStatus.OK)
                 .body(updated);
     }
+
+    @DeleteMapping("/{commentId:[0-9a-f]{24}}")
+    public ResponseEntity<Void> deleteComment(@PathVariable String commentId, Authentication authentication) {
+ 
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+ 
+        String userEmail = authentication.getName();
+        commentService.deleteComment(commentId, userEmail);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
