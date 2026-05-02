@@ -172,4 +172,11 @@ public class CommentService {
         }
         return commentDTOS;
     }
+
+    public void deleteComment(String commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO"));
+
+        commentRepository.delete(comment);
+    }
 }
