@@ -159,7 +159,6 @@ public class CommentService {
     }
 
     public List<CommentDTO> getCommentsMostReactions(){
-
         List<Comment> commentList= commentRepository.findTop7ByOrderByHappyFaceDesc();
 
         List<CommentComponent> commentComponents = new ArrayList<>();
@@ -172,5 +171,12 @@ public class CommentService {
             commentDTOS.add(c.toDTO());
         }
         return commentDTOS;
+    }
+
+    public void deleteComment(String commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO"));
+
+        commentRepository.delete(comment);
     }
 }
