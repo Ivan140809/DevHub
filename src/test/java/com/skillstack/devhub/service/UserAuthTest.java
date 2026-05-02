@@ -1,5 +1,5 @@
 
-package com.skillstack.devhub;
+package com.skillstack.devhub.service;
 
 import com.skillstack.devhub.dto.*;
 import com.skillstack.devhub.exception.IncorrectPasswordException;
@@ -10,8 +10,6 @@ import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.UserRepository;
 import com.skillstack.devhub.security.JwtUtil;
-import com.skillstack.devhub.service.AuthenticationService;
-import com.skillstack.devhub.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
