@@ -140,7 +140,7 @@ class QuestionTest {
 
         String result = questionService.createReview(reviewDTO, "japan@test.com", "69e005ee4d818c49ab701225");
 
-        assertEquals("REVIEW CREADO CORRECTAMENTE PARA 123 EN LA PREGUNTA 69e005ee4d818c49ab701225", result);
+        assertEquals("REVIEW CREADO CORRECTAMENTE PARA USUARIO 123 EN LA PREGUNTA 69e005ee4d818c49ab701225", result);
         verify(userRepository, times (1)).findByEmail("japan@test.com");
         verify(questionRepository, times(1)).findById("69e005ee4d818c49ab701225");
         verify(reviewRepository, times(1)).save(any(Review.class));
@@ -316,7 +316,7 @@ class QuestionTest {
 
         String result = questionService.createReview(reviewDTO, "japan@test.com", "69e005ee4d818c49ab701225");
 
-        assertEquals("REVIEW CREADO CORRECTAMENTE PARA 123 EN LA PREGUNTA 69e005ee4d818c49ab701225", result);
+        assertEquals("REVIEW CREADO CORRECTAMENTE PARA USUARIO 123 EN LA PREGUNTA 69e005ee4d818c49ab701225", result);
         verify(userRepository, times (1)).findByEmail("japan@test.com");
         verify(questionRepository, times(1)).findById("69e005ee4d818c49ab701225");
         verify(reviewRepository, times(1)).save(any(Review.class));
