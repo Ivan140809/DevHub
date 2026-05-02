@@ -77,4 +77,7 @@ public class User extends AbstractUser implements Observer {
         this.totalScore = totalScore;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
 }
