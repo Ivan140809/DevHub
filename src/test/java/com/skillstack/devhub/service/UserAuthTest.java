@@ -2,6 +2,7 @@
 package com.skillstack.devhub.service;
 
 import com.skillstack.devhub.CasoPrueba;
+import com.skillstack.devhub.CasoPruebaExtension;
 import com.skillstack.devhub.dto.*;
 import com.skillstack.devhub.exception.IncorrectPasswordException;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, CasoPruebaExtension.class})
 public class UserAuthTest {
 
     @Mock
