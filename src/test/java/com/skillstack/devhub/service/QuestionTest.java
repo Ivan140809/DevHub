@@ -124,7 +124,7 @@ class QuestionTest {
                     "questionId=69e005ee4d818c49ab701225" +
                     "review DTO = {“Muy fácil”, 3}",
             tipo = "Normal",
-            esperado = "REVIEW CREADO EXITOSAMENTE PARA (USUARIO) EN LA PREGUNTA 69e005ee4d818c49ab701225"
+            esperado = "REVIEW CREADO CORRECTAMENTE PARA (USUARIO) EN LA PREGUNTA 69e005ee4d818c49ab701225"
     )
     void addReview_whenValidData(){
         ReviewDTO reviewDTO = new ReviewDTO("Muy fácil", 3);
@@ -140,7 +140,7 @@ class QuestionTest {
 
         String result = questionService.createReview(reviewDTO, "japan@test.com", "69e005ee4d818c49ab701225");
 
-        assertEquals("REVIEW CREADO EXITOSAMENTE PARA 123 EN LA PREGUNTA 69e005ee4d818c49ab701225", result);
+        assertEquals("REVIEW CREADO CORRECTAMENTE PARA 123 EN LA PREGUNTA 69e005ee4d818c49ab701225", result);
         verify(userRepository, times (1)).findByEmail("japan@test.com");
         verify(questionRepository, times(1)).findById("69e005ee4d818c49ab701225");
         verify(reviewRepository, times(1)).save(any(Review.class));
@@ -300,7 +300,7 @@ class QuestionTest {
             descripcion = "Crear review utilizando rating máximo",
             entrada     = "email=japan@test.com, questionId=69e005ee4d818c49ab701225, reviewDTO = {“Excelente”, 5}",
             tipo        = "Borde",
-            esperado    = "REVIEW CREADO EXITOSAMENTE PARA (USUARIO) EN LA PREGUNTA 69e005ee4d818c49ab701225"
+            esperado    = "REVIEW CREADO CORRECTAMENTE PARA (USUARIO) EN LA PREGUNTA 69e005ee4d818c49ab701225"
     )
     void createReview_whenMaximumRating(){
         ReviewDTO reviewDTO = new ReviewDTO("Excelente", 5);
@@ -316,7 +316,7 @@ class QuestionTest {
 
         String result = questionService.createReview(reviewDTO, "japan@test.com", "69e005ee4d818c49ab701225");
 
-        assertEquals("REVIEW CREADO EXITOSAMENTE PARA 123 EN LA PREGUNTA 69e005ee4d818c49ab701225", result);
+        assertEquals("REVIEW CREADO CORRECTAMENTE PARA 123 EN LA PREGUNTA 69e005ee4d818c49ab701225", result);
         verify(userRepository, times (1)).findByEmail("japan@test.com");
         verify(questionRepository, times(1)).findById("69e005ee4d818c49ab701225");
         verify(reviewRepository, times(1)).save(any(Review.class));
@@ -331,7 +331,7 @@ class QuestionTest {
         descripcion = "Crear review utilizando rating mínimo",
         entrada     = "questionId=69e005ee4d818c49ab701225, userEmail=verify@test.com, reviewDTO={Imposible, 1}",
         tipo        = "Borde",
-        esperado    = "REVIEW CREADO EXITOSAMENTE PARA (USUARIO) EN LA PREGUNTA 69e005ee4d818c49ab701225"
+        esperado    = "REVIEW CREADO CORRECTAMENTE PARA (USUARIO) EN LA PREGUNTA 69e005ee4d818c49ab701225"
     )
     void createReview_whenMinimumRating_createsReviewSuccessfully() {
 
