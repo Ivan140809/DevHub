@@ -429,12 +429,33 @@ export default function ProfilePage() {
               <Field label="Teléfono" value={form.phone ?? ""} onChange={(v) => updateField("phone", v)} placeholder="+57 300 000 0000" type="tel" />
             </div>
 
-            <div style={{ display:"flex", justifyContent:"flex-end", gap:12, marginTop:26 }}>
+            <div style={{ display:"flex", justifyContent:"center", gap:12, marginTop:26 }}>
+              <button
+                onClick={() => alert("Funcionalidad de borrado de cuenta no implementada.")}
+                style={{
+                  height:40,
+                  padding:"0 17px",
+                  background:"transparent",
+                  border:"1px solid rgba(99, 60, 255, 0.69)",
+                  borderRadius:10,
+                  color:"rgba(180, 150, 255, 0.74)",
+                  fontFamily:"'Syne',sans-serif",
+                  fontSize:12,
+                  fontWeight:700,
+                  letterSpacing:2,
+                  textTransform:"uppercase",
+                  cursor:"pointer",
+                }}
+              >
+                Borrar Cuenta
+              </button>
+              
+              
               <button
                 onClick={handleLogout}
                 style={{
                   height:40,
-                  padding:"0 24px",
+                  padding:"0 17px",
                   background:"transparent",
                   border:"1px solid rgba(99, 60, 255, 0.69)",
                   borderRadius:10,
@@ -455,19 +476,19 @@ export default function ProfilePage() {
                 disabled={saving || loading}
                 style={{
                   height:40,
-                  padding:"0 28px",
-                  background: saving ? "rgba(100,60,255,.4)" : "linear-gradient(135deg,#7040ff,#5020e0)",
+                  padding:"0 17px",
+                  background: saving ? "rgb(22, 8, 80)" : "linear-gradient(rgba(92, 51, 253, 0.96),rgba(100,60,255,.7))",
                   border:"none",
                   borderRadius:10,
                   color:"white",
                   fontFamily:"'Syne',sans-serif",
                   fontSize:12,
                   fontWeight:800,
-                  letterSpacing:"3px",
+                  letterSpacing:"2px",
                   textTransform:"uppercase",
                   cursor: saving ? "not-allowed" : "pointer",
                   width: "fit-content",
-                  boxShadow:"0 4px 20px rgba(90,40,220,.4)",
+                  boxShadow:"0 4px 20px rgba(91, 40, 220, 0.62)",
                 }}
               >
                 {saving ? "Guardando" : "Guardar cambios"}
