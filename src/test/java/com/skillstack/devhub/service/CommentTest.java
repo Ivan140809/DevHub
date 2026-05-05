@@ -41,7 +41,10 @@ class CommentTest {
     @InjectMocks
     private CommentService commentService;
 
+
+
     // CP21 - Normal: crear discusion en el foro con datos validos retorna CommentDTO no nulo
+
     @Test
     @CasoPrueba(
         id          = "CP21",
@@ -50,41 +53,46 @@ class CommentTest {
         tipo        = "Normal",
         esperado    = "Se crea la discusion, se guarda en el repositorio y retorna un CommentDTO no nulo"
     )
-    void createComment_whenEmailFound() {
-        User user = new User("Ivan", "Lastra", "ivansitol", "ivan@example.com", "password", "123456", Role.USER, 0);
-        when(userRepository.findByEmail("ivan@example.com")).thenReturn(Optional.of(user));
-        when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> {
-            Comment saved = invocation.getArgument(0);
-            saved.setId("comment-1");
-            return saved;
-        });
 
+
+    void newComment_emailFound() {
+        User user = new User("Ana", "Murcia", "anamurcia", "ana@devhub.com", "password", "195000", Role.USER, 0);
+        when(userRepository.findByEmail("ana@devhub.com")).thenReturn(Optional.of(user));
+        when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> {
+
+                Comment saved = invocation.getArgument(0);
+
+                saved.setId("comment-1");
+
+                 return saved;
+             });
         CommentDTO result = commentService.createComment(
                 "Nueva discusion",
                 "Contenido de prueba",
                 "general",
                 List.of("test", "spring"),
-                "ivan@example.com",
+                "ana@devhub.com",
                 true, 0, 0
         );
-
         assertNotNull(result);
-        assertEquals("comment-1", result.getId());
+
         assertEquals("Nueva discusion", result.getTitle());
         assertEquals("Contenido de prueba", result.getContent());
         assertEquals("general", result.getCategory());
-        assertEquals("ivansitol", result.getUsername());
+        assertEquals("anamurcia", result.getUsername());
+        assertEquals("comment-1", result.getId());
         assertTrue(result.isStarred());
         assertEquals(0, result.getHappyFace());
         assertEquals(0, result.getSadFace());
         assertTrue(result.getReplies().isEmpty());
 
-        System.out.println("[CP21] Discusion creada correctamente:");
+
+        System.out.println("[CP21] Discusion creada correctamente al encontrar email:");
         System.out.println("  -> ID     : " + result.getId());
         System.out.println("  -> Titulo : " + result.getTitle());
         System.out.println("  -> Usuario: " + result.getUsername());
 
-        verify(userRepository).findByEmail("ivan@example.com");
+        verify(userRepository).findByEmail("ana@devhub.com");
         verify(commentRepository).save(any(Comment.class));
     }
 

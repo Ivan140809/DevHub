@@ -138,7 +138,7 @@ public ResponseEntity<Void> deleteComment(
     }
 
     String userEmail = authentication.getName();
-    commentService.deleteComment(commentId, userEmail);
+    commentService.deleteComment(commentId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 } 
 
