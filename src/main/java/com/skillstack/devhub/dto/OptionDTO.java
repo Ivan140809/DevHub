@@ -1,5 +1,6 @@
 package com.skillstack.devhub.dto;
 
+import com.skillstack.devhub.model.Option;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -19,16 +20,8 @@ public class OptionDTO {
         this.correct = correct;
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Boolean isCorrect() {
-        return correct;
+    public Option toOption(){
+        return new Option(text,correct);
     }
 
 }
