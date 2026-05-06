@@ -13,6 +13,7 @@ services:
       - devhubdb-network
 
   backend:
+    image: ${DOCKER_USERNAME}/devhubdb-backend:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: src/main/Dockerfile
@@ -30,6 +31,7 @@ services:
       - devhubdb-network
 
   frontend:
+    image: ${DOCKER_USERNAME}/devhubdb-frontend:${IMAGE_TAG:-latest}
     build:
       context: ./src/web
       dockerfile: Dockerfile
