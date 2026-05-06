@@ -77,15 +77,16 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      - name: Build Docker images
-        run: docker-compose build
       - name: Create .env file from secrets
         run: |
-         cat > .env << EOF
-         MONGO_URI=${{ secrets.MONGO_URI }}
-         JWT_SECRET=${{ secrets.JWT_SECRET }}
-         SPRING_PROFILES_ACTIVE=prod
-         EOF
+          printf 'MONGO_URI=%s\nJWT_SECRET=%s\nDOCKER_USERNAME=%s\nIMAGE_TAG=%s\n' \
+            "${{ secrets.MONGO_URI }}" "${{ secrets.JWT_SECRET }}" "local" "latest" > .env
+
+      - name: Build Docker images
+        env:
+          DOCKER_USERNAME: local
+          IMAGE_TAG: latest
+        run: docker compose build
 
       - name: Validate Docker Compose
         run: docker-compose config

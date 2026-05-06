@@ -25,7 +25,6 @@ jobs:
 
       - name: Run unit tests
         run: mvn test --no-transfer-progress
-        continue-on-error: true
 
       - name: Generate HTML report
         run: python3 .github/scripts/generate_report.py
