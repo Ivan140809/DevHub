@@ -6,7 +6,9 @@ import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.exception.IncorrectPasswordException;
 import com.skillstack.devhub.exception.PasswordFormatException;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
+import com.skillstack.devhub.factorymethod.AdminUserFactory;
 import com.skillstack.devhub.factorymethod.DefaultUserFactory;
+import com.skillstack.devhub.model.AdminUser;
 import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
@@ -22,13 +24,15 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final DefaultUserFactory defaultUserFactory;
+    private final AdminUserFactory adminUserFactory;
 
     @Autowired
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, DefaultUserFactory defaultUserFactory) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, DefaultUserFactory defaultUserFactory, AdminUserFactory adminUserFactory) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.defaultUserFactory = defaultUserFactory;
+        this.adminUserFactory = adminUserFactory;
     }
 
     public String validatePassword(String password) {
@@ -71,14 +75,16 @@ public class AuthenticationService {
         if (!result.equals("OK")) {
             throw new PasswordFormatException("CONTRASENA " + result);
         }
-
+        if(userRepository.count()==0){
+            AdminUser ua =(AdminUser) adminUserFactory.createUser(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(), user.getPassword(), user.getPhone(), Role.ADMIN);
+            ua.setPassword(passwordEncoder.encode(user.getPassword()));
+            userRepository.save(ua);
+            return "USUARIO REGISTRADO CORRECTAMENTE";
+        }
+        
         User u = (User) defaultUserFactory.createUser(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(),
                 user.getPassword(), user.getPhone(), Role.USER);
         u.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        if(userRepository.count()==0){
-            u.setRole(Role.ADMIN);
-        }
 
         userRepository.save(u);
 
