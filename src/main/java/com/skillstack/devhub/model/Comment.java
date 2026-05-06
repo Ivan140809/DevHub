@@ -129,14 +129,6 @@ public class Comment implements Subject {
         this.category = category;
     }
 
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -147,14 +139,6 @@ public class Comment implements Subject {
 
     public List<Comment> getReplies() {
         return replies;
-    }
-
-    public void setReplies(List<Comment> replies) {
-        this.replies = replies;
-    }
-
-    public boolean isStarred() {
-        return isStarred;
     }
 
     public int getHappyFace() {
@@ -183,7 +167,4 @@ public class Comment implements Subject {
         }
     }
 
-    public void unsubscribe(String username) {
-        subscribedUsernames.remove(username);
-    }
 }

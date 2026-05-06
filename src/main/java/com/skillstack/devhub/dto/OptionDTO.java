@@ -31,7 +31,4 @@ public class OptionDTO {
         return correct;
     }
 
-    public void setCorrect(Boolean correct) {
-        this.correct = correct;
-    }
 }
