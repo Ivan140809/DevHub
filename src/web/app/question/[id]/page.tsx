@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 
@@ -59,6 +59,20 @@ function diffStyle(d: string): React.CSSProperties {
 
 const letters = ["A", "B", "C", "D", "E"];
 
+function getTotalTime(difficulty: string) {
+  if (difficulty === "EASY") 
+    return 20;
+  if (difficulty === "HARD") 
+    return 20;
+  return 20;
+}
+
+function formatTime(s: number) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m > 0 ? `${m}:${String(sec).padStart(2, "0")}` : `${sec}s`;
+}
+
 export default function QuestionDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -77,6 +91,10 @@ export default function QuestionDetailPage() {
   const [comentarioEnviado, setComentarioEnviado] = useState(false);
   const [comentarioLoading, setComentarioLoading] = useState(false);
   const [comentarioError, setComentarioError] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [timedOut, setTimedOut] = useState(false);
+  const answeredRef = useRef(answered);
+  answeredRef.current = answered;
 
   useEffect(() => {
     if (!id) return;
@@ -102,6 +120,30 @@ export default function QuestionDetailPage() {
       })
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (!pregunta) return;
+    const total = getTotalTime(pregunta.difficulty);
+    setTimeLeft(total);
+    setTimedOut(false);
+
+    const interval = setInterval(() => {
+      if (answeredRef.current) {
+        clearInterval(interval);
+        return;
+      }
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setTimedOut(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [pregunta]);
 
   const correctaIdx = pregunta?.options.findIndex((o) => o.correct) ?? -1;
 
@@ -275,6 +317,15 @@ export default function QuestionDetailPage() {
       background: "transparent",
     };
   }
+
+  const timerTotal = pregunta ? getTotalTime(pregunta.difficulty) : 60;
+  const timerRatio = timerTotal > 0 ? timeLeft / timerTotal : 0;
+  const timerColor =
+    timerRatio < 0.25
+      ? "rgba(240,100,100,.9)"
+      : timerRatio < 0.5
+      ? "rgba(240,190,60,.9)"
+      : "rgba(140,100,255,.9)";
 
   return (
     <main
@@ -505,6 +556,68 @@ export default function QuestionDetailPage() {
                 </div>
               </div>
 
+              {!answered && !timedOut && (
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      background: "rgba(14,10,28,.88)",
+                      border: `1px solid ${timerColor}55`,
+                      borderRadius: 12,
+                      padding: "6px 16px",
+                      backdropFilter: "blur(12px)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'Space Mono', monospace",
+                        fontSize: 9,
+                        letterSpacing: "2px",
+                        textTransform: "uppercase",
+                        color: "rgba(160,130,255,.45)",
+                      }}
+                    >
+                      Tiempo
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "'Space Mono', monospace",
+                        fontWeight: 700,
+                        fontSize: 20,
+                        color: timerColor,
+                        minWidth: 44,
+                        textAlign: "right",
+                        transition: "color .5s",
+                      }}
+                    >
+                      {formatTime(timeLeft)}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      flex: 1,
+                      height: 4,
+                      background: "rgba(100,60,255,.1)",
+                      borderRadius: 99,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${timerRatio * 100}%`,
+                        height: "100%",
+                        background: timerColor,
+                        borderRadius: 99,
+                        transition: "width 1s linear, background .5s",
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
               <span
                 style={{
                   fontFamily: "'Space Mono', monospace",
@@ -522,7 +635,7 @@ export default function QuestionDetailPage() {
                   <button
                     key={i}
                     className="opt-btn"
-                    disabled={answered}
+                    disabled={answered || timedOut}
                     onClick={() => setSelected(i)}
                     style={{
                       width: "100%",
@@ -532,7 +645,7 @@ export default function QuestionDetailPage() {
                       padding: "14px 20px",
                       border: "1px solid",
                       borderRadius: 14,
-                      cursor: answered ? "default" : "pointer",
+                      cursor: answered || timedOut ? "default" : "pointer",
                       textAlign: "left",
                       animation: `popIn .3s ease ${i * 0.07}s both`,
                       ...optStyle(i),
@@ -602,7 +715,29 @@ export default function QuestionDetailPage() {
                 ))}
               </div>
 
-              {selected !== null && !answered && (
+              {timedOut && (
+                <div
+                  style={{
+                    borderRadius: 14,
+                    padding: "14px 20px",
+                    background: "rgba(200,40,40,.08)",
+                    border: "1px solid rgba(200,40,40,.2)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 4,
+                  }}
+                >
+                  <span style={{ fontWeight: 800, fontSize: 14, color: "rgba(240,100,100,.8)" }}>
+                    Tiempo agotado
+                  </span>
+                  <span style={{ fontSize: 12, color: "rgba(200,180,255,.55)", lineHeight: 1.5 }}>
+                    No respondiste a tiempo.{" "}
+                    {correctaIdx >= 0 && `La respuesta correcta era: ${pregunta.options[correctaIdx]?.text}`}
+                  </span>
+                </div>
+              )}
+
+              {selected !== null && !answered && !timedOut && (
                 <button
                   onClick={confirmarRespuesta}
                   disabled={confirming}

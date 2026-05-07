@@ -3,7 +3,9 @@ package com.skillstack.devhub.factorymethod;
 import com.skillstack.devhub.model.AbstractUser;
 import com.skillstack.devhub.model.AdminUser;
 import com.skillstack.devhub.model.Role;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AdminUserFactory implements UserFactory{
 
     @Override

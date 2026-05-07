@@ -21,9 +21,25 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      
-      - name: Build with Maven and Test
+
+      - name: Build and Test
         run: mvn clean verify
+
+      - name: SonarCloud Scan
+        if: github.event_name == 'push'
+        continue-on-error: true
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=puj-course_FIS_2610_3513_G1
+            -Dsonar.organization=puj-course
+            -Dsonar.sources=src/main/java
+            -Dsonar.tests=src/test/java
+            -Dsonar.java.binaries=target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
       
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
@@ -77,15 +93,44 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      - name: Build Docker images
-        run: docker-compose build
       - name: Create .env file from secrets
         run: |
-         cat > .env << EOF
-         MONGO_URI=${{ secrets.MONGO_URI }}
-         JWT_SECRET=${{ secrets.JWT_SECRET }}
-         SPRING_PROFILES_ACTIVE=prod
-         EOF
+          printf 'MONGO_URI=%s\nJWT_SECRET=%s\nDOCKER_USERNAME=%s\nIMAGE_TAG=%s\n' \
+            "${{ secrets.MONGO_URI }}" "${{ secrets.JWT_SECRET }}" "local" "latest" > .env
+
+      - name: Build Docker images
+        env:
+          DOCKER_USERNAME: local
+          IMAGE_TAG: latest
+        run: docker compose build
 
       - name: Validate Docker Compose
         run: docker-compose config
+
+  notify:
+    name: Notify Telegram
+    runs-on: ubuntu-latest
+    needs: [backend-build, frontend-build, docker-build]
+    if: failure()
+
+    steps:
+      - name: Send Telegram notification
+        uses: appleboy/telegram-action@v0.1.0
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: html
+          message: |
+            <b>❌ CI FAILED - Integración</b>
+
+            Repo: <code>${{ github.repository }}</code>
+            Branch: <code>${{ github.ref_name }}</code>
+            Autor: <code>${{ github.actor }}</code>
+
+            Backend: <code>${{ needs.backend-build.result }}</code>
+            Frontend: <code>${{ needs.frontend-build.result }}</code>
+            🐳 Docker: <code>${{ needs.docker-build.result }}</code>
+
+            <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+            🔗 Ver ejecución
+            </a>

@@ -16,15 +16,4 @@ public class AnswerResponseDTO {
         return correct;
     }
 
-    public void setCorrect(boolean correct) {
-        this.correct = correct;
-    }
-
-    public int getTotalScore() {
-        return totalScore;
-    }
-
-    public void setTotalScore(int totalScore) {
-        this.totalScore = totalScore;
-    }
 }

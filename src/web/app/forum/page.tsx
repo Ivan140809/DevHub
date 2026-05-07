@@ -113,9 +113,6 @@ const CATEGORIES: Category[] = [
 const REACTION_OPTIONS = [
   { emoji: "😊", label: "Feliz" },
   { emoji: "😢", label: "Triste" },
-  { emoji: "👍", label: "Me gusta" },
-  { emoji: "🔥", label: "Fuego" },
-  { emoji: "🖕", label: "No me gusta" },
 ];
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -204,7 +201,7 @@ const BackgroundEffects = () => (
   </>
 );
 
-// ── COMPONENTE DE REACCIONES ──
+
 function ReactionBar({ replyId, initialHappyFace, initialSadFace, onReactionUpdate }: { replyId: string; initialHappyFace: number; initialSadFace: number; onReactionUpdate: (happyFace: number, sadFace: number) => void }) {
   const [counts, setCounts] = useState<{ HAPPYFACE: number; SADFACE: number }>({ HAPPYFACE: initialHappyFace, SADFACE: initialSadFace });
   const [sending, setSending] = useState(false);
@@ -565,34 +562,70 @@ function DiscussionDetail({
                   </span>
                 </div>
                 {currentUserRole === "ADMIN" && canDeleteReply && (
-                  <button
-                    onClick={() => onDeleteReply(reply.id)}
-                    style={{
-                      background: "rgba(200,100,100,.15)",
-                      border: "1px solid rgba(200,100,100,.3)",
-                      borderRadius: 8,
-                      padding: "6px 12px",
-                      color: "rgba(240,120,120,.8)",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      transition: "all .2s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "rgba(200,100,100,.25)";
-                      e.currentTarget.style.borderColor = "rgba(200,100,100,.5)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "rgba(200,100,100,.15)";
-                      e.currentTarget.style.borderColor = "rgba(200,100,100,.3)";
-                    }}
-                  >
-                    <Trash2 size={14} /> Eliminar
-                  </button>
-                )}
+  <div style={{ display: "flex", gap: 8 }}>
+    
+    
+    <button
+      onClick={() => {
+        // Lógica para editar comentario :P
+      }}
+      style={{
+        background: "rgba(100,60,255,.15)",
+        border: "1px solid rgba(100,60,255,.3)",
+        borderRadius: 8,
+        padding: "6px 12px",
+        color: "rgba(180,150,255,.8)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        fontSize: 12,
+        fontWeight: 600,
+        transition: "all .2s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "rgba(100,60,255,.25)";
+        e.currentTarget.style.borderColor = "rgba(100,60,255,.5)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "rgba(100,60,255,.15)";
+        e.currentTarget.style.borderColor = "rgba(100,60,255,.3)";
+      }}
+    >
+      Editar
+    </button>
+
+    
+    <button
+      onClick={() => onDeleteReply(reply.id)}
+      style={{
+        background: "rgba(200,100,100,.15)",
+        border: "1px solid rgba(200,100,100,.3)",
+        borderRadius: 8,
+        padding: "6px 12px",
+        color: "rgba(240,120,120,.8)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        fontSize: 12,
+        fontWeight: 600,
+        transition: "all .2s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "rgba(200,100,100,.25)";
+        e.currentTarget.style.borderColor = "rgba(200,100,100,.5)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "rgba(200,100,100,.15)";
+        e.currentTarget.style.borderColor = "rgba(200,100,100,.3)";
+      }}
+    >
+      <Trash2 size={14} /> Eliminar
+    </button>
+
+  </div>
+)}
               </div>
               <p style={{ color: "rgba(200,190,220,.9)", fontSize: 15, margin: 0, lineHeight: 1.6, paddingLeft: 48 }}>{reply.content}</p>
 

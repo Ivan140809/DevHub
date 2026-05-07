@@ -1,6 +1,8 @@
 
-package com.skillstack.devhub;
+package com.skillstack.devhub.service;
 
+import com.skillstack.devhub.CasoPrueba;
+import com.skillstack.devhub.CasoPruebaExtension;
 import com.skillstack.devhub.dto.*;
 import com.skillstack.devhub.exception.IncorrectPasswordException;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
@@ -10,8 +12,6 @@ import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.UserRepository;
 import com.skillstack.devhub.security.JwtUtil;
-import com.skillstack.devhub.service.AuthenticationService;
-import com.skillstack.devhub.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, CasoPruebaExtension.class})
 public class UserAuthTest {
 
     @Mock
@@ -45,6 +45,16 @@ public class UserAuthTest {
     private UserService userService;
 
     @Test
+    @CasoPrueba(
+            id = "CP03",
+            descripcion = "updateUser",
+            entrada = "Email = test@test.com\n" +
+                    "FirstName = NewPepe\n" +
+                    "LastName = ElMalo\n" +
+                    "Phone = 123456\n",
+            tipo = "Normal",
+            esperado = "Se retorna un User Response TO con los datos actualizados"
+    )
     void updateUserSuccessfully() {
         // Arrange
         User user = new User();
@@ -76,6 +86,14 @@ public class UserAuthTest {
     }
 
     @Test
+    @CasoPrueba(
+            id = "CP10",
+            descripcion = "updateUser (Validar que el nuevo Username que ya tenía no sea el mismo al nuevo)\n",
+            entrada =  "OldUserName=PepeElMalo\n" +
+                    "NewUserName=PepeElMalo\n",
+            tipo = "Logica Negocio",
+            esperado = "Debe validar que no sea el mismo username y no dejarselo actualizar"
+    )
     void updateUserSameUserName() {
         // Arrange
         User user = new User();
@@ -104,6 +122,13 @@ public class UserAuthTest {
     }
 
     @Test
+    @CasoPrueba(
+            id = "CP04",
+            descripcion = "getProfile",
+            entrada =  "Email = test@test.com",
+            tipo = "Normal",
+            esperado = "Se retorna un User Response TO con toda la información del usuario"
+    )
     void getProfileSuccessfully() {
         // Arrange
         User user = new User();
@@ -133,6 +158,20 @@ public class UserAuthTest {
     }
 
     @Test
+    @CasoPrueba(
+            id = "CP05",
+            descripcion = "findRanking",
+            entrada =  "User1:\n" +
+                    "Username=user1\n" +
+                    "Email=u1@test.com\n" +
+                    "TotalScore=200\n" +
+                    "User2:\n" +
+                    "Username=user2\n" +
+                    "Email=u2@test.com\n" +
+                    "TotalScore=100\n",
+            tipo = "Normal",
+            esperado = "Se retorna una lista de usuarios en el ranking"
+    )
     void findRankingSuccessfully() {
         // Arrange
         User user1 = new User();
@@ -165,6 +204,14 @@ public class UserAuthTest {
     }
 
     @Test
+    @CasoPrueba(
+            id = "CP09",
+            descripcion = "updateUser\n" +
+                    "(Longitud máxima permitida del username = 15)\n",
+            entrada =  "userName=abcdefghijklmno",
+            tipo = "Borde",
+            esperado = "Usuario actualizado correctamente"
+    )
     void updateUserUsernameMaxLength() {
         // Arrange
         User user = new User();
@@ -194,6 +241,18 @@ public class UserAuthTest {
     }
 
     @Test
+    @CasoPrueba(
+            id = "CP01",
+            descripcion = "Register",
+            entrada =  "Email = test@pepe.com\n" +
+                    "Username = testPepe\n" +
+                    "Password = Pep3Malo!\n" +
+                    "FirstName = Pepe\n" +
+                    "LastName = ElMalo\n" +
+                    "Phone = 3125660427\n",
+            tipo = "Normal",
+            esperado = "USUARIO REGISTRADO EXITOSAMENTE"
+    )
     void RegisterUserSuccessfully() {
         UserRegisterDTO dto = new UserRegisterDTO();
         dto.setEmail("test@pepe.com");
@@ -219,6 +278,14 @@ public class UserAuthTest {
     }
 
     @Test
+    @CasoPrueba(
+            id = "CP02",
+            descripcion = "Login",
+            entrada =  "Email = test@pepe.com\n" +
+                    "Password = Pep3Malo!\n",
+            tipo = "Normal",
+            esperado = "Token Generado Igual al esperado"
+    )
     void LoginSuccessfully() {
         UserLoginDTO dto = new UserLoginDTO();
         dto.setEmail("test@pepe.com");
@@ -239,7 +306,19 @@ public class UserAuthTest {
 
         assertEquals("token123", response.getToken());
     }
+
+
     @Test
+    @CasoPrueba(
+            id = "CP07",
+            descripcion = "Login\n" +
+                    "(Contraseña incorrecta)\n",
+            entrada =  "Email = test@pepe.com\n" +
+                    "Password = \n" +
+                    "Pep3Bueno!\n",
+            tipo = "Negativa",
+            esperado = "IncorrectPasswordException"
+    )
     void IncorrectPassword() {
         UserLoginDTO dto = new UserLoginDTO();
         dto.setEmail("test@pepe.com");
@@ -259,6 +338,17 @@ public class UserAuthTest {
     }
 
     @Test
+    @CasoPrueba(
+            id = "CP08",
+            descripcion = "Register\n" +
+                    "(Longitud mínima de contraseña permitida)\n",
+            entrada =  "Email = test@pepe.com\n" +
+                    "Username=\n" +
+                    "pepe\n" +
+                    "Password = Pepe1!\n",
+            tipo = "Borde",
+            esperado = "Usuario Registrado Correctamente"
+    )
     void BorderShortPassword() {
 
         UserRegisterDTO userDTO = new UserRegisterDTO();
@@ -283,6 +373,14 @@ public class UserAuthTest {
     }
 
     @Test
+    @CasoPrueba(
+            id = "CP06",
+            descripcion = "Register\n" +
+                    "(Email ya registrado)\n",
+            entrada =  "Email = test@pepe.com\n",
+            tipo = "Negativa",
+            esperado = "UserAlreadyExistsException"
+    )
     void EmailAlreadyExists() {
         UserRegisterDTO userDTO = new UserRegisterDTO();
         userDTO.setEmail("test@pepe.com");
