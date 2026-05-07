@@ -114,16 +114,18 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
+          format: html
           message: |
-            *${{ steps.status.outputs.status }} CI - Integración*
-
-            Repo: `${{ github.repository }}`
-            Branch: `${{ github.ref_name }}`
-            Autor: `${{ github.actor }}`
-
-            Backend: `${{ needs.backend-build.result }}`
-            Frontend: `${{ needs.frontend-build.result }}`
-            Docker: `${{ needs.docker-build.result }}`
-
-            🔗 [Ver ejecución](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            <b>${{ steps.status.outputs.status }} CI - Integración</b>
+          
+            📦 Repo: <code>${{ github.repository }}</code>
+            🌿 Branch: <code>${{ github.ref_name }}</code>
+            👤 Autor: <code>${{ github.actor }}</code>
+          
+            🧪 Backend: <code>${{ needs.backend-build.result }}</code>
+            🎨 Frontend: <code>${{ needs.frontend-build.result }}</code>
+            🐳 Docker: <code>${{ needs.docker-build.result }}</code>
+          
+            <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+            🔗 Ver ejecución
+            </a>
