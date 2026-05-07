@@ -26,6 +26,7 @@ jobs:
         run: mvn clean verify
 
       - name: SonarCloud Scan
+        if: github.event_name == 'push'
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
