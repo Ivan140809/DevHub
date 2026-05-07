@@ -32,7 +32,8 @@ jobs:
       - name: Save current latest for rollback
         id: rollback
         run: |
-          if docker pull $DOCKER_USERNAME/devhubdb-backend:latest 2>/dev/null; then
+          if docker pull $DOCKER_USERNAME/devhubdb-backend:latest 2>/dev/null && \
+             docker pull $DOCKER_USERNAME/devhubdb-frontend:latest 2>/dev/null; then
             docker tag $DOCKER_USERNAME/devhubdb-backend:latest $DOCKER_USERNAME/devhubdb-backend:rollback
             docker tag $DOCKER_USERNAME/devhubdb-frontend:latest $DOCKER_USERNAME/devhubdb-frontend:rollback
             echo "HAS_PREV=true" >> $GITHUB_OUTPUT
