@@ -50,4 +50,8 @@ public class UserUpdateDTO {
         return preferences;
     }
 
+    public void setPreferences(List<String> preferences) {
+        this.preferences = preferences;
+    }
+
 }
