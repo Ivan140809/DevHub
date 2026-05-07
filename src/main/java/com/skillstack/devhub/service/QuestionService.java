@@ -29,6 +29,8 @@ import java.util.List;
 @Service
 public class QuestionService {
 
+    private static final String NOT_FOUND_SUFFIX = " NO ENCONTRADA";
+
     private final QuestionRepository questionRepository;
     private final ReviewRepository reviewRepository;
     private final AnswerRepository answerRepository;
@@ -61,7 +63,7 @@ public class QuestionService {
 
     public QuestionDTO getQuestionById(String id) {
         Question question = questionRepository.findById(id)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + id + " NO ENCONTRADA"));
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + id + NOT_FOUND_SUFFIX));
 
         List<OptionDTO> options = question.getOptions().stream()
                 .map(r -> new OptionDTO(r.getText(), r.isCorrect())).toList();
@@ -86,15 +88,15 @@ public class QuestionService {
             if (questionPage.isEmpty()) {
                 throw new QuestionNotFoundException("NO HAY PREGUNTAS CON CATEGORIA " + category + " Y DIFICULTAD " + difficulty);
             }
-        } else if (category != null){
+        } else if (category != null) {
             questionPage = questionRepository.findByCategory(category, pageable);
             if (questionPage.isEmpty()) {
-                throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON CATEGORIA " + category);
+                throw new QuestionNotFoundException("PREGUNTAS" + NOT_FOUND_SUFFIX + "S CON CATEGORIA " + category);
             }
-        } else if(difficulty != null){
+        } else if (difficulty != null) {
             questionPage = questionRepository.findByDifficulty(difficulty, pageable);
             if (questionPage.isEmpty()) {
-                throw new QuestionNotFoundException("PREGUNTAS NO ENCONTRADAS CON DIFICULTAD " + difficulty);
+                throw new QuestionNotFoundException("PREGUNTAS" + NOT_FOUND_SUFFIX + "S CON DIFICULTAD " + difficulty);
             }
         } else {
             questionPage = questionRepository.findAll(pageable);
@@ -119,7 +121,7 @@ public class QuestionService {
 
     public AnswerResponseDTO verifyAnswer(AnswerDTO answerDTO, String questionId, String userEmail) {
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + " NO ENCONTRADA"));
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + NOT_FOUND_SUFFIX));
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + userEmail + " NO ENCONTRADO"));
@@ -146,8 +148,8 @@ public class QuestionService {
         User user = userRepository.findByEmail(id)
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + " NO ENCONTRADA"));
-        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(),  question.getId(), user.getId(), LocalDate.now());
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + NOT_FOUND_SUFFIX));
+        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(), question.getId(), user.getId(), LocalDate.now());
 
         reviewRepository.save(review);
 
@@ -157,7 +159,7 @@ public class QuestionService {
     public List<ReviewDTO> getReviewsByQuestionId(String questionId, int page) {
         Pageable pageable = PageRequest.of(page, 10);
         questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + " NO ENCONTRADA"));
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + NOT_FOUND_SUFFIX));
         Page<Review> reviewPage = reviewRepository.findByQuestionId(questionId, pageable);
 
         return reviewPage.getContent().stream().map(r ->
