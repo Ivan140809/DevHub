@@ -23,7 +23,7 @@ jobs:
           cache: maven
 
       - name: Build, Test and Analyze
-        run: mvn clean verify sonar:sonar -Dsonar.projectKey=puj-course_FIS_2610_3513_G1 -Dsonar.organization=puj-course -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        run: mvn clean verify sonar:sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }}
       
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
