@@ -55,9 +55,6 @@ public class QuestionDTO {
         return statement;
     }
 
-    public void setStatement(String statement) {
-        this.statement = statement;
-    }
 
     public Category getCategory() {
         return category;
@@ -79,9 +76,6 @@ public class QuestionDTO {
         return options;
     }
 
-    public void setOptions(List<OptionDTO> options) {
-        this.options = options;
-    }
 
 
 }

@@ -12,14 +12,6 @@ public class AnswerDTO {
         this.selectedOption = selectedOption;
     }
 
-    public String getQuestionId() {
-        return questionId;
-    }
-
-    public void setQuestionId(String questionId) {
-        this.questionId = questionId;
-    }
-
     public String getSelectedOption() {
         return selectedOption;
     }

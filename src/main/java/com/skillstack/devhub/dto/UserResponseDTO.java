@@ -73,28 +73,14 @@ public class UserResponseDTO {
         this.phone = phone;
     }
 
-    public List<String> getPreferences() { 
-        return preferences; 
-    }
-
-    public void setPreferences(List<String> preferences) { 
-        this.preferences = preferences; 
-    }
-
     public int getAnsweredQuestions() {
          return answeredQuestions;
-    }
-    public void setAnsweredQuestions(int answeredQuestions) {
-         this.answeredQuestions = answeredQuestions;
     }
 
     public int getTotalScore() {
         return totalScore;
     }
 
-    public void setTotalScore(int totalScore) {
-        this.totalScore = totalScore;
-    }
-    
+
 }
 

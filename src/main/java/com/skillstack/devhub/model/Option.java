@@ -29,7 +29,4 @@ public class Option {
         return correct;
     }
 
-    public void setCorrect(Boolean correct) {
-        this.correct = correct;
-    }
 }

@@ -49,7 +49,7 @@ public class QuestionService {
 
         List<Option> options = new ArrayList<>();
         for (OptionDTO optionDTO : question.getOptions()) {
-            options.add(new Option(optionDTO.getText(), optionDTO.isCorrect()));
+            options.add(optionDTO.toOption());
         }
 
         Question q = new Question(question.getTitle(), question.getStatement(), question.getCategory(), question.getDifficulty(), options);
