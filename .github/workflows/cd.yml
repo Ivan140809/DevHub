@@ -64,8 +64,8 @@ jobs:
 
       - name: Health check
         run: |
-          for i in $(seq 1 6); do
-            if curl -sf http://localhost:8080/questions && curl -sf http://localhost:3000; then
+          for i in $(seq 1 18); do
+            if curl -sf --max-time 5 http://localhost:8080/questions && curl -sf --max-time 5 http://localhost:3000; then
               exit 0
             fi
             sleep 10
