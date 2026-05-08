@@ -131,9 +131,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId:[0-9a-f]{24}}")
-    public ResponseEntity<Void> deleteComment(
-            @PathVariable String commentId,
-            Authentication authentication) {
+    public ResponseEntity<Void> deleteComment(@PathVariable String commentId, Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated() || ANONYMOUS_USER.equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

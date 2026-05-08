@@ -7,7 +7,6 @@ import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.dto.ReviewDTO;
 import com.skillstack.devhub.exception.QuestionAlreadyExistsException;
 import com.skillstack.devhub.exception.QuestionNotFoundException;
-import com.skillstack.devhub.exception.ReviewNotFoundException;
 import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.model.*;
 import com.skillstack.devhub.repository.AnswerRepository;
@@ -131,11 +130,12 @@ public class QuestionService {
 
         for (Option option : question.getOptions()) {
             if (option.getText().equals(answerDTO.getSelectedOption())) {
-                if (option.isCorrect()) {
+                boolean isCorrect = option.isCorrect();
+                if (isCorrect) {
                     user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
                     userRepository.save(user);
                 }
-                return new AnswerResponseDTO(option.isCorrect(), user.getTotalScore());
+                return new AnswerResponseDTO(isCorrect, user.getTotalScore());
             }
         }
 

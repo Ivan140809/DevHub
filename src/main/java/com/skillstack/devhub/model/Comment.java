@@ -1,7 +1,7 @@
 package com.skillstack.devhub.model;
 
-import com.skillstack.devhub.Observer.Observer;
-import com.skillstack.devhub.Observer.Subject;
+import com.skillstack.devhub.observer.Observer;
+import com.skillstack.devhub.observer.Subject;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;

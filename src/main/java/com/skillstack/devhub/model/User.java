@@ -1,6 +1,6 @@
 package com.skillstack.devhub.model;
 
-import com.skillstack.devhub.Observer.Observer;
+import com.skillstack.devhub.observer.Observer;
 import com.skillstack.devhub.service.EmailSenderService;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
