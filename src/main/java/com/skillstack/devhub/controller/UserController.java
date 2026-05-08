@@ -50,4 +50,13 @@ public class UserController {
 
         return ResponseEntity.ok(ranking);
     }
+
+    @DeleteMapping("/profile")
+    public ResponseEntity<Void> deleteAccount(Principal principal) {
+        UserResponseDTO user = userService.getProfile(principal.getName());
+        userService.deleteAccount(user.getId());
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+}
 }
