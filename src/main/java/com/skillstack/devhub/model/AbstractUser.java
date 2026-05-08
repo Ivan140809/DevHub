@@ -1,8 +1,5 @@
 package com.skillstack.devhub.model;
 
-import java.util.List;
-
-
 public abstract class AbstractUser {
 
     protected String firstName;

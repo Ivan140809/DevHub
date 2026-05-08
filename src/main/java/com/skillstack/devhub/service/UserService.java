@@ -43,7 +43,7 @@ public class UserService {
         }
 
         return users.stream()
-                .map((user) -> {
+                .map(user -> {
                     int position = users.indexOf(user) + 1;
                     return new RankingDTO(position, user.getUsername(), user.getEmail(), user.getTotalScore());
                 })

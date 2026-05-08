@@ -1,7 +1,6 @@
 package com.skillstack.devhub.facade;
 
 import com.skillstack.devhub.exception.QuestionNotFoundException;
-import com.skillstack.devhub.model.Answer;
 import com.skillstack.devhub.model.Question;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.QuestionRepository;
