@@ -17,6 +17,8 @@ import java.util.List;
 @Service
 public class UserService {
 
+    private static final String USER_NOT_FOUND = "USER NO ENCONTRADO";
+
     private final UserRepository userRepository;
     private final AnswerRepository answerRepository;
 
@@ -28,7 +30,7 @@ public class UserService {
 
     public void deleteAccount(String userId){
         AbstractUser user = userRepository.findById(userId)
-                .orElseThrow( () -> new UserNotFoundException("USER NO ENCONTRADO"));
+                .orElseThrow( () -> new UserNotFoundException(USER_NOT_FOUND));
 
         userRepository.delete(user);
 
@@ -53,7 +55,7 @@ public class UserService {
 
     public UserResponseDTO getProfile(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
 
         int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(user.getId()).size();
         System.out.println("GET PROFILE USER EMAIL: " + user.getEmail());
@@ -73,7 +75,7 @@ public class UserService {
     public UserResponseDTO updateUser(String userEmail, UserUpdateDTO userUpdateDTO) {
         System.out.println("BUSCANDO USUARIO POR EMAIL");
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
 
         if (userUpdateDTO.getFirstName() != null && !userUpdateDTO.getFirstName().isEmpty()) {
             user.setFirstName(userUpdateDTO.getFirstName());
