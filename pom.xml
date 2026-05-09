@@ -157,6 +157,7 @@
 
                     <!-- Preserva el agente de JaCoCo -->
                     <argLine>
+                        ${argLine}
                         -Dnet.bytebuddy.experimental=true
                         -XX:+EnableDynamicAgentLoading
                         -Djdk.instrument.traceUsage=false
