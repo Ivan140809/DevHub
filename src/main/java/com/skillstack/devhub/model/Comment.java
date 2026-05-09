@@ -23,6 +23,7 @@ public class Comment implements Subject {
     private String username;
     private String createdAt;
     private boolean isStarred;
+    private List <CommentReaction> reactions;
     private int happyFace;
     private int sadFace;
 
@@ -48,6 +49,7 @@ public class Comment implements Subject {
         this.isStarred = isStarred;
         this.happyFace = happyFace;
         this.sadFace = sadFace;
+        this.reactions = new ArrayList<>();
     }
 
     @Override
@@ -159,6 +161,14 @@ public class Comment implements Subject {
 
     public List<String> getSubscribedUsernames() {
         return subscribedUsernames;
+    }
+
+    public List<CommentReaction> getReactions() {
+        return reactions;
+    }
+
+    public void setReactions(List<CommentReaction> reactions) {
+        this.reactions = reactions;
     }
 
     public void subscribe(String username) {
