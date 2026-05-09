@@ -3,6 +3,7 @@ package com.skillstack.devhub.service;
 import com.skillstack.devhub.CasoPrueba;
 import com.skillstack.devhub.CasoPruebaExtension;
 import com.skillstack.devhub.dto.CommentDTO;
+import com.skillstack.devhub.dto.ReactionDTO;
 import com.skillstack.devhub.exception.CommentNotFoundException;
 import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.model.Comment;
@@ -142,10 +143,11 @@ class CommentTest {
     void addReaction_whenRootCommentFound() {
         Comment root = new Comment("Titulo", "Contenido", "general", List.of("tag"), "ivansitol", false, 0, 0);
         root.setId("root-1");
+        ReactionDTO reactionDTO = new ReactionDTO(Reaction.HAPPYFACE, "root-1", "123");
         when(commentRepository.findById("root-1")).thenReturn(Optional.of(root));
         when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        CommentDTO result = commentService.addReaction("root-1", Reaction.HAPPYFACE);
+        CommentDTO result = commentService.addReaction(reactionDTO);
 
         assertNotNull(result);
         assertEquals(1, result.getHappyFace());

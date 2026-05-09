@@ -7,7 +7,6 @@ import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.dto.ReviewDTO;
 import com.skillstack.devhub.exception.QuestionAlreadyExistsException;
 import com.skillstack.devhub.exception.QuestionNotFoundException;
-import com.skillstack.devhub.exception.ReviewNotFoundException;
 import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.model.*;
 import com.skillstack.devhub.repository.AnswerRepository;
@@ -126,16 +125,19 @@ public class QuestionService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + userEmail + " NO ENCONTRADO"));
 
-        Answer answer = new Answer(questionId, answerDTO.getSelectedOption(), user.getId());
+        Answer answer = new Answer(questionId, answerDTO.getSelectedOption(), user.getId(), answerDTO.getTimerDTO());
         answerRepository.save(answer);
 
-        for (Option option : question.getOptions()) {
-            if (option.getText().equals(answerDTO.getSelectedOption())) {
-                if (option.isCorrect()) {
-                    user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
-                    userRepository.save(user);
+        if(!answer.getTimer().equals(0)){
+            for (Option option : question.getOptions()) {
+                if (option.getText().equals(answerDTO.getSelectedOption())) {
+                    boolean isCorrect = option.isCorrect();
+                    if (isCorrect) {
+                        user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
+                        userRepository.save(user);
+                    }
+                    return new AnswerResponseDTO(isCorrect, user.getTotalScore());
                 }
-                return new AnswerResponseDTO(option.isCorrect(), user.getTotalScore());
             }
         }
 
