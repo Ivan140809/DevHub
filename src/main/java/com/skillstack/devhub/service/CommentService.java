@@ -2,6 +2,7 @@ package com.skillstack.devhub.service;
 
 
 import com.skillstack.devhub.dto.CommentDTO;
+import com.skillstack.devhub.dto.ReactionDTO;
 import com.skillstack.devhub.exception.CommentNotFoundException;
 import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.model.*;
@@ -115,19 +116,52 @@ public class CommentService {
         return starred.stream().map(c -> c.toComponent().toDTO()).toList();
     }
 
-    public CommentDTO addReaction(String commentId, Reaction reaction) {
-        Comment rootComment = findRootCommentById(commentId);
-        Comment targetComment = findCommentInTree(rootComment, commentId);
+    public CommentDTO addReaction(ReactionDTO reactionDTO) {
+        Comment rootComment = findRootCommentById(reactionDTO.getCommentId());
+        Comment targetComment = findCommentInTree(rootComment, reactionDTO.getCommentId());
         if (targetComment == null) {
             throw new RuntimeException("Comentario no encontrado");
         }
 
-        if (reaction.equals(Reaction.HAPPYFACE)) {
+        CommentReaction commentReaction = new CommentReaction(reactionDTO.getReaction(), reactionDTO.getCommentId(), reactionDTO.getUserId());
+        CommentReaction found = null;
+        List<CommentReaction> reactions = targetComment.getReactions();
+
+        for(CommentReaction reaction : reactions){
+            if (reaction.getUserId().equals(commentReaction.getUserId())){
+                if (reaction.getReaction().equals(commentReaction.getReaction())){
+                    return targetComment.toComponent().toDTO();
+                }
+                found = reaction;
+                break;
+            }
+        }
+
+        if (found!=null){
+            if (reactionDTO.getReaction().equals(Reaction.HAPPYFACE)) {
+                targetComment.setHappyFace(targetComment.getHappyFace() + 1);
+                targetComment.setSadFace(targetComment.getSadFace()-1);
+            } else {
+                targetComment.setSadFace(targetComment.getSadFace() + 1);
+                targetComment.setHappyFace(targetComment.getHappyFace()-1);
+            }
+
+            reactions.remove(found);
+            reactions.add(commentReaction);
+            targetComment.setReactions(reactions);
+            commentRepository.save(rootComment);
+            return targetComment.toComponent().toDTO();
+
+        }
+
+        if (reactionDTO.getReaction().equals(Reaction.HAPPYFACE)) {
             targetComment.setHappyFace(targetComment.getHappyFace() + 1);
         } else {
             targetComment.setSadFace(targetComment.getSadFace() + 1);
         }
 
+        reactions.add(commentReaction);
+        targetComment.setReactions(reactions);
         commentRepository.save(rootComment);
         return targetComment.toComponent().toDTO();
     }
