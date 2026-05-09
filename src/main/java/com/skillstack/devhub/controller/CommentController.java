@@ -4,7 +4,6 @@ import com.skillstack.devhub.dto.CommentDTO;
 import com.skillstack.devhub.dto.CreateCommentRequest;
 import com.skillstack.devhub.dto.CreateReplyRequest;
 import com.skillstack.devhub.dto.ReactionDTO;
-import com.skillstack.devhub.model.Reaction;
 import com.skillstack.devhub.service.CommentService;
 
 import org.springframework.security.core.Authentication;
