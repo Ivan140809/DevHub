@@ -128,14 +128,16 @@ public class QuestionService {
         Answer answer = new Answer(questionId, answerDTO.getSelectedOption(), user.getId(), answerDTO.getTimerDTO());
         answerRepository.save(answer);
 
-        for (Option option : question.getOptions()) {
-            if (option.getText().equals(answerDTO.getSelectedOption())) {
-                boolean isCorrect = option.isCorrect();
-                if (isCorrect) {
-                    user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
-                    userRepository.save(user);
+        if(!answer.getTimer().equals(0)){
+            for (Option option : question.getOptions()) {
+                if (option.getText().equals(answerDTO.getSelectedOption())) {
+                    boolean isCorrect = option.isCorrect();
+                    if (isCorrect) {
+                        user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
+                        userRepository.save(user);
+                    }
+                    return new AnswerResponseDTO(isCorrect, user.getTotalScore());
                 }
-                return new AnswerResponseDTO(isCorrect, user.getTotalScore());
             }
         }
 
