@@ -18,6 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -175,6 +178,7 @@ class QuestionTest {
         userFake.setTotalScore(0);
 
         AnswerDTO answerDTO = new AnswerDTO();
+        answerDTO.setTimerDTO(Duration.of(10, ChronoUnit.SECONDS));
         answerDTO.setSelectedOption("Contenedor");
 
         when(questionRepository.findById(questionId))
@@ -398,6 +402,7 @@ class QuestionTest {
 
         AnswerDTO answerDTO = new AnswerDTO();
         answerDTO.setSelectedOption("Imagen");
+        answerDTO.setTimerDTO(Duration.of(10, ChronoUnit.SECONDS));
 
         when(questionRepository.findById(questionId))
                 .thenReturn(Optional.of(questionFake));

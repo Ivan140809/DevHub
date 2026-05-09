@@ -23,6 +23,9 @@ public class AnswerDTO {
         this.selectedOption = selectedOption;
     }
 
+    public void setTimerDTO(Duration timerDTO) {
+        this.timerDTO = timerDTO;
+    }
 
     public Duration getTimerDTO() {
         return timerDTO;
