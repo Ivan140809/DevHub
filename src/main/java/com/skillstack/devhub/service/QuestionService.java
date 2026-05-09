@@ -125,7 +125,7 @@ public class QuestionService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + userEmail + " NO ENCONTRADO"));
 
-        Answer answer = new Answer(questionId, answerDTO.getSelectedOption(), user.getId());
+        Answer answer = new Answer(questionId, answerDTO.getSelectedOption(), user.getId(), answerDTO.getTimerDTO());
         answerRepository.save(answer);
 
         for (Option option : question.getOptions()) {
