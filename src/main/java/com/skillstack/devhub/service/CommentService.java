@@ -124,7 +124,7 @@ public class CommentService {
         Comment rootComment = findRootCommentById(reactionDTO.getCommentId());
         Comment targetComment = findCommentInTree(rootComment, reactionDTO.getCommentId());
         if (targetComment == null) {
-            throw new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO");
+            throw new CommentNotFoundException("COMENTARIO CON ID " + reactionDTO.getCommentId() + " NO ENCONTRADO");
         }
 
         CommentReaction commentReaction = new CommentReaction(reactionDTO.getReaction(), reactionDTO.getCommentId(), reactionDTO.getUserId());
