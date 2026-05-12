@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,50 +35,46 @@ public class QuestionService {
     private final UserRepository userRepository;
 
     @Autowired
-    public QuestionService(QuestionRepository questionRepository, ReviewRepository reviewRepository, AnswerRepository answerRepository, UserRepository userRepository) {
+    public QuestionService(QuestionRepository questionRepository, ReviewRepository reviewRepository,
+                           AnswerRepository answerRepository, UserRepository userRepository) {
         this.questionRepository = questionRepository;
         this.reviewRepository = reviewRepository;
         this.answerRepository = answerRepository;
         this.userRepository = userRepository;
     }
 
+    private Question findQuestionOrThrow(String id) {
+        return questionRepository.findById(id)
+                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + id + NOT_FOUND_SUFFIX));
+    }
+
+    private QuestionDTO toDTO(Question question) {
+        List<OptionDTO> options = question.getOptions() == null ? List.of() :
+                question.getOptions().stream()
+                        .map(o -> new OptionDTO(o.getText(), o.isCorrect()))
+                        .toList();
+        return new QuestionDTO(question.getId(), question.getTitle(), question.getStatement(),
+                question.getCategory(), question.getDifficulty(), options);
+    }
+
     public String addQuestion(QuestionDTO question) {
         if (questionRepository.findByTitle(question.getTitle()).isPresent()) {
             throw new QuestionAlreadyExistsException("Pregunta con el titulo " + question.getTitle() + " ya existe");
         }
-
-        List<Option> options = new ArrayList<>();
-        for (OptionDTO optionDTO : question.getOptions()) {
-            options.add(optionDTO.toOption());
-        }
-
-        Question q = new Question(question.getTitle(), question.getStatement(), question.getCategory(), question.getDifficulty(), options);
-
-        questionRepository.save(q);
-
+        List<Option> options = question.getOptions().stream()
+                .map(OptionDTO::toOption)
+                .toList();
+        questionRepository.save(new Question(question.getTitle(), question.getStatement(),
+                question.getCategory(), question.getDifficulty(), options));
         return "PREGUNTA CREADA EXITOSAMENTE";
     }
 
     public QuestionDTO getQuestionById(String id) {
-        Question question = questionRepository.findById(id)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + id + NOT_FOUND_SUFFIX));
-
-        List<OptionDTO> options = question.getOptions().stream()
-                .map(r -> new OptionDTO(r.getText(), r.isCorrect())).toList();
-
-        return new QuestionDTO(
-                question.getId(),
-                question.getTitle(),
-                question.getStatement(),
-                question.getCategory(),
-                question.getDifficulty(),
-                options
-        );
+        return toDTO(findQuestionOrThrow(id));
     }
 
     public List<QuestionDTO> getQuestions(Category category, Difficulty difficulty, int page) {
         Pageable pageable = PageRequest.of(page, 10);
-
         Page<Question> questionPage;
 
         if (category != null && difficulty != null) {
@@ -92,35 +87,21 @@ public class QuestionService {
             questionPage = questionRepository.findAll(pageable);
         }
 
-        return questionPage.getContent().stream()
-                .map(question -> new QuestionDTO(
-                        question.getId(),
-                        question.getTitle(),
-                        question.getStatement(),
-                        question.getCategory(),
-                        question.getDifficulty(),
-                        question.getOptions() == null ? List.of() :
-                                question.getOptions().stream()
-                                        .map(option -> new OptionDTO(option.getText(), option.isCorrect()))
-                                        .toList()
-                ))
-                .toList();
+        return questionPage.getContent().stream().map(this::toDTO).toList();
     }
 
     public AnswerResponseDTO verifyAnswer(AnswerDTO answerDTO, String questionId, String userEmail) {
-        Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + NOT_FOUND_SUFFIX));
-
+        Question question = findQuestionOrThrow(questionId);
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + userEmail + " NO ENCONTRADO"));
 
-        Answer answer = new Answer(questionId, answerDTO.getSelectedOption(), user.getId(), answerDTO.getTimerDTO());
-        answerRepository.save(answer);
+        boolean alreadyAnswered = answerRepository.findDistinctQuestionIdByUserId(user.getId()).contains(questionId);
+        answerRepository.save(new Answer(questionId, answerDTO.getSelectedOption(), user.getId(), answerDTO.getTimerDTO()));
 
         for (Option option : question.getOptions()) {
             if (option.getText().equals(answerDTO.getSelectedOption())) {
                 boolean isCorrect = option.isCorrect();
-                if (isCorrect) {
+                if (isCorrect && !alreadyAnswered) {
                     user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
                     userRepository.save(user);
                 }
@@ -128,33 +109,23 @@ public class QuestionService {
             }
         }
 
-        throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST, "Respuesta invalida"
-        );
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Respuesta invalida");
     }
 
-    public String createReview(ReviewDTO reviewDTO, String id, String questionId) {
-        User user = userRepository.findByEmail(id)
+    public String createReview(ReviewDTO reviewDTO, String userEmail, String questionId) {
+        User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("USUARIO NO ENCONTRADO"));
-        Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + NOT_FOUND_SUFFIX));
-        Review review = new Review(reviewDTO.getComment(), reviewDTO.getRating(), question.getId(), user.getId(), LocalDate.now());
-
-        reviewRepository.save(review);
-
+        Question question = findQuestionOrThrow(questionId);
+        reviewRepository.save(new Review(reviewDTO.getComment(), reviewDTO.getRating(),
+                question.getId(), user.getId(), LocalDate.now()));
         return "REVIEW CREADO CORRECTAMENTE PARA USUARIO " + user.getId() + " EN LA PREGUNTA " + questionId;
     }
 
     public List<ReviewDTO> getReviewsByQuestionId(String questionId, int page) {
         Pageable pageable = PageRequest.of(page, 10);
-        questionRepository.findById(questionId)
-                .orElseThrow(() -> new QuestionNotFoundException("PREGUNTA CON ID " + questionId + NOT_FOUND_SUFFIX));
-        Page<Review> reviewPage = reviewRepository.findByQuestionId(questionId, pageable);
-
-        return reviewPage.getContent().stream().map(r ->
-                new ReviewDTO(
-                        r.getComment(),
-                        r.getRating())
-        ).toList();
+        findQuestionOrThrow(questionId);
+        return reviewRepository.findByQuestionId(questionId, pageable).getContent().stream()
+                .map(r -> new ReviewDTO(r.getComment(), r.getRating()))
+                .toList();
     }
 }

@@ -19,10 +19,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+
 @Service
 public class AuthenticationService {
 
-    private static final String USER_NOT_FOUND = "USER NO ENCONTRADO";
+    private static final List<Map.Entry<Predicate<String>, String>> PASSWORD_RULES = List.of(
+            Map.entry(p -> p.length() < 6,               "DEBE TENER POR LO MENOS 6 CARACTERES"),
+            Map.entry(p -> !p.matches(".*[A-Z].*"),      "DEBE CONTENER AL MENOS UNA MAYUSCULA"),
+            Map.entry(p -> !p.matches(".*[a-z].*"),      "DEBE CONTENER AL MENOS UNA MINUSCULA"),
+            Map.entry(p -> !p.matches(".*\\d.*"),         "DEBE CONTENER AL MENOS UN NUMERO"),
+            Map.entry(p -> !p.matches(".*[@#$%^&+=!].*"), "DEBE CONTENER AL MENOS UN SIMBOLO (@#$%^&+=!)")
+    );
 
     @Value("${admin.secret}")
     private String adminSecret;
@@ -35,7 +45,9 @@ public class AuthenticationService {
     private final TwilioService twilioService;
 
     @Autowired
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, DefaultUserFactory defaultUserFactory, AdminUserFactory adminUserFactory, TwilioService twilioService) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil,
+                                 DefaultUserFactory defaultUserFactory, AdminUserFactory adminUserFactory,
+                                 TwilioService twilioService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -44,59 +56,46 @@ public class AuthenticationService {
         this.twilioService = twilioService;
     }
 
-    public String validatePassword(String password) {
-
-        if(password.length()<6){
-            return "DEBE TENER POR LO MENOS 6 CARACTERES";
-
-        }
-
-        if (!password.matches(".*[A-Z].*")) {
-            return " DEBE CONTENER AL MENOS UNA MAYUSCULA";
-        }
-
-        if (!password.matches(".*[a-z].*")) {
-            return " DEBE CONTENER AL MENOS UNA MINUSCULA";
-        }
-
-        if (!password.matches(".*\\d.*")) {
-            return " DEBE CONTENER AL MENOS UN NUMERO";
-        }
-
-        if (!password.matches(".*[@#$%^&+=!].*")) {
-            return " DEBE CONTENER AL MENOS UN SIMBOLO (@#$%^&+=!)";
-        }
-
-        return "OK";
+    private User findUserByEmailOrThrow(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + email + " NO ENCONTRADO"));
     }
 
-    public String register(UserRegisterDTO user) {
+    public String validatePassword(String password) {
+        return PASSWORD_RULES.stream()
+                .filter(rule -> rule.getKey().test(password))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse("OK");
+    }
 
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException("EMAIL " + user.getEmail() + " YA EN USO");
-        }
-
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("USERNAME " + user.getUsername() + " YA EN USO");
-        }
-
-        String result = validatePassword(user.getPassword());
+    private void assertPasswordValid(String password) {
+        String result = validatePassword(password);
         if (!result.equals("OK")) {
             throw new PasswordFormatException("CONTRASENA " + result);
         }
-        if(userRepository.count()==0){
-            AdminUser ua =(AdminUser) adminUserFactory.createUser(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(), user.getPassword(), user.getPhone(), Role.ADMIN);
+    }
+
+    public String register(UserRegisterDTO user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException("EMAIL " + user.getEmail() + " YA EN USO");
+        }
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("USERNAME " + user.getUsername() + " YA EN USO");
+        }
+        assertPasswordValid(user.getPassword());
+
+        if (userRepository.count() == 0) {
+            AdminUser ua = (AdminUser) adminUserFactory.createUser(user.getFirstName(), user.getLastName(),
+                    user.getUsername(), user.getEmail(), user.getPassword(), user.getPhone(), Role.ADMIN);
             ua.setPassword(passwordEncoder.encode(user.getPassword()));
             userRepository.save(ua);
-            return "USUARIO REGISTRADO CORRECTAMENTE";
+        } else {
+            User u = (User) defaultUserFactory.createUser(user.getFirstName(), user.getLastName(),
+                    user.getUsername(), user.getEmail(), user.getPassword(), user.getPhone(), Role.USER);
+            u.setPassword(passwordEncoder.encode(user.getPassword()));
+            userRepository.save(u);
         }
-        
-        User u = (User) defaultUserFactory.createUser(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(),
-                user.getPassword(), user.getPhone(), Role.USER);
-        u.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        userRepository.save(u);
-
         return "USUARIO REGISTRADO CORRECTAMENTE";
     }
 
@@ -104,30 +103,22 @@ public class AuthenticationService {
         if (!adminSecret.equals(providedSecret)) {
             throw new IncorrectPasswordException("CLAVE ADMIN INCORRECTA");
         }
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + email + " NO ENCONTRADO"));
+        User user = findUserByEmailOrThrow(email);
         user.setRole(Role.ADMIN);
         userRepository.save(user);
         return "USUARIO " + email + " PROMOVIDO A ADMIN CORRECTAMENTE";
     }
 
     public LoginResponseDTO login(UserLoginDTO request) {
-
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + request.getEmail() + " NO ENCONTRADO"));
-
+        User user = findUserByEmailOrThrow(request.getEmail());
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IncorrectPasswordException("CONTRASENA INCORRECTA");
         }
-
-        String token = jwtUtil.generateToken(user.getEmail());
-
-        return new LoginResponseDTO(token);
+        return new LoginResponseDTO(jwtUtil.generateToken(user.getEmail()));
     }
 
     public String requestPasswordReset(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + email + " NO ENCONTRADO"));
+        User user = findUserByEmailOrThrow(email);
         if (user.getPhone() == null || user.getPhone().isBlank()) {
             throw new IllegalStateException("EL USUARIO NO TIENE TELEFONO REGISTRADO");
         }
@@ -147,13 +138,8 @@ public class AuthenticationService {
     }
 
     public String resetPassword(String email, String password) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
-
-        String result = validatePassword(password);
-        if (!result.equals("OK")) {
-            throw new PasswordFormatException("CONTRASENA " + result);
-        }
-
+        User user = findUserByEmailOrThrow(email);
+        assertPasswordValid(password);
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
         return "CONTRASENA CAMBIADA EXITOSAMENTE";
