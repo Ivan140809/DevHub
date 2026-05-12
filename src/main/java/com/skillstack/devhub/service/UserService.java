@@ -5,7 +5,6 @@ import com.skillstack.devhub.dto.UserResponseDTO;
 import com.skillstack.devhub.dto.UserUpdateDTO;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
 import com.skillstack.devhub.exception.UserNotFoundException;
-import com.skillstack.devhub.model.AbstractUser;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.UserRepository;
@@ -29,8 +28,8 @@ public class UserService {
     }
 
     public void deleteAccount(String userId){
-        AbstractUser user = userRepository.findById(userId)
-                .orElseThrow( () -> new UserNotFoundException(USER_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
 
         userRepository.delete(user);
 
