@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationService {
 
+    private static final String USER_NOT_FOUND = "USER NO ENCONTRADO";
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -104,5 +106,22 @@ public class AuthenticationService {
         String token = jwtUtil.generateToken(user.getEmail());
 
         return new LoginResponseDTO(token);
+    }
+
+    public boolean verifyCode (String twilioCode, String userCode){
+        return twilioCode.equals(userCode);
+    }
+
+    public String resetPassword (String email, String password){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
+
+        String result = validatePassword(password);
+        if (!result.equals("OK")) {
+            throw new PasswordFormatException("CONTRASENA " + result);
+        }
+
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        return "CONTRASENA CAMBIADA EXITOSAMENTE";
     }
 }
