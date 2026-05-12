@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationService {
 
+    private static final String USER_NOT_FOUND = "USER NO ENCONTRADO";
+
     @Value("${admin.secret}")
     private String adminSecret;
 
