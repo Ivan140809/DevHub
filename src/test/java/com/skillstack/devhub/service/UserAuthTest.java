@@ -6,8 +6,8 @@ import com.skillstack.devhub.CasoPruebaExtension;
 import com.skillstack.devhub.dto.*;
 import com.skillstack.devhub.exception.IncorrectPasswordException;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
+import com.skillstack.devhub.factorymethod.AdminUserFactory;
 import com.skillstack.devhub.factorymethod.DefaultUserFactory;
-import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.QuestionRepository;
@@ -39,6 +39,8 @@ public class UserAuthTest {
     private JwtUtil jwtUtil;
     @Mock
     private DefaultUserFactory defaultUserFactory;
+    @Mock
+    private AdminUserFactory adminUserFactory;
     @Mock
     private AnswerRepository answerRepository;
     @Mock
@@ -270,10 +272,7 @@ public class UserAuthTest {
 
         User fakeUser = new User();
 
-        when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.findByUsername(dto.getUsername())).thenReturn(Optional.empty());
-        when(defaultUserFactory.createUser(any(), any(), any(), any(), any(), any(), eq(Role.USER)
-                )).thenReturn(fakeUser);
+        when(defaultUserFactory.createUser(any(), any(), any(), any(), any(), any(), any())).thenReturn(fakeUser);
         when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPass");
         when(userRepository.count()).thenReturn(1L);
 
@@ -364,11 +363,7 @@ public class UserAuthTest {
 
         User fakeUser = new User();
 
-        when(userRepository.findByEmail(userDTO.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.findByUsername(userDTO.getUsername())).thenReturn(Optional.empty());
-        when(defaultUserFactory.createUser(
-                any(), any(), any(), any(), any(), any(), eq(Role.USER)
-        )).thenReturn(fakeUser);
+        when(defaultUserFactory.createUser(any(), any(), any(), any(), any(), any(), any())).thenReturn(fakeUser);
         when(passwordEncoder.encode(userDTO.getPassword())).thenReturn("encodedPassword");
         when(userRepository.count()).thenReturn(1L);
 
@@ -391,7 +386,7 @@ public class UserAuthTest {
         UserRegisterDTO userDTO = new UserRegisterDTO();
         userDTO.setEmail("test@pepe.com");
 
-        when(userRepository.findByEmail(userDTO.getEmail()))
+        when(userRepository.findByEmail(any()))
                 .thenReturn(Optional.of(new User()));
 
         assertThrows(UserAlreadyExistsException.class, () -> {

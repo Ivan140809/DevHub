@@ -62,6 +62,7 @@ public class AuthenticationService {
     }
 
     public String validatePassword(String password) {
+        if (password == null) return "DEBE INGRESAR UNA CONTRASENA";
         return PASSWORD_RULES.stream()
                 .filter(rule -> rule.getKey().test(password))
                 .map(Map.Entry::getValue)

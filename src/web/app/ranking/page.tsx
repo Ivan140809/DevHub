@@ -4,20 +4,14 @@ import { Trophy, Medal, Award } from "lucide-react";
 import Navbar from "../components/Navbar";
 
 type RankingBackendUser = {
-  id: string;
-  username?: string | null;
-  totalScore?: number | null;
-  firstName?: string | null;
-  lastName?: string | null;
-  nombre?: string | null;
-  apellido?: string | null;
-  email?: string | null;
+  position: number;
+  username: string;
+  email: string;
+  totalScore: number;
 };
 
 type Usuario = {
-  id: string;
-  nombre: string;
-  apellido: string;
+  position: number;
   username: string;
   email: string;
   puntosAcumulados: number;
@@ -34,9 +28,7 @@ const PARTICLES = [
 
 function mapRankingUser(data: RankingBackendUser): Usuario {
   return {
-    id: data.id,
-    nombre: data.firstName ?? data.nombre ?? "",
-    apellido: data.lastName ?? data.apellido ?? "",
+    position: data.position,
     username: data.username ?? "sin_username",
     email: data.email ?? "",
     puntosAcumulados: data.totalScore ?? 0,
@@ -76,10 +68,7 @@ export default function RankingPage() {
         return res.json();
       })
       .then((data: RankingBackendUser[]) => {
-        const mappedUsers = data
-          .map(mapRankingUser)
-          .sort((a, b) => b.puntosAcumulados - a.puntosAcumulados);
-
+        const mappedUsers = data.map(mapRankingUser);
         setUsuarios(mappedUsers);
         setError(null);
       })
@@ -396,13 +385,13 @@ export default function RankingPage() {
               No hay usuarios en el ranking
             </div>
           ) : (
-            usuarios.map((u, i) => {
-              const pos = i + 1;
+            usuarios.map((u) => {
+              const pos = u.position;
               const podiumStyle = getPodiumStyle(pos);
 
               return (
                 <div
-                  key={u.id}
+                  key={u.position}
                   className="rank-row"
                   style={{
                     ...podiumStyle,
@@ -410,7 +399,7 @@ export default function RankingPage() {
                     alignItems: "center",
                     padding: "18px 24px",
                     borderBottom:
-                      i < usuarios.length - 1
+                      pos < usuarios.length
                         ? "1px solid rgba(100,60,255,.08)"
                         : "none",
                     gap: 16,
@@ -493,8 +482,7 @@ export default function RankingPage() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {[u.nombre, u.apellido].filter(Boolean).join(" ") ||
-                        u.username}
+                      @{u.username}
                     </p>
                     <span
                       style={{
@@ -507,7 +495,7 @@ export default function RankingPage() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      @{u.username}
+                      {u.email}
                     </span>
                   </div>
 
