@@ -37,4 +37,12 @@ public class AuthenticationController {
                 .status(HttpStatus.OK)
                 .body(authenticationService.login(request));
     }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody UserLoginDTO request) {
+        String response = authenticationService.resetPassword(request.getEmail(), request.getPassword());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
 }
