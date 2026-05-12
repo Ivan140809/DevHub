@@ -10,6 +10,7 @@ import com.skillstack.devhub.factorymethod.DefaultUserFactory;
 import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
+import com.skillstack.devhub.repository.QuestionRepository;
 import com.skillstack.devhub.repository.UserRepository;
 import com.skillstack.devhub.security.JwtUtil;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,8 @@ public class UserAuthTest {
     private DefaultUserFactory defaultUserFactory;
     @Mock
     private AnswerRepository answerRepository;
+    @Mock
+    private QuestionRepository questionRepository;
     @InjectMocks
     private AuthenticationService service;
     @InjectMocks
