@@ -15,6 +15,7 @@ import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
 import com.skillstack.devhub.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,19 +24,24 @@ public class AuthenticationService {
 
     private static final String USER_NOT_FOUND = "USER NO ENCONTRADO";
 
+    @Value("${admin.secret}")
+    private String adminSecret;
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final DefaultUserFactory defaultUserFactory;
     private final AdminUserFactory adminUserFactory;
+    private final TwilioService twilioService;
 
     @Autowired
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, DefaultUserFactory defaultUserFactory, AdminUserFactory adminUserFactory) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, DefaultUserFactory defaultUserFactory, AdminUserFactory adminUserFactory, TwilioService twilioService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.defaultUserFactory = defaultUserFactory;
         this.adminUserFactory = adminUserFactory;
+        this.twilioService = twilioService;
     }
 
     public String validatePassword(String password) {
@@ -98,10 +104,21 @@ public class AuthenticationService {
         return "USUARIO REGISTRADO CORRECTAMENTE";
     }
 
+    public String promoteToAdmin(String email, String providedSecret) {
+        if (!adminSecret.equals(providedSecret)) {
+            throw new IncorrectPasswordException("CLAVE ADMIN INCORRECTA");
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + email + " NO ENCONTRADO"));
+        user.setRole(Role.ADMIN);
+        userRepository.save(user);
+        return "USUARIO " + email + " PROMOVIDO A ADMIN CORRECTAMENTE";
+    }
+
     public LoginResponseDTO login(UserLoginDTO request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("USUARIO CON EMAIL " + request.getEmail() + " NO ENCONTRADO"));
+                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + request.getEmail() + " NO ENCONTRADO"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IncorrectPasswordException("CONTRASENA INCORRECTA");
@@ -112,11 +129,28 @@ public class AuthenticationService {
         return new LoginResponseDTO(token);
     }
 
-    public boolean verifyCode (String twilioCode, String userCode){
+    public String requestPasswordReset(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + email + " NO ENCONTRADO"));
+        if (user.getPhone() == null || user.getPhone().isBlank()) {
+            throw new IllegalStateException("EL USUARIO NO TIENE TELEFONO REGISTRADO");
+        }
+        twilioService.sendResetCode(user.getPhone(), email);
+        return "CODIGO ENVIADO AL TELEFONO REGISTRADO";
+    }
+
+    public String resetPasswordWithCode(String email, String code, String newPassword) {
+        if (!twilioService.verifyCode(email, code)) {
+            throw new IncorrectPasswordException("CODIGO DE VERIFICACION INVALIDO O EXPIRADO");
+        }
+        return resetPassword(email, newPassword);
+    }
+
+    public boolean verifyCode(String twilioCode, String userCode) {
         return twilioCode.equals(userCode);
     }
 
-    public String resetPassword (String email, String password){
+    public String resetPassword(String email, String password) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
 
         String result = validatePassword(password);

@@ -8,10 +8,12 @@ import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.model.*;
 import com.skillstack.devhub.repository.CommentRepository;
 import com.skillstack.devhub.repository.UserRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -72,16 +74,17 @@ public class CommentService {
         return commentTree.toDTO();
     }
 
+    // Permite editar el contenido de un comentario existente (raíz o respuesta embebida)
     public CommentDTO editComment(String commentId, String newContent) {
-
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException(COMMENT_ID_PREFIX + commentId + NOT_FOUND_SUFFIX));
-
-        reattachObservers(comment);
-        comment.setContent(newContent);
-        commentRepository.save(comment);
-
-        return comment.toComponent().toDTO();
+        Comment rootComment = findRootCommentById(commentId);
+        Comment targetComment = findCommentInTree(rootComment, commentId);
+        if (targetComment == null) {
+            throw new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO");
+        }
+        reattachObservers(rootComment);
+        targetComment.setContent(newContent);
+        commentRepository.save(rootComment);
+        return targetComment.toComponent().toDTO();
     }
 
     public CommentDTO addReply(String parentId, String content, String replyUsername, boolean isStarred) {
@@ -99,6 +102,7 @@ public class CommentService {
         parent.subscribe(replier.getUsername());
 
         Comment reply = new Comment("", content, parent.getCategory(), null, replier.getUsername(), isStarred, 0, 0);
+        reply.setId(new ObjectId().toHexString());
         parent.addReply(reply);
         commentRepository.save(parent);
 
@@ -120,7 +124,7 @@ public class CommentService {
         Comment rootComment = findRootCommentById(reactionDTO.getCommentId());
         Comment targetComment = findCommentInTree(rootComment, reactionDTO.getCommentId());
         if (targetComment == null) {
-            throw new RuntimeException("Comentario no encontrado");
+            throw new CommentNotFoundException("COMENTARIO CON ID " + reactionDTO.getCommentId() + " NO ENCONTRADO");
         }
 
         CommentReaction commentReaction = new CommentReaction(reactionDTO.getReaction(), reactionDTO.getCommentId(), reactionDTO.getUserId());
@@ -174,12 +178,12 @@ public class CommentService {
                             return root;
                         }
                     }
-                    throw new RuntimeException("Comentario no encontrado");
+                    throw new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO");
                 });
     }
 
     private Comment findCommentInTree(Comment comment, String commentId) {
-        if (comment.getId().equals(commentId)) {
+        if (commentId.equals(comment.getId())) {
             return comment;
         }
         if (comment.getReplies() == null) {
@@ -210,9 +214,30 @@ public class CommentService {
     }
 
     public void deleteComment(String commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException(COMMENT_ID_PREFIX + commentId + NOT_FOUND_SUFFIX));
+        if (commentRepository.existsById(commentId)) {
+            commentRepository.deleteById(commentId);
+            return;
+        }
+        for (Comment root : commentRepository.findAll()) {
+            if (removeReplyFromTree(root, commentId)) {
+                commentRepository.save(root);
+                return;
+            }
+        }
+        throw new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO");
+    }
 
-        commentRepository.delete(comment);
+    private boolean removeReplyFromTree(Comment comment, String targetId) {
+        if (comment.getReplies() == null) return false;
+        Iterator<Comment> it = comment.getReplies().iterator();
+        while (it.hasNext()) {
+            Comment reply = it.next();
+            if (targetId.equals(reply.getId())) {
+                it.remove();
+                return true;
+            }
+            if (removeReplyFromTree(reply, targetId)) return true;
+        }
+        return false;
     }
 }

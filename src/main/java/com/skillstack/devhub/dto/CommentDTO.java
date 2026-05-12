@@ -72,4 +72,8 @@ public class CommentDTO {
         return sadFace;
     }
 
+    public List<String> getTags() {
+        return tags;
+    }
+
 }

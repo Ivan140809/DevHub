@@ -46,14 +46,18 @@ public class User extends AbstractUser implements Observer {
                 + " | Contenido: \"" + comment.getContent() + "\"");
 
         if (emailSenderService != null) {
-            emailSenderService.sendEmail(
-                    email,
-                    "DevHub - Nueva notificación en un comentario",
-                    "Hola " + username + ",\n\n"
-                            + message + "\n\n"
-                            + "Comentario: \"" + comment.getContent() + "\"\n\n"
-                            + "Ingresa a DevHub para verlo."
-            );
+            try {
+                emailSenderService.sendEmail(
+                        email,
+                        "DevHub - Nueva notificación en un comentario",
+                        "Hola " + username + ",\n\n"
+                                + message + "\n\n"
+                                + "Comentario: \"" + comment.getContent() + "\"\n\n"
+                                + "Ingresa a DevHub para verlo."
+                );
+            } catch (Exception e) {
+                System.out.println("[EMAIL ERROR para " + username + "]: " + e.getMessage());
+            }
         }
     }
 

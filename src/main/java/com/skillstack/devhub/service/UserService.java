@@ -5,9 +5,10 @@ import com.skillstack.devhub.dto.UserResponseDTO;
 import com.skillstack.devhub.dto.UserUpdateDTO;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
 import com.skillstack.devhub.exception.UserNotFoundException;
-import com.skillstack.devhub.model.AbstractUser;
+import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
+import com.skillstack.devhub.repository.QuestionRepository;
 import com.skillstack.devhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,16 +22,25 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AnswerRepository answerRepository;
+    private final QuestionRepository questionRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, AnswerRepository answerRepository) {
+    public UserService(UserRepository userRepository, AnswerRepository answerRepository, QuestionRepository questionRepository) {
         this.userRepository = userRepository;
         this.answerRepository = answerRepository;
+        this.questionRepository = questionRepository;
+    }
+
+    public void promoteToAdmin(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
+        user.setRole(Role.ADMIN);
+        userRepository.save(user);
     }
 
     public void deleteAccount(String userId){
-        AbstractUser user = userRepository.findById(userId)
-                .orElseThrow( () -> new UserNotFoundException(USER_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
 
         userRepository.delete(user);
 
@@ -58,8 +68,9 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
 
         int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(user.getId()).size();
-        System.out.println("GET PROFILE USER EMAIL: " + user.getEmail());
-        return new UserResponseDTO(
+        int totalQuestions = (int) questionRepository.count();
+        String roleStr = user.getRole() != null ? user.getRole().name() : "USER";
+        UserResponseDTO dto = new UserResponseDTO(
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -68,8 +79,11 @@ public class UserService {
                 user.getPhone(),
                 user.getPreferences(),
                 answeredQuestions,
-                user.getTotalScore()
+                user.getTotalScore(),
+                roleStr
         );
+        dto.setTotalQuestions(totalQuestions);
+        return dto;
     }
 
     public UserResponseDTO updateUser(String userEmail, UserUpdateDTO userUpdateDTO) {

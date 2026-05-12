@@ -272,7 +272,7 @@ export default function AddQuestionPage() {
           margin: "0 auto",
         }}
       >
-        {!isAdmin && (
+        {currentUser.ready && !isAdmin && (
           <div
             style={{
               background: "rgba(14,10,28,.88)",
@@ -333,7 +333,7 @@ export default function AddQuestionPage() {
           </div>
         )}
 
-        {isAdmin && (
+        {currentUser.ready && isAdmin && (
           <>
         <div
           style={{

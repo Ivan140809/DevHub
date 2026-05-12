@@ -334,7 +334,7 @@ function DiscussionList({
 
       {!loading && discussions.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
-          {(sortByPopular ? [...discussions].sort((a, b) => (b.likesCount + b.repliesCount) - (a.likesCount + a.repliesCount)) : discussions).map((disc, idx) => {
+          {(sortByPopular ? [...discussions].sort((a, b) => (b.likesCount + b.repliesCount) - (a.likesCount + a.repliesCount)) : discussions).filter(d => !selectedCategory || d.category === selectedCategory).map((disc, idx) => {
             const catInfo = getCategoryInfo(disc.category);
             const isLiked = likedDiscussions.has(disc.id);
             return (
@@ -439,7 +439,9 @@ interface DiscussionDetailProps {
   onBack: () => void;
   currentUserRole: UserRole;
   onDeleteReply: (replyId: string) => void;
+  onEditReply: (replyId: string, newContent: string) => void;
   onReplyReactionUpdate: (replyId: string, happyFace: number, sadFace: number) => void;
+  isAuthenticated: boolean;
 }
 
 function DiscussionDetail({
@@ -457,14 +459,17 @@ function DiscussionDetail({
   onBack,
   currentUserRole,
   onDeleteReply,
+  onEditReply,
   onReplyReactionUpdate,
+  isAuthenticated,
 }: DiscussionDetailProps) {
   const catInfo = getCategoryInfo(discussion.category);
   const [sortByReactions, setSortByReactions] = useState(false);
-  const canReply = true;
-  const canDeleteReply = false;
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const canReply = isAuthenticated;
+  const canDeleteReply = currentUserRole === "ADMIN";
 
-  // Helper para sumar las reacciones de una respuesta
   const getReactionCount = (reply: Reply) => {
     let count = reply.likesCount || 0;
     if (reply.reactions) {
@@ -540,8 +545,8 @@ function DiscussionDetail({
           </div>
         </div>
       ) : (
-        <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 18, padding: 20, color: "rgba(180,180,255,.85)", fontSize: 14, fontFamily: "'Space Mono',monospace" }}>
-          Responder no está disponible con el backend actual.
+        <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 18, padding: 20, color: "rgba(180,180,255,.85)", fontSize: 14, fontFamily: "'Space Mono',monospace", textAlign: "center" as const }}>
+          <a href="/login" style={{ color: "#b8a0ff", textDecoration: "underline" }}>Inicia sesión</a> para responder en esta discusión.
         </div>
       )}
 
@@ -566,9 +571,7 @@ function DiscussionDetail({
     
     
     <button
-      onClick={() => {
-        // Lógica para editar comentario :P
-      }}
+      onClick={() => { setEditingReplyId(reply.id); setEditContent(reply.content); }}
       style={{
         background: "rgba(100,60,255,.15)",
         border: "1px solid rgba(100,60,255,.3)",
@@ -627,7 +630,23 @@ function DiscussionDetail({
   </div>
 )}
               </div>
-              <p style={{ color: "rgba(200,190,220,.9)", fontSize: 15, margin: 0, lineHeight: 1.6, paddingLeft: 48 }}>{reply.content}</p>
+              {editingReplyId === reply.id ? (
+                <div style={{ paddingLeft: 48, marginTop: 8 }}>
+                  <textarea
+                    aria-label="Editar respuesta"
+                    value={editContent}
+                    onChange={e => setEditContent(e.target.value)}
+                    rows={3}
+                    style={{ width: "100%", background: "rgba(255,255,255,.04)", border: "1px solid rgba(100,60,255,.35)", borderRadius: 10, padding: 12, color: "#e0d4ff", fontFamily: "'Syne',sans-serif", fontSize: 14, resize: "none", outline: "none" }}
+                  />
+                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                    <button type="button" onClick={() => { onEditReply(reply.id, editContent); setEditingReplyId(null); }} style={{ padding: "6px 14px", background: "linear-gradient(135deg,#7040ff,#5020e0)", border: "none", borderRadius: 8, color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Guardar</button>
+                    <button type="button" onClick={() => setEditingReplyId(null)} style={{ padding: "6px 14px", background: "rgba(100,60,255,.1)", border: "1px solid rgba(100,60,255,.3)", borderRadius: 8, color: "rgba(180,150,255,.8)", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
+                  </div>
+                </div>
+              ) : (
+                <p style={{ color: "rgba(200,190,220,.9)", fontSize: 15, margin: 0, lineHeight: 1.6, paddingLeft: 48 }}>{reply.content}</p>
+              )}
 
               <ReactionBar replyId={reply.id} initialHappyFace={reply.happyFace ?? 0} initialSadFace={reply.sadFace ?? 0} onReactionUpdate={(happyFace, sadFace) => {
                 onReplyReactionUpdate(reply.id, happyFace, sadFace);
@@ -801,11 +820,41 @@ export default function ForumPage() {
   }, []);
 
   const deleteReply = useCallback(async (replyId: string) => {
-    setReplyError("Eliminar comentarios no está disponible con el backend actual.");
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setReplyError("Debes iniciar sesión para eliminar.");
+      return;
+    }
+    try {
+      const res = await fetch(`${BASE_URL}/comments/${replyId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      setReplies(prev => prev.filter(r => r.id !== replyId));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al eliminar.";
+      setReplyError(msg);
+    }
   }, []);
 
   const updateReplyReaction = useCallback((replyId: string, happyFace: number, sadFace: number) => {
     setReplies(prev => prev.map(r => r.id === replyId ? { ...r, happyFace, sadFace, likesCount: happyFace + sadFace } : r));
+  }, []);
+
+  const editReply = useCallback(async (replyId: string, newContent: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const res = await fetch(`${BASE_URL}/comments/${replyId}?newContent=${encodeURIComponent(newContent)}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      setReplies(prev => prev.map(r => r.id === replyId ? { ...r, content: newContent } : r));
+    } catch (err) {
+      console.error("Error al editar la respuesta", err);
+    }
   }, []);
 
   const goBack = () => {
@@ -824,7 +873,7 @@ export default function ForumPage() {
 
         {view === "create" && <CreateDiscussion title={newTitle} content={newContent} category={newCategory} tags={newTags} error={submitError} submitting={submitting} onTitleChange={setNewTitle} onContentChange={setNewContent} onCategoryChange={setNewCategory} onTagsChange={setNewTags} onSubmit={createDiscussion} onCancel={goBack} />}
 
-        {view === "detail" && selectedDiscussion && <DiscussionDetail discussion={selectedDiscussion} replies={replies} loading={repliesLoading} replyContent={replyContent} replyError={replyError} replyFocused={replyFocused} replySubmitting={replySubmitting} onReplyContentChange={setReplyContent} onReplyFocus={() => setReplyFocused(true)} onReplyBlur={() => setReplyFocused(false)} onReplySubmit={submitReply} onBack={goBack} currentUserRole={currentUser.role} onDeleteReply={deleteReply} onReplyReactionUpdate={updateReplyReaction} />}
+        {view === "detail" && selectedDiscussion && <DiscussionDetail discussion={selectedDiscussion} replies={replies} loading={repliesLoading} replyContent={replyContent} replyError={replyError} replyFocused={replyFocused} replySubmitting={replySubmitting} onReplyContentChange={setReplyContent} onReplyFocus={() => setReplyFocused(true)} onReplyBlur={() => setReplyFocused(false)} onReplySubmit={submitReply} onBack={goBack} currentUserRole={currentUser.role} onDeleteReply={deleteReply} onEditReply={editReply} onReplyReactionUpdate={updateReplyReaction} isAuthenticated={isAuthenticated} />}
       </section>
     </main>
   );

@@ -138,20 +138,33 @@ export default function LoginPage() {
           return;
         }
 
-        const userData = {
-          email: username,
-          nombre: data.firstName || data.nombre || "",
-          apellido: data.lastName || data.apellido || "",
-          username: data.username || "",
-          phone: data.phone || "",
-          preferencias: Array.isArray(data.preferencias)
-            ? data.preferencias.join(", ")
-            : Array.isArray(data.preferences)
-            ? data.preferences.join(", ")
-            : data.preferencias || data.preferences || "",
-        };
-
         localStorage.setItem("token", token);
+
+        // Fetch complete user profile to get username, firstName, etc.
+        const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+        let userData: Record<string, unknown> = { email: username };
+        try {
+          const profileRes = await fetch(`${BASE}/user/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (profileRes.ok) {
+            const profile = await profileRes.json();
+            userData = {
+              email: profile.email || username,
+              nombre: profile.firstName || profile.nombre || "",
+              apellido: profile.lastName || profile.apellido || "",
+              username: profile.username || "",
+              phone: profile.phone || "",
+              preferencias: Array.isArray(profile.preferences)
+                ? profile.preferences.join(", ")
+                : profile.preferencias || "",
+              role: profile.role || profile.rol || null,
+            };
+          }
+        } catch {
+          userData = { email: username };
+        }
+
         localStorage.setItem("devhub_user", JSON.stringify(userData));
 
         router.push("/profile");
@@ -173,11 +186,12 @@ export default function LoginPage() {
             <input className="dh-inp" type="password" placeholder="••••••••"
               value={password} onChange={(e) => setPassword(e.target.value)} style={inp} />
 
-            <div className="dh-forgot" style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgb(132, 94, 245)", cursor:"pointer", transition:"color .2s" }}>
+            <div className="dh-forgot" onClick={() => router.push("/forgot-password")} style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgb(132, 94, 245)", cursor:"pointer", transition:"color .2s" }}>
               ¿Olvidaste la contraseña?
             </div>
+            
 
-            <button onClick={() => router.push("/home")} type="submit" className="dh-btn" style={{ width:"100%", height:46, background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:11, color:"white", fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, letterSpacing:4, textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 24px rgba(90,40,220,0.4)", transition:"transform .15s, box-shadow .2s" }}>
+            <button type="submit" className="dh-btn" style={{ width:"100%", height:46, background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:11, color:"white", fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, letterSpacing:4, textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 24px rgba(90,40,220,0.4)", transition:"transform .15s, box-shadow .2s" }}>
               Login
             </button>
 
