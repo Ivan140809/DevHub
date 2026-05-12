@@ -66,12 +66,16 @@ public class AuthenticationService {
 
     public String register(UserRegisterDTO user) {
 
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             throw new UserAlreadyExistsException("EMAIL " + user.getEmail() + " YA EN USO");
         }
 
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        if (userRepository.existsByUsername(user.getUsername())) {
             throw new UserAlreadyExistsException("USERNAME " + user.getUsername() + " YA EN USO");
+        }
+
+        if(userRepository.existsByPhone(user.getPhone())){
+            throw new UserAlreadyExistsException("TELEFONO "+user.getPhone()+" YA EN USO");
         }
 
         String result = validatePassword(user.getPassword());
