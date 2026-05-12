@@ -10,6 +10,7 @@ public class UserResponseDTO {
     private String phone;
     private List<String> preferences;
     private int answeredQuestions;
+    private int totalQuestions;
     private int totalScore;
     private String role;
 
@@ -87,6 +88,14 @@ public class UserResponseDTO {
 
     public int getAnsweredQuestions() {
         return answeredQuestions;
+    }
+
+    public int getTotalQuestions() {
+        return totalQuestions;
+    }
+
+    public void setTotalQuestions(int totalQuestions) {
+        this.totalQuestions = totalQuestions;
     }
 
     public int getTotalScore() {

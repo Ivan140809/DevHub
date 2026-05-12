@@ -4,6 +4,7 @@ import com.skillstack.devhub.dto.CommentDTO;
 import com.skillstack.devhub.dto.CreateCommentRequest;
 import com.skillstack.devhub.dto.CreateReplyRequest;
 import com.skillstack.devhub.dto.ReactionDTO;
+import com.skillstack.devhub.model.Reaction;
 import com.skillstack.devhub.service.CommentService;
 
 import org.springframework.security.core.Authentication;
@@ -78,14 +79,15 @@ public class CommentController {
     @PostMapping("/{commentId:[0-9a-f]{24}}/reactions")
     public ResponseEntity<CommentDTO> addReaction(
             @PathVariable String commentId,
-            @RequestBody ReactionDTO reactionDTO,
+            @RequestParam Reaction reaction,
             Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated() || ANONYMOUS_USER.equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        reactionDTO.setCommentId(commentId);
+        String userEmail = authentication.getName();
+        ReactionDTO reactionDTO = new ReactionDTO(reaction, commentId, userEmail);
 
         try {
             CommentDTO updated = commentService.addReaction(reactionDTO);

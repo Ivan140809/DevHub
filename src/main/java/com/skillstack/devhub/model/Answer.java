@@ -8,6 +8,7 @@ import java.time.Duration;
 @Document(collection="answers")
 public class Answer {
     @Id
+    private String id;
     private String questionId;
     private String selectedOption;
     private String userId;
@@ -18,6 +19,14 @@ public class Answer {
         this.selectedOption = selectedOption;
         this.userId = userId;
         this.timer = timer;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getQuestionId() {
+        return questionId;
     }
 
     public Duration getTimer() {
