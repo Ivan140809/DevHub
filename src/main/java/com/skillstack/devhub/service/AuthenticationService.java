@@ -6,6 +6,7 @@ import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.exception.IncorrectPasswordException;
 import com.skillstack.devhub.exception.PasswordFormatException;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
+import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.factorymethod.AdminUserFactory;
 import com.skillstack.devhub.factorymethod.DefaultUserFactory;
 import com.skillstack.devhub.model.AdminUser;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthenticationService {
+
+    private static final String USER_NOT_FOUND = "USER NO ENCONTRADO";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -103,5 +106,22 @@ public class AuthenticationService {
         String token = jwtUtil.generateToken(user.getEmail());
 
         return new LoginResponseDTO(token);
+    }
+
+    public boolean verifyCode (String twilioCode, String userCode){
+        return twilioCode.equals(userCode);
+    }
+
+    public String resetPassword (String email, String password){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
+
+        String result = validatePassword(password);
+        if (!result.equals("OK")) {
+            throw new PasswordFormatException("CONTRASENA " + result);
+        }
+
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        return "CONTRASENA CAMBIADA EXITOSAMENTE";
     }
 }
