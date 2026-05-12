@@ -3,7 +3,7 @@ package com.skillstack.devhub.controller;
 import com.skillstack.devhub.dto.CommentDTO;
 import com.skillstack.devhub.dto.CreateCommentRequest;
 import com.skillstack.devhub.dto.CreateReplyRequest;
-import com.skillstack.devhub.model.Reaction;
+import com.skillstack.devhub.dto.ReactionDTO;
 import com.skillstack.devhub.service.CommentService;
 
 import org.springframework.security.core.Authentication;
@@ -19,6 +19,8 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class CommentController {
 
+    private static final String ANONYMOUS_USER = "anonymousUser";
+
     private final CommentService commentService;
 
     @Autowired
@@ -31,7 +33,7 @@ public class CommentController {
             @RequestBody CreateCommentRequest request,
             Authentication authentication) {
 
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+        if (authentication == null || !authentication.isAuthenticated() || ANONYMOUS_USER.equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -64,7 +66,7 @@ public class CommentController {
             @RequestBody CreateReplyRequest request,
             Authentication authentication) {
 
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+        if (authentication == null || !authentication.isAuthenticated() || ANONYMOUS_USER.equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -76,16 +78,17 @@ public class CommentController {
     @PostMapping("/{commentId:[0-9a-f]{24}}/reactions")
     public ResponseEntity<CommentDTO> addReaction(
             @PathVariable String commentId,
-            @RequestParam String reaction,
+            @RequestBody ReactionDTO reactionDTO,
             Authentication authentication) {
 
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+        if (authentication == null || !authentication.isAuthenticated() || ANONYMOUS_USER.equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        reactionDTO.setCommentId(commentId);
+
         try {
-            Reaction reactionEnum = Reaction.valueOf(reaction.toUpperCase());
-            CommentDTO updated = commentService.addReaction(commentId, reactionEnum);
+            CommentDTO updated = commentService.addReaction(reactionDTO);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(updated);
@@ -118,7 +121,7 @@ public class CommentController {
             @RequestParam String newContent,
             Authentication authentication) {
 
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+        if (authentication == null || !authentication.isAuthenticated() || ANONYMOUS_USER.equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -128,18 +131,15 @@ public class CommentController {
                 .body(updated);
     }
 
-   @DeleteMapping("/{commentId:[0-9a-f]{24}}")
-public ResponseEntity<Void> deleteComment(
-        @PathVariable String commentId,
-        Authentication authentication) {
+    @DeleteMapping("/{commentId:[0-9a-f]{24}}")
+    public ResponseEntity<Void> deleteComment(@PathVariable String commentId, Authentication authentication) {
 
-    if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (authentication == null || !authentication.isAuthenticated() || ANONYMOUS_USER.equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        commentService.deleteComment(commentId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-    String userEmail = authentication.getName();
-    commentService.deleteComment(commentId);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-} 
 
 }

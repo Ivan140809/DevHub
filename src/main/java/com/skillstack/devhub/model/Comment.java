@@ -1,7 +1,7 @@
 package com.skillstack.devhub.model;
 
-import com.skillstack.devhub.Observer.Observer;
-import com.skillstack.devhub.Observer.Subject;
+import com.skillstack.devhub.observer.Observer;
+import com.skillstack.devhub.observer.Subject;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,6 +23,7 @@ public class Comment implements Subject {
     private String username;
     private String createdAt;
     private boolean isStarred;
+    private List <CommentReaction> reactions;
     private int happyFace;
     private int sadFace;
 
@@ -48,6 +49,7 @@ public class Comment implements Subject {
         this.isStarred = isStarred;
         this.happyFace = happyFace;
         this.sadFace = sadFace;
+        this.reactions = new ArrayList<>();
     }
 
     @Override
@@ -129,14 +131,6 @@ public class Comment implements Subject {
         this.category = category;
     }
 
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -147,14 +141,6 @@ public class Comment implements Subject {
 
     public List<Comment> getReplies() {
         return replies;
-    }
-
-    public void setReplies(List<Comment> replies) {
-        this.replies = replies;
-    }
-
-    public boolean isStarred() {
-        return isStarred;
     }
 
     public int getHappyFace() {
@@ -177,13 +163,18 @@ public class Comment implements Subject {
         return subscribedUsernames;
     }
 
+    public List<CommentReaction> getReactions() {
+        return reactions;
+    }
+
+    public void setReactions(List<CommentReaction> reactions) {
+        this.reactions = reactions;
+    }
+
     public void subscribe(String username) {
         if (!subscribedUsernames.contains(username)) {
             subscribedUsernames.add(username);
         }
     }
 
-    public void unsubscribe(String username) {
-        subscribedUsernames.remove(username);
-    }
 }

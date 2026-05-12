@@ -3,33 +3,29 @@ package com.skillstack.devhub.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Duration;
+
 @Document(collection="answers")
 public class Answer {
     @Id
     private String questionId;
     private String selectedOption;
     private String userId;
+    private Duration timer;
 
-    public Answer(String questionId, String selectedOption, String userId) {
+    public Answer(String questionId, String selectedOption, String userId, Duration timer) {
         this.questionId = questionId;
         this.selectedOption = selectedOption;
         this.userId = userId;
+        this.timer = timer;
     }
 
-    public String getQuestionId() {
-        return questionId;
+    public Duration getTimer() {
+        return timer;
     }
 
-    public void setQuestionId(String questionId) {
-        this.questionId = questionId;
-    }
-
-    public String getSelectedOption() {
-        return selectedOption;
-    }
-
-    public void setSelectedOption(String selectedOption) {
-        this.selectedOption = selectedOption;
+    public void setTimer(Duration timer) {
+        this.timer = timer;
     }
 
     public String getUserId() {

@@ -52,22 +52,6 @@ public class Review {
         this.rating = rating;
     }
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public String getQuestionId() {
-        return questionId;
-    }
-
-    public void setQuestionId(String questionId) {
-        this.questionId = questionId;
-    }
-
     public String getUserId() {
         return userId;
     }

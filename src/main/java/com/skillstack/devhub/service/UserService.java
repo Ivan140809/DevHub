@@ -16,6 +16,8 @@ import java.util.List;
 @Service
 public class UserService {
 
+    private static final String USER_NOT_FOUND = "USER NO ENCONTRADO";
+
     private final UserRepository userRepository;
     private final AnswerRepository answerRepository;
 
@@ -23,6 +25,14 @@ public class UserService {
     public UserService(UserRepository userRepository, AnswerRepository answerRepository) {
         this.userRepository = userRepository;
         this.answerRepository = answerRepository;
+    }
+
+    public void deleteAccount(String userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
+
+        userRepository.delete(user);
+
     }
 
     public List<RankingDTO> findRanking(){
@@ -34,7 +44,7 @@ public class UserService {
         }
 
         return users.stream()
-                .map((user) -> {
+                .map(user -> {
                     int position = users.indexOf(user) + 1;
                     return new RankingDTO(position, user.getUsername(), user.getEmail(), user.getTotalScore());
                 })
@@ -44,10 +54,10 @@ public class UserService {
 
     public UserResponseDTO getProfile(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
 
         int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(user.getId()).size();
-        System.out.println("GET PROFILE USER EMAIL: " + user.getEmail());
+        String roleStr = user.getRole() != null ? user.getRole().name() : "USER";
         return new UserResponseDTO(
                 user.getId(),
                 user.getFirstName(),
@@ -57,14 +67,15 @@ public class UserService {
                 user.getPhone(),
                 user.getPreferences(),
                 answeredQuestions,
-                user.getTotalScore()
+                user.getTotalScore(),
+                roleStr
         );
     }
 
     public UserResponseDTO updateUser(String userEmail, UserUpdateDTO userUpdateDTO) {
         System.out.println("BUSCANDO USUARIO POR EMAIL");
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
 
         if (userUpdateDTO.getFirstName() != null && !userUpdateDTO.getFirstName().isEmpty()) {
             user.setFirstName(userUpdateDTO.getFirstName());

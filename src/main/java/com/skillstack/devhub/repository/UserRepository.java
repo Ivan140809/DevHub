@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
-    //optional sirve para q si no se encuentra, no devuelva un null, sino algo opcional
     Optional<User> findByEmail(String email);
     Optional<User> findByUsername(String username);
     boolean existsByEmail(String email);

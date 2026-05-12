@@ -50,9 +50,6 @@ public class CommentDTO {
         return category;
     }
 
-    public List<String> getTags() {
-        return tags;
-    }
 
     public String getUsername() {
         return username;
@@ -70,15 +67,13 @@ public class CommentDTO {
         return happyFace;
     }
 
-    public void setHappyFace(int happyFace) {
-        this.happyFace = happyFace;
-    }
 
     public int getSadFace() {
         return sadFace;
     }
 
-    public void setSadFace(int sadFace) {
-        this.sadFace = sadFace;
+    public List<String> getTags() {
+        return tags;
     }
+
 }

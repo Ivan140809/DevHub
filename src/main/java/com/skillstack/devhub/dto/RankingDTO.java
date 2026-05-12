@@ -39,11 +39,5 @@ public class RankingDTO {
         this.email = email;
     }
 
-    public int getTotalScore() {
-        return totalScore;
-    }
 
-    public void setTotalScore(int totalScore) {
-        this.totalScore = totalScore;
-    }
 }

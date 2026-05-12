@@ -53,4 +53,5 @@ public class UserUpdateDTO {
     public void setPreferences(List<String> preferences) {
         this.preferences = preferences;
     }
+
 }

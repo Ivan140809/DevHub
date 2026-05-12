@@ -2,7 +2,6 @@ package com.skillstack.devhub.strategy;
 
 import com.skillstack.devhub.dto.QuestionDTO;
 import com.skillstack.devhub.facade.StatisticsRepositoryFacade;
-import com.skillstack.devhub.model.Answer;
 import com.skillstack.devhub.model.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import com.skillstack.devhub.model.User;
 
 import java.security.Principal;
 import java.util.List;
@@ -51,4 +50,13 @@ public class UserController {
 
         return ResponseEntity.ok(ranking);
     }
+
+    @DeleteMapping("/profile")
+    public ResponseEntity<Void> deleteAccount(Principal principal) {
+        UserResponseDTO user = userService.getProfile(principal.getName());
+        userService.deleteAccount(user.getId());
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+}
 }
