@@ -120,4 +120,21 @@ public class AuthenticationService {
 
         return new LoginResponseDTO(token);
     }
+
+    public boolean verifyCode (String twilioCode, String userCode){
+        return twilioCode.equals(userCode);
+    }
+
+    public String resetPassword (String email, String password){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
+
+        String result = validatePassword(password);
+        if (!result.equals("OK")) {
+            throw new PasswordFormatException("CONTRASENA " + result);
+        }
+
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        return "CONTRASENA CAMBIADA EXITOSAMENTE";
+    }
 }
