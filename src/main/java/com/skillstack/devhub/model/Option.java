@@ -1,8 +1,5 @@
 package com.skillstack.devhub.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 public class Option {
 
     private String text;

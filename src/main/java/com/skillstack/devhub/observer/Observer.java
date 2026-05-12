@@ -1,4 +1,4 @@
-package com.skillstack.devhub.Observer;
+package com.skillstack.devhub.observer;
 
 import com.skillstack.devhub.model.Comment;
 

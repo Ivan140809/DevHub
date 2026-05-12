@@ -2,6 +2,7 @@ package com.skillstack.devhub.service;
 
 
 import com.skillstack.devhub.dto.CommentDTO;
+import com.skillstack.devhub.dto.ReactionDTO;
 import com.skillstack.devhub.exception.CommentNotFoundException;
 import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.model.*;
@@ -16,6 +17,9 @@ import java.util.List;
 
 @Service
 public class CommentService {
+
+    private static final String COMMENT_ID_PREFIX = "COMENTARIO CON ID ";
+    private static final String NOT_FOUND_SUFFIX = " NO ENCONTRADO";
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
@@ -61,19 +65,18 @@ public class CommentService {
         return comment.toComponent().toDTO();
     }
 
-    public CommentDTO getCommentTree(String id){
+    public CommentDTO getCommentTree(String id) {
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new CommentNotFoundException("COMENTARIO CON ID "+id+" NO ENCONTRADO"));
+                .orElseThrow(() -> new CommentNotFoundException(COMMENT_ID_PREFIX + id + NOT_FOUND_SUFFIX));
         CommentComponent commentTree = comment.toComponent();
 
         return commentTree.toDTO();
     }
 
-    // Permite editar el contenido de un comentario existente y notifica a observadores
     public CommentDTO editComment(String commentId, String newContent) {
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO"));
+                .orElseThrow(() -> new CommentNotFoundException(COMMENT_ID_PREFIX + commentId + NOT_FOUND_SUFFIX));
 
         reattachObservers(comment);
         comment.setContent(newContent);
@@ -84,7 +87,7 @@ public class CommentService {
 
     public CommentDTO addReply(String parentId, String content, String replyUsername, boolean isStarred) {
         Comment parent = commentRepository.findById(parentId)
-                .orElseThrow(() -> new CommentNotFoundException("COMENTARIO CON ID " + parentId + " NO ENCONTRADO"));
+                .orElseThrow(() -> new CommentNotFoundException(COMMENT_ID_PREFIX + parentId + NOT_FOUND_SUFFIX));
 
         reattachObservers(parent);
 
@@ -104,30 +107,63 @@ public class CommentService {
         return parent.toComponent().toDTO();
     }
 
-    public List<CommentDTO> getStarredComments(){
+    public List<CommentDTO> getStarredComments() {
 
         List<Comment> starred = commentRepository.findByIsStarred(true);
 
-        if(starred.isEmpty()){
+        if (starred.isEmpty()) {
             throw new CommentNotFoundException("No se ha encontrado ningun comentario destacado");
         }
 
         return starred.stream().map(c -> c.toComponent().toDTO()).toList();
     }
 
-    public CommentDTO addReaction (String commentId, Reaction reaction){
-        Comment rootComment = findRootCommentById(commentId);
-        Comment targetComment = findCommentInTree(rootComment, commentId);
+    public CommentDTO addReaction(ReactionDTO reactionDTO) {
+        Comment rootComment = findRootCommentById(reactionDTO.getCommentId());
+        Comment targetComment = findCommentInTree(rootComment, reactionDTO.getCommentId());
         if (targetComment == null) {
             throw new RuntimeException("Comentario no encontrado");
         }
 
-        if (reaction.equals(Reaction.HAPPYFACE)){
-            targetComment.setHappyFace(targetComment.getHappyFace()+1);
-        } else {
-            targetComment.setSadFace(targetComment.getSadFace()+1);
+        CommentReaction commentReaction = new CommentReaction(reactionDTO.getReaction(), reactionDTO.getCommentId(), reactionDTO.getUserId());
+        CommentReaction found = null;
+        List<CommentReaction> reactions = targetComment.getReactions();
+
+        for(CommentReaction reaction : reactions){
+            if (reaction.getUserId().equals(commentReaction.getUserId())){
+                if (reaction.getReaction().equals(commentReaction.getReaction())){
+                    return targetComment.toComponent().toDTO();
+                }
+                found = reaction;
+                break;
+            }
         }
 
+        if (found!=null){
+            if (reactionDTO.getReaction().equals(Reaction.HAPPYFACE)) {
+                targetComment.setHappyFace(targetComment.getHappyFace() + 1);
+                targetComment.setSadFace(targetComment.getSadFace()-1);
+            } else {
+                targetComment.setSadFace(targetComment.getSadFace() + 1);
+                targetComment.setHappyFace(targetComment.getHappyFace()-1);
+            }
+
+            reactions.remove(found);
+            reactions.add(commentReaction);
+            targetComment.setReactions(reactions);
+            commentRepository.save(rootComment);
+            return targetComment.toComponent().toDTO();
+
+        }
+
+        if (reactionDTO.getReaction().equals(Reaction.HAPPYFACE)) {
+            targetComment.setHappyFace(targetComment.getHappyFace() + 1);
+        } else {
+            targetComment.setSadFace(targetComment.getSadFace() + 1);
+        }
+
+        reactions.add(commentReaction);
+        targetComment.setReactions(reactions);
         commentRepository.save(rootComment);
         return targetComment.toComponent().toDTO();
     }
@@ -160,16 +196,16 @@ public class CommentService {
         return null;
     }
 
-    public List<CommentDTO> getCommentsMostReactions(){
-        List<Comment> commentList= commentRepository.findTop7ByOrderByHappyFaceDesc();
+    public List<CommentDTO> getCommentsMostReactions() {
+        List<Comment> commentList = commentRepository.findTop7ByOrderByHappyFaceDesc();
 
         List<CommentComponent> commentComponents = new ArrayList<>();
-        for(Comment c : commentList){
+        for (Comment c : commentList) {
             commentComponents.add(c.toComponent());
         }
         List<CommentDTO> commentDTOS = new ArrayList<>();
 
-        for(CommentComponent c : commentComponents){
+        for (CommentComponent c : commentComponents) {
             commentDTOS.add(c.toDTO());
         }
         return commentDTOS;
@@ -177,7 +213,7 @@ public class CommentService {
 
     public void deleteComment(String commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO"));
+                .orElseThrow(() -> new CommentNotFoundException(COMMENT_ID_PREFIX + commentId + NOT_FOUND_SUFFIX));
 
         commentRepository.delete(comment);
     }

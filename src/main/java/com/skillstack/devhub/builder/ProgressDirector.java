@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProgressDirector {
     private final StatisticsService statisticsService;
-    private ProgressBuilder progressBuilder;
 
     @Autowired
     public ProgressDirector(StatisticsService statisticsService) {
@@ -16,6 +15,7 @@ public class ProgressDirector {
     }
 
     public Progress buildTotalAndPercentage (String userId){
+        ProgressBuilder progressBuilder;
         progressBuilder = new ProgressBuilder(statisticsService);
         progressBuilder.forUser(userId);
         progressBuilder.buildTotal();
