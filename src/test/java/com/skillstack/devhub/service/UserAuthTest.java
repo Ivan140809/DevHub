@@ -270,8 +270,9 @@ public class UserAuthTest {
 
         User fakeUser = new User();
 
-        when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.findByUsername(dto.getUsername())).thenReturn(Optional.empty());
+        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+        when(userRepository.existsByUsername(dto.getUsername())).thenReturn(false);
+        when(userRepository.existsByPhone(dto.getPhone())).thenReturn(false);
         when(defaultUserFactory.createUser(any(), any(), any(), any(), any(), any(), eq(Role.USER)
                 )).thenReturn(fakeUser);
         when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPass");
@@ -364,8 +365,9 @@ public class UserAuthTest {
 
         User fakeUser = new User();
 
-        when(userRepository.findByEmail(userDTO.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.findByUsername(userDTO.getUsername())).thenReturn(Optional.empty());
+        when(userRepository.existsByEmail(userDTO.getEmail())).thenReturn(false);
+        when(userRepository.existsByUsername(userDTO.getUsername())).thenReturn(false);
+        when(userRepository.existsByPhone(userDTO.getPhone())).thenReturn(false);
         when(defaultUserFactory.createUser(
                 any(), any(), any(), any(), any(), any(), eq(Role.USER)
         )).thenReturn(fakeUser);
@@ -391,8 +393,8 @@ public class UserAuthTest {
         UserRegisterDTO userDTO = new UserRegisterDTO();
         userDTO.setEmail("test@pepe.com");
 
-        when(userRepository.findByEmail(userDTO.getEmail()))
-                .thenReturn(Optional.of(new User()));
+        when(userRepository.existsByEmail(userDTO.getEmail()))
+                .thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> {
             service.register(userDTO);
