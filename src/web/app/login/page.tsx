@@ -173,9 +173,12 @@ export default function LoginPage() {
             <input className="dh-inp" type="password" placeholder="••••••••"
               value={password} onChange={(e) => setPassword(e.target.value)} style={inp} />
 
-            <div className="dh-forgot" style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgb(132, 94, 245)", cursor:"pointer", transition:"color .2s" }}>
-              ¿Olvidaste la contraseña?
+            <div style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgb(132, 94, 245)", cursor:"pointer", transition:"color .2s" }}>
+              <Link href="/recovery" className="dh-reg-link" style={{textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgb(132, 94, 245)", cursor:"pointer", transition:"color .2s" }}>
+                ¿Olvidaste la contraseña?
+              </Link>
             </div>
+            
 
             <button onClick={() => router.push("/home")} type="submit" className="dh-btn" style={{ width:"100%", height:46, background:"linear-gradient(135deg,#7040ff,#5020e0)", border:"none", borderRadius:11, color:"white", fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:800, letterSpacing:4, textTransform:"uppercase", cursor:"pointer", boxShadow:"0 4px 24px rgba(90,40,220,0.4)", transition:"transform .15s, box-shadow .2s" }}>
               Login
