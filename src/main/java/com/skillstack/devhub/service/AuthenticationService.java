@@ -32,14 +32,16 @@ public class AuthenticationService {
     private final JwtUtil jwtUtil;
     private final DefaultUserFactory defaultUserFactory;
     private final AdminUserFactory adminUserFactory;
+    private final TwilioService twilioService;
 
     @Autowired
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, DefaultUserFactory defaultUserFactory, AdminUserFactory adminUserFactory) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, DefaultUserFactory defaultUserFactory, AdminUserFactory adminUserFactory, TwilioService twilioService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.defaultUserFactory = defaultUserFactory;
         this.adminUserFactory = adminUserFactory;
+        this.twilioService = twilioService;
     }
 
     public String validatePassword(String password) {
@@ -123,11 +125,28 @@ public class AuthenticationService {
         return new LoginResponseDTO(token);
     }
 
-    public boolean verifyCode (String twilioCode, String userCode){
+    public String requestPasswordReset(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + email + " NO ENCONTRADO"));
+        if (user.getPhone() == null || user.getPhone().isBlank()) {
+            throw new IllegalStateException("EL USUARIO NO TIENE TELEFONO REGISTRADO");
+        }
+        twilioService.sendResetCode(user.getPhone(), email);
+        return "CODIGO ENVIADO AL TELEFONO REGISTRADO";
+    }
+
+    public String resetPasswordWithCode(String email, String code, String newPassword) {
+        if (!twilioService.verifyCode(email, code)) {
+            throw new IncorrectPasswordException("CODIGO DE VERIFICACION INVALIDO O EXPIRADO");
+        }
+        return resetPassword(email, newPassword);
+    }
+
+    public boolean verifyCode(String twilioCode, String userCode) {
         return twilioCode.equals(userCode);
     }
 
-    public String resetPassword (String email, String password){
+    public String resetPassword(String email, String password) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
 
         String result = validatePassword(password);

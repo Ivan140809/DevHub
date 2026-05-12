@@ -186,10 +186,8 @@ export default function LoginPage() {
             <input className="dh-inp" type="password" placeholder="••••••••"
               value={password} onChange={(e) => setPassword(e.target.value)} style={inp} />
 
-            <div style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgb(132, 94, 245)", cursor:"pointer", transition:"color .2s" }}>
-              <Link href="/recovery" className="dh-reg-link" style={{textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgb(132, 94, 245)", cursor:"pointer", transition:"color .2s" }}>
-                ¿Olvidaste la contraseña?
-              </Link>
+            <div className="dh-forgot" onClick={() => router.push("/forgot-password")} style={{ textAlign:"right", margin:"10px 0 22px", fontFamily:"'Space Mono',monospace", fontSize:10, letterSpacing:1, color:"rgb(132, 94, 245)", cursor:"pointer", transition:"color .2s" }}>
+              ¿Olvidaste la contraseña?
             </div>
             
 
