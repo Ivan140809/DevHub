@@ -6,6 +6,7 @@ import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.exception.IncorrectPasswordException;
 import com.skillstack.devhub.exception.PasswordFormatException;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
+import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.factorymethod.AdminUserFactory;
 import com.skillstack.devhub.factorymethod.DefaultUserFactory;
 import com.skillstack.devhub.model.AdminUser;
@@ -94,7 +95,7 @@ public class AuthenticationService {
     public LoginResponseDTO login(UserLoginDTO request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("USUARIO CON EMAIL " + request.getEmail() + " NO ENCONTRADO"));
+                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + request.getEmail() + " NO ENCONTRADO"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IncorrectPasswordException("CONTRASENA INCORRECTA");

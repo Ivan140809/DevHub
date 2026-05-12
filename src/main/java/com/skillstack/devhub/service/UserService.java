@@ -47,7 +47,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("USER NO ENCONTRADO"));
 
         int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(user.getId()).size();
-        System.out.println("GET PROFILE USER EMAIL: " + user.getEmail());
+        String roleStr = user.getRole() != null ? user.getRole().name() : "USER";
         return new UserResponseDTO(
                 user.getId(),
                 user.getFirstName(),
@@ -57,7 +57,8 @@ public class UserService {
                 user.getPhone(),
                 user.getPreferences(),
                 answeredQuestions,
-                user.getTotalScore()
+                user.getTotalScore(),
+                roleStr
         );
     }
 

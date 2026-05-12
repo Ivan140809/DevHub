@@ -7,6 +7,7 @@ import com.skillstack.devhub.exception.UserNotFoundException;
 import com.skillstack.devhub.model.*;
 import com.skillstack.devhub.repository.CommentRepository;
 import com.skillstack.devhub.repository.UserRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -96,6 +97,7 @@ public class CommentService {
         parent.subscribe(replier.getUsername());
 
         Comment reply = new Comment("", content, parent.getCategory(), null, replier.getUsername(), isStarred, 0, 0);
+        reply.setId(new ObjectId().toHexString());
         parent.addReply(reply);
         commentRepository.save(parent);
 
@@ -143,7 +145,7 @@ public class CommentService {
     }
 
     private Comment findCommentInTree(Comment comment, String commentId) {
-        if (comment.getId().equals(commentId)) {
+        if (commentId.equals(comment.getId())) {
             return comment;
         }
         if (comment.getReplies() == null) {

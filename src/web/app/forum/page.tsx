@@ -334,7 +334,7 @@ function DiscussionList({
 
       {!loading && discussions.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
-          {(sortByPopular ? [...discussions].sort((a, b) => (b.likesCount + b.repliesCount) - (a.likesCount + a.repliesCount)) : discussions).map((disc, idx) => {
+          {(sortByPopular ? [...discussions].sort((a, b) => (b.likesCount + b.repliesCount) - (a.likesCount + a.repliesCount)) : discussions).filter(d => !selectedCategory || d.category === selectedCategory).map((disc, idx) => {
             const catInfo = getCategoryInfo(disc.category);
             const isLiked = likedDiscussions.has(disc.id);
             return (
@@ -440,6 +440,7 @@ interface DiscussionDetailProps {
   currentUserRole: UserRole;
   onDeleteReply: (replyId: string) => void;
   onReplyReactionUpdate: (replyId: string, happyFace: number, sadFace: number) => void;
+  isAuthenticated: boolean;
 }
 
 function DiscussionDetail({
@@ -458,11 +459,12 @@ function DiscussionDetail({
   currentUserRole,
   onDeleteReply,
   onReplyReactionUpdate,
+  isAuthenticated,
 }: DiscussionDetailProps) {
   const catInfo = getCategoryInfo(discussion.category);
   const [sortByReactions, setSortByReactions] = useState(false);
-  const canReply = true;
-  const canDeleteReply = false;
+  const canReply = isAuthenticated;
+  const canDeleteReply = currentUserRole === "ADMIN";
 
   // Helper para sumar las reacciones de una respuesta
   const getReactionCount = (reply: Reply) => {
@@ -540,8 +542,8 @@ function DiscussionDetail({
           </div>
         </div>
       ) : (
-        <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 18, padding: 20, color: "rgba(180,180,255,.85)", fontSize: 14, fontFamily: "'Space Mono',monospace" }}>
-          Responder no está disponible con el backend actual.
+        <div style={{ background: "rgba(14,10,28,.88)", border: "1px solid rgba(100,60,255,.2)", borderRadius: 18, padding: 20, color: "rgba(180,180,255,.85)", fontSize: 14, fontFamily: "'Space Mono',monospace", textAlign: "center" as const }}>
+          <a href="/login" style={{ color: "#b8a0ff", textDecoration: "underline" }}>Inicia sesión</a> para responder en esta discusión.
         </div>
       )}
 
@@ -801,7 +803,22 @@ export default function ForumPage() {
   }, []);
 
   const deleteReply = useCallback(async (replyId: string) => {
-    setReplyError("Eliminar comentarios no está disponible con el backend actual.");
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setReplyError("Debes iniciar sesión para eliminar.");
+      return;
+    }
+    try {
+      const res = await fetch(`${BASE_URL}/comments/${replyId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      setReplies(prev => prev.filter(r => r.id !== replyId));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al eliminar.";
+      setReplyError(msg);
+    }
   }, []);
 
   const updateReplyReaction = useCallback((replyId: string, happyFace: number, sadFace: number) => {
@@ -824,7 +841,7 @@ export default function ForumPage() {
 
         {view === "create" && <CreateDiscussion title={newTitle} content={newContent} category={newCategory} tags={newTags} error={submitError} submitting={submitting} onTitleChange={setNewTitle} onContentChange={setNewContent} onCategoryChange={setNewCategory} onTagsChange={setNewTags} onSubmit={createDiscussion} onCancel={goBack} />}
 
-        {view === "detail" && selectedDiscussion && <DiscussionDetail discussion={selectedDiscussion} replies={replies} loading={repliesLoading} replyContent={replyContent} replyError={replyError} replyFocused={replyFocused} replySubmitting={replySubmitting} onReplyContentChange={setReplyContent} onReplyFocus={() => setReplyFocused(true)} onReplyBlur={() => setReplyFocused(false)} onReplySubmit={submitReply} onBack={goBack} currentUserRole={currentUser.role} onDeleteReply={deleteReply} onReplyReactionUpdate={updateReplyReaction} />}
+        {view === "detail" && selectedDiscussion && <DiscussionDetail discussion={selectedDiscussion} replies={replies} loading={repliesLoading} replyContent={replyContent} replyError={replyError} replyFocused={replyFocused} replySubmitting={replySubmitting} onReplyContentChange={setReplyContent} onReplyFocus={() => setReplyFocused(true)} onReplyBlur={() => setReplyFocused(false)} onReplySubmit={submitReply} onBack={goBack} currentUserRole={currentUser.role} onDeleteReply={deleteReply} onReplyReactionUpdate={updateReplyReaction} isAuthenticated={isAuthenticated} />}
       </section>
     </main>
   );
