@@ -583,8 +583,8 @@ export default function ProfilePage() {
               />
 
               <StatCard
-                title="Rating"
-                value="5"
+                title="Puntaje"
+                value={String(puntosAcumulados)}
                 icon={Star}
                 gradientStart="rgba(255,200,100,.2)"
                 gradientEnd="rgba(255,150,50,.05)"

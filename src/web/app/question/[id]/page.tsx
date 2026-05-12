@@ -60,11 +60,9 @@ function diffStyle(d: string): React.CSSProperties {
 const letters = ["A", "B", "C", "D", "E"];
 
 function getTotalTime(difficulty: string) {
-  if (difficulty === "EASY") 
-    return 20;
-  if (difficulty === "HARD") 
-    return 20;
-  return 20;
+  if (difficulty === "EASY") return 45;
+  if (difficulty === "HARD") return 90;
+  return 60;
 }
 
 function formatTime(s: number) {
