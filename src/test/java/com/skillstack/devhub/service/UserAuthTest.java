@@ -12,7 +12,6 @@ import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.QuestionRepository;
 import com.skillstack.devhub.repository.UserRepository;
-import com.skillstack.devhub.service.TwilioService;
 import com.skillstack.devhub.security.JwtUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -363,16 +362,7 @@ public class UserAuthTest {
 
         User fakeUser = new User();
 
-<<<<<<< HEAD
         when(defaultUserFactory.createUser(any(), any(), any(), any(), any(), any(), any())).thenReturn(fakeUser);
-=======
-        when(userRepository.existsByEmail(userDTO.getEmail())).thenReturn(false);
-        when(userRepository.existsByUsername(userDTO.getUsername())).thenReturn(false);
-        when(userRepository.existsByPhone(userDTO.getPhone())).thenReturn(false);
-        when(defaultUserFactory.createUser(
-                any(), any(), any(), any(), any(), any(), eq(Role.USER)
-        )).thenReturn(fakeUser);
->>>>>>> a389f01b84f7cc41627eb191ac706cc1296e02c1
         when(passwordEncoder.encode(userDTO.getPassword())).thenReturn("encodedPassword");
         when(userRepository.count()).thenReturn(1L);
 
@@ -395,13 +385,8 @@ public class UserAuthTest {
         UserRegisterDTO userDTO = new UserRegisterDTO();
         userDTO.setEmail("test@pepe.com");
 
-<<<<<<< HEAD
         when(userRepository.findByEmail(any()))
                 .thenReturn(Optional.of(new User()));
-=======
-        when(userRepository.existsByEmail(userDTO.getEmail()))
-                .thenReturn(true);
->>>>>>> a389f01b84f7cc41627eb191ac706cc1296e02c1
 
         assertThrows(UserAlreadyExistsException.class, () -> {
             service.register(userDTO);
