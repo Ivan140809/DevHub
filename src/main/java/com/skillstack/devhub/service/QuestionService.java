@@ -84,24 +84,12 @@ public class QuestionService {
 
         if (category != null && difficulty != null) {
             questionPage = questionRepository.findByCategoryAndDifficulty(category, difficulty, pageable);
-            if (questionPage.isEmpty()) {
-                throw new QuestionNotFoundException("NO HAY PREGUNTAS CON CATEGORIA " + category + " Y DIFICULTAD " + difficulty);
-            }
         } else if (category != null) {
             questionPage = questionRepository.findByCategory(category, pageable);
-            if (questionPage.isEmpty()) {
-                throw new QuestionNotFoundException("PREGUNTAS" + NOT_FOUND_SUFFIX + "S CON CATEGORIA " + category);
-            }
         } else if (difficulty != null) {
             questionPage = questionRepository.findByDifficulty(difficulty, pageable);
-            if (questionPage.isEmpty()) {
-                throw new QuestionNotFoundException("PREGUNTAS" + NOT_FOUND_SUFFIX + "S CON DIFICULTAD " + difficulty);
-            }
         } else {
             questionPage = questionRepository.findAll(pageable);
-            if (questionPage.isEmpty()) {
-                throw new QuestionNotFoundException("NO HAY PREGUNTAS DISPONIBLES");
-            }
         }
 
         return questionPage.getContent().stream()
@@ -111,9 +99,10 @@ public class QuestionService {
                         question.getStatement(),
                         question.getCategory(),
                         question.getDifficulty(),
-                        question.getOptions().stream()
-                                .map(option -> new OptionDTO(option.getText(), option.isCorrect()))
-                                .toList()
+                        question.getOptions() == null ? List.of() :
+                                question.getOptions().stream()
+                                        .map(option -> new OptionDTO(option.getText(), option.isCorrect()))
+                                        .toList()
                 ))
                 .toList();
     }
@@ -128,16 +117,14 @@ public class QuestionService {
         Answer answer = new Answer(questionId, answerDTO.getSelectedOption(), user.getId(), answerDTO.getTimerDTO());
         answerRepository.save(answer);
 
-        if(!answer.getTimer().equals(0)){
-            for (Option option : question.getOptions()) {
-                if (option.getText().equals(answerDTO.getSelectedOption())) {
-                    boolean isCorrect = option.isCorrect();
-                    if (isCorrect) {
-                        user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
-                        userRepository.save(user);
-                    }
-                    return new AnswerResponseDTO(isCorrect, user.getTotalScore());
+        for (Option option : question.getOptions()) {
+            if (option.getText().equals(answerDTO.getSelectedOption())) {
+                boolean isCorrect = option.isCorrect();
+                if (isCorrect) {
+                    user.setTotalScore(user.getTotalScore() + question.getDifficulty().getPoints());
+                    userRepository.save(user);
                 }
+                return new AnswerResponseDTO(isCorrect, user.getTotalScore());
             }
         }
 

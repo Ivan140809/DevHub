@@ -2,6 +2,7 @@ package com.skillstack.devhub.controller;
 
 
 import com.skillstack.devhub.dto.LoginResponseDTO;
+import com.skillstack.devhub.dto.PromoteAdminDTO;
 import com.skillstack.devhub.dto.UserLoginDTO;
 import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.service.AuthenticationService;
@@ -36,5 +37,11 @@ public class AuthenticationController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(authenticationService.login(request));
+    }
+
+    @PostMapping("/promote-admin")
+    public ResponseEntity<String> promoteToAdmin(@RequestBody PromoteAdminDTO request) {
+        String response = authenticationService.promoteToAdmin(request.getEmail(), request.getAdminKey());
+        return ResponseEntity.ok(response);
     }
 }

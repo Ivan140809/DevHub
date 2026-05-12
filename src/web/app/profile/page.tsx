@@ -32,6 +32,7 @@ type UserData = {
   totalPreguntas?: number;
   puntosAcumulados?: number;
   totalScore?: number;
+  role?: string;
 };
 
 type BackendUserData = {
@@ -44,18 +45,13 @@ type BackendUserData = {
   phone?: string;
   preferences?: string[];
   preferencias?: string[] | string;
+  answeredQuestions?: number;
+  totalQuestions?: number;
   preguntasResueltas?: number;
   totalPreguntas?: number;
   puntosAcumulados?: number;
   totalScore?: number;
-};
-
-type QuestionDTO = {
-  id: string;
-  title: string;
-  statement?: string;
-  category?: string;
-  difficulty?: string;
+  role?: string;
 };
 
 const applyGlassmorphismDecorator = (
@@ -109,7 +105,6 @@ export default function ProfilePage() {
 
   const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
   const PROFILE_ENDPOINT = `${BASE}/user/profile`;
-  const ANSWERED_ENDPOINT = `${BASE}/statistics/answered`;
 
   function getToken() {
     if (typeof window === "undefined") return null;
@@ -128,10 +123,11 @@ export default function ProfilePage() {
         : Array.isArray(data.preferencias)
         ? data.preferencias.join(", ")
         : data.preferencias ?? "",
-      preguntasResueltas: data.preguntasResueltas ?? 0,
-      totalPreguntas: data.totalPreguntas ?? 100,
+      preguntasResueltas: data.answeredQuestions ?? data.preguntasResueltas ?? 0,
+      totalPreguntas: data.totalQuestions ?? data.totalPreguntas ?? 100,
       puntosAcumulados: data.totalScore ?? data.puntosAcumulados ?? 0,
       totalScore: data.totalScore ?? data.puntosAcumulados ?? 0,
+      role: data.role ?? undefined,
     };
   }
 
@@ -154,24 +150,14 @@ export default function ProfilePage() {
     }
 
     try {
-      const [profileRes, answeredRes] = await Promise.all([
-        fetch(PROFILE_ENDPOINT, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          cache: "no-store",
-        }),
-        fetch(ANSWERED_ENDPOINT, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          cache: "no-store",
-        }),
-      ]);
+      const profileRes = await fetch(PROFILE_ENDPOINT, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        cache: "no-store",
+      });
 
       if (!profileRes.ok) {
         throw new Error(`Error perfil: ${profileRes.status}`);
@@ -180,21 +166,10 @@ export default function ProfilePage() {
       const profileData: BackendUserData = await profileRes.json();
       const mappedData = mapBackendToFrontend(profileData);
 
-      let answeredQuestions: QuestionDTO[] = [];
-      if (answeredRes.ok) {
-        answeredQuestions = await answeredRes.json();
-      }
-
-      const totalAnswered = answeredQuestions.length;
-      const totalQuestionsBackend =
-        mappedData.totalPreguntas && mappedData.totalPreguntas > 0
-          ? mappedData.totalPreguntas
-          : 100;
-
       const mergedData: UserData = {
         ...mappedData,
-        preguntasResueltas: totalAnswered,
-        totalPreguntas: totalQuestionsBackend,
+        preguntasResueltas: mappedData.preguntasResueltas ?? 0,
+        totalPreguntas: mappedData.totalPreguntas ?? 100,
         puntosAcumulados: mappedData.totalScore ?? mappedData.puntosAcumulados ?? 0,
       };
 
@@ -209,8 +184,8 @@ export default function ProfilePage() {
         preferencias: mergedData.preferencias ?? "",
       }));
 
-      setPreguntasResueltas(totalAnswered);
-      setTotalPreguntas(totalQuestionsBackend);
+      setPreguntasResueltas(mergedData.preguntasResueltas ?? 0);
+      setTotalPreguntas(mergedData.totalPreguntas ?? 100);
       setPuntosAcumulados(mergedData.puntosAcumulados ?? 0);
 
       localStorage.setItem("devhub_user", JSON.stringify(mergedData));
@@ -221,7 +196,7 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  }, [ANSWERED_ENDPOINT, PROFILE_ENDPOINT]);
+  }, [PROFILE_ENDPOINT]);
 
   useEffect(() => {
     refreshProfile();

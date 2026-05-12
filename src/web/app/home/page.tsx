@@ -64,7 +64,7 @@ const SUBMODULES = [
     shortDesc: "Resuelve preguntas técnicas como en una entrevista real.",
     longDesc:
       "Enfréntate a escenarios similares a procesos reales de selección. Practica lógica, estructuras de datos, backend, frontend y fundamentos técnicos.",
-    path: "/questions",
+    path: "/question",
     cta: "Ir a practicar",
   },
   {
@@ -92,10 +92,9 @@ const SUBMODULES = [
     icon: <Target size={26} />,
     title: "Entrenamiento Personalizado",
     shortDesc: "Enfócate solo en lo que necesitas mejorar.",
-    longDesc:  
-    
+    longDesc:
       "Filtra preguntas por categoría y dificultad para crear una ruta de preparación más precisa según tus objetivos laborales.",
-    path: "/questions",
+    path: "/filter",
     cta: "Explorar módulos",
   },
   {
@@ -115,7 +114,7 @@ const SUBMODULES = [
     shortDesc: "Pon a prueba tus conocimientos según tu dificultad.",
     longDesc:
       "Supera retos fáciles, medios y difíciles para fortalecer progresivamente tus habilidades y ganar confianza en entrevistas técnicas.",
-    path: "/questions",
+    path: "/filter",
     cta: "Comenzar reto",
   },
 ];
@@ -513,7 +512,7 @@ export default function HomePage() {
           {isAuthenticated ? (
             <>
               <button
-                onClick={() => navigateTo("/questions")}
+                onClick={() => navigateTo("/question")}
                 className="cta-btn"
                 style={BUTTON_STYLES.primary}
               >
@@ -539,7 +538,7 @@ export default function HomePage() {
               </button>
 
               <button
-                onClick={() => navigateTo("/questions")}
+                onClick={() => navigateTo("/question")}
                 className="cta-btn"
                 style={BUTTON_STYLES.primary}
               >

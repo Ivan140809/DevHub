@@ -15,11 +15,15 @@ import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.UserRepository;
 import com.skillstack.devhub.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthenticationService {
+
+    @Value("${admin.secret}")
+    private String adminSecret;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -90,6 +94,17 @@ public class AuthenticationService {
         userRepository.save(u);
 
         return "USUARIO REGISTRADO CORRECTAMENTE";
+    }
+
+    public String promoteToAdmin(String email, String providedSecret) {
+        if (!adminSecret.equals(providedSecret)) {
+            throw new IncorrectPasswordException("CLAVE ADMIN INCORRECTA");
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("USUARIO CON EMAIL " + email + " NO ENCONTRADO"));
+        user.setRole(Role.ADMIN);
+        userRepository.save(user);
+        return "USUARIO " + email + " PROMOVIDO A ADMIN CORRECTAMENTE";
     }
 
     public LoginResponseDTO login(UserLoginDTO request) {
