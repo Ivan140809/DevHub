@@ -10,18 +10,60 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Obtener métricas de HU
+      - name: Obtener métricas de HU por Sprint (Projects v2)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
+          ORG: puj-course
+          PROJECT_NUMBER: 71
 
         run: |
-          echo "===== MÉTRICAS DE HU ====="
 
-          echo ""
-          echo "===== LABELS DEL REPOSITORIO ====="
-          gh label list --repo "$OWNER/$REPO"
+          echo "===== MÉTRICAS HU POR SPRINT ====="
+
+          # Obtener Project ID
+          PROJECT_ID=$(gh api graphql -f query='
+          query($org: String!, $number: Int!) {
+            organization(login: $org) {
+              projectV2(number: $number) {
+                id
+              }
+            }
+          }' -F org=$ORG -F number=$PROJECT_NUMBER \
+          --jq '.data.organization.projectV2.id')
+
+          echo "Project ID: $PROJECT_ID"
+
+          # Traer items del proyecto
+          gh api graphql -f query='
+          query($project: ID!) {
+            node(id: $project) {
+              ... on ProjectV2 {
+                items(first: 500) {
+                  nodes {
+                    content {
+                      ... on Issue {
+                        number
+                        title
+                        state
+                        labels(first: 20) {
+                          nodes {
+                            name
+                          }
+                        }
+                      }
+                    }
+                    fieldValues(first: 20) {
+                      nodes {
+                        ... on ProjectV2ItemFieldIterationValue {
+                          title
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }' -F project=$PROJECT_ID > data.json
 
           echo ""
           echo "===== RESULTADOS ====="
@@ -46,13 +88,14 @@ jobs:
           "Sprint 14"
           do
 
-            count=$(gh issue list \
-              --repo "$OWNER/$REPO" \
-              --state closed \
-              --search "label:HU label:\"$sprint\"" \
-              --limit 200 \
-              --json number \
-              | jq length)
+            count=$(jq --arg sprint "$sprint" '
+              [
+                .data.node.items.nodes[]
+                | select(.content.state == "CLOSED")
+                | select([.content.labels.nodes[].name] | index("HU"))
+                | select([.fieldValues.nodes[].title] | index($sprint))
+              ] | length
+            ' data.json)
 
             echo "$sprint: $count HU cerradas"
 
