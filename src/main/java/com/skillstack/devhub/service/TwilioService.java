@@ -7,8 +7,8 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -23,6 +23,8 @@ public class TwilioService {
     @Value("${twilio.messaging-service-sid}")
     private String messagingServiceSid;
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     private final Map<String, String> pendingCodes = new ConcurrentHashMap<>();
 
     @PostConstruct
@@ -31,7 +33,7 @@ public class TwilioService {
     }
 
     public void sendResetCode(String toPhone, String email) {
-        String code = String.format("%06d", new Random().nextInt(1_000_000));
+        String code = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
         pendingCodes.put(email, code);
 
         Message.creator(
