@@ -1,0 +1,58 @@
+name: Quality Metrics - Backend
+
+on:
+  push:
+    branches: ["develop"]
+  pull_request:
+    branches: ["develop"]
+  workflow_dispatch:
+
+jobs:
+  quality-metrics:
+    name: Generate Quality Metrics Reports
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Verify Java Version
+        run: java -version
+
+      # Build
+      - name: Build project
+        run: mvn clean compile
+
+  
+      # METRICA 1
+      # Cyclomatic Complexity
+     
+      - name: Generate PMD XML
+        run: mvn pmd:pmd
+
+      - name: Generate Cyclomatic HTML Report
+        run: |
+          python3 .github/scripts/parse_pmd.py
+
+      - name: Upload Quality Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-metrics-report
+          path: target/quality-reports/
+          retention-days: 30
+      
+      
+      - name: Print Summary
+        run: |
+          echo "Quality metrics generated"
+          echo "Branch: $GITHUB_REF_NAME"
+          echo "Reports:"
+          ls -la target/quality-reports
