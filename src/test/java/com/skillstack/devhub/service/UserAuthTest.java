@@ -8,6 +8,7 @@ import com.skillstack.devhub.exception.IncorrectPasswordException;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
 import com.skillstack.devhub.factorymethod.AdminUserFactory;
 import com.skillstack.devhub.factorymethod.DefaultUserFactory;
+import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.QuestionRepository;
@@ -395,5 +396,48 @@ public class UserAuthTest {
         verify(userRepository, never()).save(any());
     }
 
+    @Test
+    @CasoPrueba(
+            id = "CP11",
+            descripcion = "promover usuario a ADMIN",
+            entrada = "Email = test@pepe.com",
+            tipo = "Normal",
+            esperado = "El usuario es promovido a ADMIN y se guarda en el repositorio"
+    )
+    void promoteToAdminSuccessfully() {
+        User user = new User();
+        user.setEmail("test@pepe.com");
+        user.setRole(Role.USER);
+
+        when(userRepository.findByEmail("test@pepe.com"))
+                .thenReturn(Optional.of(user));
+
+        userService.promoteToAdmin("test@pepe.com");
+
+        assertEquals(Role.ADMIN, user.getRole());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @CasoPrueba(
+            id = "CP12",
+            descripcion = "Borrar cuenta",
+            entrada = "UserId = user-1",
+            tipo = "Normal",
+            esperado = "El usuario es eliminado del repositorio correctamente"
+    )
+    void deleteAccountSuccessfully() {
+        User user = new User();
+        user.setId("user-1");
+        user.setEmail("test@pepe.com");
+
+        when(userRepository.findById("user-1"))
+                .thenReturn(Optional.of(user));
+
+        userService.deleteAccount("user-1");
+
+        verify(userRepository).findById("user-1");
+        verify(userRepository).delete(user);
+    }
 }
 
