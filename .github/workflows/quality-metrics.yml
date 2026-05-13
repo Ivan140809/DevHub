@@ -62,7 +62,7 @@ jobs:
       # METRICA 3
       # Nesting
 
-      - name: Generate LOC HTML Report
+      - name: Generate Nesting HTML Report
         run: |
           python3 .github/scripts/nesting_report.py
 
