@@ -1,0 +1,197 @@
+name: Sprint Commit Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      sprint_number:
+        description: "Número del sprint (ej: 8)"
+        required: true
+        default: "8"
+      sprint_start:
+        description: "Fecha inicio del sprint (YYYY-MM-DD)"
+        required: true
+        default: "2026-03-30"
+      sprint_end:
+        description: "Fecha fin del sprint (YYYY-MM-DD)"
+        required: true
+        default: "2026-04-03"
+      branch:
+        description: "Rama a analizar"
+        required: true
+        default: "develop"
+
+jobs:
+  commit-report:
+    name: Generate Sprint Commit Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+
+      - name: Generate commit report
+        id: report
+        run: |
+          SPRINT="${{ github.event.inputs.sprint_number }}"
+          START="${{ github.event.inputs.sprint_start }}"
+          END="${{ github.event.inputs.sprint_end }}"
+          BRANCH="${{ github.event.inputs.branch }}"
+
+
+          echo "  DEVHUB — Sprint Report #${SPRINT}"
+          echo "  Rama: ${BRANCH}"
+          echo "  Periodo: ${START} → ${END}"
+
+          echo ""
+
+          # ── Total de commits en el sprint ──
+          TOTAL=$(git log \
+            --after="${START}T00:00:00" \
+            --before="${END}T23:59:59" \
+            --oneline \
+            --no-merges | wc -l | tr -d ' ')
+
+          echo "Total de commits en el sprint: ${TOTAL}"
+          echo ""
+
+          # ── Días del sprint ──
+          START_TS=$(date -d "${START}" +%s)
+          END_TS=$(date -d "${END}" +%s)
+          DAYS=$(( (END_TS - START_TS) / 86400 + 1 ))
+
+          if [ "$TOTAL" -gt 0 ] && [ "$DAYS" -gt 0 ]; then
+            AVG=$(echo "scale=2; $TOTAL / $DAYS" | bc)
+          else
+            AVG="0.00"
+          fi
+
+          echo "Días del sprint: ${DAYS}"
+          echo "Promedio de commits por día: ${AVG}"
+          echo ""
+
+          # ── Distribución por integrante ──
+          echo "  Commits por integrante"
+         
+
+          git log \
+            --after="${START}T00:00:00" \
+            --before="${END}T23:59:59" \
+            --no-merges \
+            --format="%aN" | \
+          sort | \
+          uniq -c | \
+          sort -rn | \
+          while read count author; do
+            if [ "$TOTAL" -gt 0 ]; then
+              PCT=$(echo "scale=1; $count * 100 / $TOTAL" | bc)
+            else
+              PCT="0.0"
+            fi
+            BAR=$(printf '█%.0s' $(seq 1 $(echo "$count / 1" | bc 2>/dev/null || echo 1)))
+            printf "  %-30s %3d commits  (%5.1f%%)  %s\n" \
+              "$author" "$count" "$PCT" "$BAR"
+          done
+
+          echo ""
+
+          # ── Lista de commits con autor y fecha ──
+          echo "  Detalle de commits"
+        
+          git log \
+            --after="${START}T00:00:00" \
+            --before="${END}T23:59:59" \
+            --no-merges \
+            --format="  [%ad]  %-20aN  %s" \
+            --date=format:"%Y-%m-%d" | \
+          head -60
+
+          TOTAL_WITH_MERGES=$(git log \
+            --after="${START}T00:00:00" \
+            --before="${END}T23:59:59" \
+            --oneline | wc -l | tr -d ' ')
+
+          MERGE_COUNT=$((TOTAL_WITH_MERGES - TOTAL))
+
+          echo ""
+          echo "------------------------------------------------"
+          echo "  Resumen"
+          echo "------------------------------------------------"
+          echo "  Commits directos : ${TOTAL}"
+          echo "  Merge commits    : ${MERGE_COUNT}"
+          echo "  Total            : ${TOTAL_WITH_MERGES}"
+          echo "  Días del sprint  : ${DAYS}"
+          echo "  Commits/día      : ${AVG}"
+          echo "================================================"
+
+      - name: Upload report as artifact
+        if: always()
+        run: |
+          SPRINT="${{ github.event.inputs.sprint_number }}"
+          START="${{ github.event.inputs.sprint_start }}"
+          END="${{ github.event.inputs.sprint_end }}"
+          BRANCH="${{ github.event.inputs.branch }}"
+          TOTAL=$(git log \
+            --after="${START}T00:00:00" \
+            --before="${END}T23:59:59" \
+            --oneline --no-merges | wc -l | tr -d ' ')
+          START_TS=$(date -d "${START}" +%s)
+          END_TS=$(date -d "${END}" +%s)
+          DAYS=$(( (END_TS - START_TS) / 86400 + 1 ))
+          AVG=$(echo "scale=2; $TOTAL / $DAYS" | bc 2>/dev/null || echo "0.00")
+
+          mkdir -p sprint-reports
+
+          cat > sprint-reports/sprint-${SPRINT}-report.md << EOF
+          # DevHub — Sprint Report #${SPRINT}
+
+          | Campo | Valor |
+          |---|---|
+          | Rama | \`${BRANCH}\` |
+          | Inicio | ${START} |
+          | Fin | ${END} |
+          | Días | ${DAYS} |
+          | Total commits | ${TOTAL} |
+          | Promedio diario | ${AVG} |
+
+          ## Distribución por integrante
+
+          | Integrante | Commits | % |
+          |---|---|---|
+          EOF
+
+          git log \
+            --after="${START}T00:00:00" \
+            --before="${END}T23:59:59" \
+            --no-merges \
+            --format="%aN" | \
+          sort | uniq -c | sort -rn | \
+          while read count author; do
+            PCT=$(echo "scale=1; $count * 100 / $TOTAL" | bc 2>/dev/null || echo "0.0")
+            echo "| ${author} | ${count} | ${PCT}% |" >> sprint-reports/sprint-${SPRINT}-report.md
+          done
+
+          cat >> sprint-reports/sprint-${SPRINT}-report.md << EOF
+
+          ## Detalle de commits
+
+          \`\`\`
+          EOF
+
+          git log \
+            --after="${START}T00:00:00" \
+            --before="${END}T23:59:59" \
+            --no-merges \
+            --format="[%ad]  %-20aN  %s" \
+            --date=format:"%Y-%m-%d" >> sprint-reports/sprint-${SPRINT}-report.md
+
+          echo '```' >> sprint-reports/sprint-${SPRINT}-report.md
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sprint-${{ github.event.inputs.sprint_number }}-report
+          path: sprint-reports/
+          retention-days: 30

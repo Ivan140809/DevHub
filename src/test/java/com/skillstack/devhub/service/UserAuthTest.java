@@ -6,13 +6,12 @@ import com.skillstack.devhub.CasoPruebaExtension;
 import com.skillstack.devhub.dto.*;
 import com.skillstack.devhub.exception.IncorrectPasswordException;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
+import com.skillstack.devhub.factorymethod.AdminUserFactory;
 import com.skillstack.devhub.factorymethod.DefaultUserFactory;
-import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.QuestionRepository;
 import com.skillstack.devhub.repository.UserRepository;
-import com.skillstack.devhub.service.TwilioService;
 import com.skillstack.devhub.security.JwtUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +38,8 @@ public class UserAuthTest {
     private JwtUtil jwtUtil;
     @Mock
     private DefaultUserFactory defaultUserFactory;
+    @Mock
+    private AdminUserFactory adminUserFactory;
     @Mock
     private AnswerRepository answerRepository;
     @Mock
@@ -270,11 +271,7 @@ public class UserAuthTest {
 
         User fakeUser = new User();
 
-        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
-        when(userRepository.existsByUsername(dto.getUsername())).thenReturn(false);
-        when(userRepository.existsByPhone(dto.getPhone())).thenReturn(false);
-        when(defaultUserFactory.createUser(any(), any(), any(), any(), any(), any(), eq(Role.USER)
-                )).thenReturn(fakeUser);
+        when(defaultUserFactory.createUser(any(), any(), any(), any(), any(), any(), any())).thenReturn(fakeUser);
         when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPass");
         when(userRepository.count()).thenReturn(1L);
 
@@ -365,12 +362,7 @@ public class UserAuthTest {
 
         User fakeUser = new User();
 
-        when(userRepository.existsByEmail(userDTO.getEmail())).thenReturn(false);
-        when(userRepository.existsByUsername(userDTO.getUsername())).thenReturn(false);
-        when(userRepository.existsByPhone(userDTO.getPhone())).thenReturn(false);
-        when(defaultUserFactory.createUser(
-                any(), any(), any(), any(), any(), any(), eq(Role.USER)
-        )).thenReturn(fakeUser);
+        when(defaultUserFactory.createUser(any(), any(), any(), any(), any(), any(), any())).thenReturn(fakeUser);
         when(passwordEncoder.encode(userDTO.getPassword())).thenReturn("encodedPassword");
         when(userRepository.count()).thenReturn(1L);
 
@@ -393,8 +385,8 @@ public class UserAuthTest {
         UserRegisterDTO userDTO = new UserRegisterDTO();
         userDTO.setEmail("test@pepe.com");
 
-        when(userRepository.existsByEmail(userDTO.getEmail()))
-                .thenReturn(true);
+        when(userRepository.findByEmail(any()))
+                .thenReturn(Optional.of(new User()));
 
         assertThrows(UserAlreadyExistsException.class, () -> {
             service.register(userDTO);
