@@ -183,7 +183,7 @@
 
                     <rulesets>
                         <ruleset>
-                            category/java/design.xml
+                            conf/pmd-ruleset.xml
                         </ruleset>
                     </rulesets>
 
