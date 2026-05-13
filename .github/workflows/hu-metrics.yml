@@ -15,8 +15,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
+
         run: |
           echo "===== MÉTRICAS DE HU ====="
+
+          echo ""
+          echo "===== LABELS DEL REPOSITORIO ====="
+          gh label list --repo "$OWNER/$REPO"
+
+          echo ""
+          echo "===== RESULTADOS ====="
 
           totalHU=0
           totalSprints=0
@@ -37,11 +45,11 @@ jobs:
           "Sprint 13" \
           "Sprint 14"
           do
+
             count=$(gh issue list \
               --repo "$OWNER/$REPO" \
               --state closed \
-              --label "HU" \
-              --label "$sprint" \
+              --search "label:HU label:\"$sprint\"" \
               --limit 200 \
               --json number \
               | jq length)
@@ -50,10 +58,12 @@ jobs:
 
             totalHU=$((totalHU + count))
             totalSprints=$((totalSprints + 1))
+
           done
 
           promedio=$(echo "scale=2; $totalHU / $totalSprints" | bc)
 
           echo ""
+          echo "===== RESUMEN ====="
           echo "Total HU cerradas: $totalHU"
           echo "Promedio HU por sprint: $promedio"
