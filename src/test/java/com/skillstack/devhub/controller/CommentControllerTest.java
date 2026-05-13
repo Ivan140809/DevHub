@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
-import java.util.ArrayList;
+import java.security.Principal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,7 +56,6 @@ class CommentControllerTest {
 
         CommentDTO expectedDTO = new CommentDTO(null, "Discusion", "prueba", "general", null, null, null, false, null, 0, 0);
 
-        when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getName()).thenReturn("ana@devhub.com");
         when(commentService.createComment(
                 eq("Discusion"), eq("prueba"), eq("general"),
@@ -109,7 +108,7 @@ class CommentControllerTest {
     @CasoPrueba(
             id = "CP03",
             descripcion = "Agregar respuesta a una discusion existente",
-            entrada= "commentId=1, contenido=trump, usuario=luisdiaz@devhub.com",
+            entrada= "commentId=1, contenido=trump",
             tipo = "Normal",
             esperado= "Retorna 201 CREATED con el CommentDTO del padre actualizado"
     )
@@ -119,8 +118,8 @@ class CommentControllerTest {
 
         CommentDTO expectedDTO = new CommentDTO("1", "trump o biden", null, null, null, null, null, false, null, 0, 0);
 
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("luisdiaz@devhub.com");
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn("luisdiaz@devhub.com");
         when(commentService.addReply(
                 eq("1"),
                 eq("trump"),
@@ -128,7 +127,7 @@ class CommentControllerTest {
                 eq(false)
         )).thenReturn(expectedDTO);
 
-        ResponseEntity<CommentDTO> response = commentController.addReply("1", request, authentication);
+        ResponseEntity<CommentDTO> response = commentController.addReply("1", request, principal);
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -158,12 +157,12 @@ class CommentControllerTest {
     void addReactionHAPPYFACE() {
         CommentDTO expectedDTO = new CommentDTO(null, null, null, null, null, null, null, false, null, 1, 0);
 
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("james@devhub.com");
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn("james@devhub.com");
         when(commentService.addReaction(any(ReactionDTO.class))).thenReturn(expectedDTO);
 
         ResponseEntity<CommentDTO> response = commentController.addReaction(
-                "1", Reaction.HAPPYFACE, authentication);
+                "1", Reaction.HAPPYFACE, principal);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -171,7 +170,7 @@ class CommentControllerTest {
         assertEquals(1, response.getBody().getHappyFace());
         assertEquals(0, response.getBody().getSadFace());
 
-        System.out.println("CP04 Reacción HAPPYFACE agregada:");
+        System.out.println("CP04 Reaccion HAPPYFACE agregada:");
         System.out.println("Status: " + response.getStatusCode());
         System.out.println("HappyFace: " + response.getBody().getHappyFace());
         System.out.println("SadFace: " + response.getBody().getSadFace());
@@ -257,13 +256,11 @@ class CommentControllerTest {
     void editComment() {
         CommentDTO expectedDTO = new CommentDTO("1", null, "me esclavizaron para hacer estas pruebas ayuda D:", null, null, null, null, true, null, 0, 0);
 
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("ivan@devhub.com");
         when(commentService.editComment("1", "me esclavizaron para hacer estas pruebas ayuda D:"))
                 .thenReturn(expectedDTO);
 
         ResponseEntity<CommentDTO> response = commentController.editComment(
-                "1", "me esclavizaron para hacer estas pruebas ayuda D:", authentication);
+                "1", "me esclavizaron para hacer estas pruebas ayuda D:");
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -287,10 +284,7 @@ class CommentControllerTest {
             esperado = "Retorna 204 NO_CONTENT"
     )
     void deleteComment() {
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getName()).thenReturn("megustaelazul@devhub.com");
-
-        ResponseEntity<Void> response = commentController.deleteComment("1", authentication);
+        ResponseEntity<Void> response = commentController.deleteComment("1");
 
         assertNotNull(response);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
