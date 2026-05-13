@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       sprint_number:
-        description: "Número del sprint 7"
+        description: "Número del sprint 6"
         required: true
-        default: "7"
+        default: "6"
       sprint_start:
         description: "Fecha inicio del sprint (YYYY-MM-DD)"
         required: true
-        default: "2026/03/24"
+        default: "2026/03/16"
       sprint_end:
         description: "Fecha fin del sprint (YYYY-MM-DD)"
         required: true
-        default: "2026/03/27"
+        default: "2026/03/20"
       branch:
         description: "Rama a analizar"
         required: true
