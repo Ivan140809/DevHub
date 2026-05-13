@@ -5,7 +5,7 @@ from pathlib import Path
 from datetime import datetime
 
 PMD_XML = "target/pmd.xml"
-OUTPUT_HTML = "target/quality-report.html"
+OUTPUT_HTML = "target/quality-reports/cyclomatic-report.html"
 
 
 def get_severity(complexity):
@@ -374,7 +374,7 @@ Crítica
 """
 
 os.makedirs(
-    "target",
+    "target/quality-reports",
     exist_ok=True
 )
 
