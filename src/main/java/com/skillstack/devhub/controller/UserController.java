@@ -58,5 +58,12 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
-}
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{email}/promote")
+    public ResponseEntity<String> promoteUser(@PathVariable String email) {
+        userService.promoteToAdmin(email);
+        return ResponseEntity.ok("Usuario " + email + " promovido a ADMIN");
+    }
 }

@@ -1,12 +1,12 @@
 package com.skillstack.devhub.model;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document (collection = "users")
-public class AdminUser extends AbstractUser{
-    @Id
-    private String id;
+@Document(collection = "users")
+public class AdminUser extends User {
+
+    public AdminUser() {
+    }
 
     public AdminUser(String firstName, String lastName, String username, String email, String password, String phone, Role role) {
         this.firstName = firstName;
@@ -16,10 +16,5 @@ public class AdminUser extends AbstractUser{
         this.password = password;
         this.phone = phone;
         this.role = role;
-        this.phone = phone;
-    }
-
-    public String getId() {
-        return id;
     }
 }

@@ -20,6 +20,14 @@ public class OptionDTO {
         this.correct = correct;
     }
 
+    public String getText() {
+        return text;
+    }
+
+    public Boolean isCorrect() {
+        return correct;
+    }
+
     public Option toOption(){
         return new Option(text,correct);
     }

@@ -1,7 +1,10 @@
 package com.skillstack.devhub.controller;
 
 
+import com.skillstack.devhub.dto.ForgotPasswordDTO;
 import com.skillstack.devhub.dto.LoginResponseDTO;
+import com.skillstack.devhub.dto.PromoteAdminDTO;
+import com.skillstack.devhub.dto.ResetPasswordDTO;
 import com.skillstack.devhub.dto.UserLoginDTO;
 import com.skillstack.devhub.dto.UserRegisterDTO;
 import com.skillstack.devhub.service.AuthenticationService;
@@ -36,5 +39,24 @@ public class AuthenticationController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(authenticationService.login(request));
+    }
+
+    @PostMapping("/promote-admin")
+    public ResponseEntity<String> promoteToAdmin(@RequestBody PromoteAdminDTO request) {
+        String response = authenticationService.promoteToAdmin(request.getEmail(), request.getAdminKey());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDTO request) {
+        String response = authenticationService.requestPasswordReset(request.getEmail());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDTO request) {
+        String response = authenticationService.resetPasswordWithCode(
+                request.getEmail(), request.getCode(), request.getNewPassword());
+        return ResponseEntity.ok(response);
     }
 }

@@ -13,8 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.Authentication;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -58,32 +58,23 @@ public class QuestionController {
                 .body(question);
     }
 
-    //@PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id:[0-9a-f]{24}}/answer")
-    public ResponseEntity<AnswerResponseDTO> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer, Authentication authentication){
-
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        AnswerResponseDTO response = questionService.verifyAnswer(answer, id, authentication.getName());
+    public ResponseEntity<AnswerResponseDTO> answer(@PathVariable String id, @Valid @RequestBody AnswerDTO answer, Principal principal) {
+        AnswerResponseDTO response = questionService.verifyAnswer(answer, id, principal.getName());
         return ResponseEntity.status(HttpStatus.OK).body(response);
-
     }
 
 
 
-    //@PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id:[0-9a-f]{24}}/reviews")
     public ResponseEntity<String> createReview(
-        @PathVariable("id") String questionId,
-        @RequestBody ReviewDTO reviewDTO,
-        Authentication authentication){
-
-        String response = questionService.createReview(reviewDTO, authentication.getName(), questionId);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+            @PathVariable("id") String questionId,
+            @RequestBody ReviewDTO reviewDTO,
+            Principal principal) {
+        String response = questionService.createReview(reviewDTO, principal.getName(), questionId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     //@PreAuthorize("hasRole('USER')")

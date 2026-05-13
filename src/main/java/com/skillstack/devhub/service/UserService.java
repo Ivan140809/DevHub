@@ -5,14 +5,17 @@ import com.skillstack.devhub.dto.UserResponseDTO;
 import com.skillstack.devhub.dto.UserUpdateDTO;
 import com.skillstack.devhub.exception.UserAlreadyExistsException;
 import com.skillstack.devhub.exception.UserNotFoundException;
-import com.skillstack.devhub.model.AbstractUser;
+import com.skillstack.devhub.model.Role;
 import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
+import com.skillstack.devhub.repository.QuestionRepository;
 import com.skillstack.devhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 @Service
 public class UserService {
@@ -21,97 +24,84 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AnswerRepository answerRepository;
+    private final QuestionRepository questionRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, AnswerRepository answerRepository) {
+    public UserService(UserRepository userRepository, AnswerRepository answerRepository, QuestionRepository questionRepository) {
         this.userRepository = userRepository;
         this.answerRepository = answerRepository;
+        this.questionRepository = questionRepository;
     }
 
-    public void deleteAccount(String userId){
-        AbstractUser user = userRepository.findById(userId)
-                .orElseThrow( () -> new UserNotFoundException(USER_NOT_FOUND));
+    private User findUserByEmailOrThrow(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
+    }
 
+    private void applyIfPresent(String value, Consumer<String> setter) {
+        if (value != null && !value.isEmpty()) {
+            setter.accept(value);
+        }
+    }
+
+    public void promoteToAdmin(String email) {
+        User user = findUserByEmailOrThrow(email);
+        user.setRole(Role.ADMIN);
+        userRepository.save(user);
+    }
+
+    public void deleteAccount(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
         userRepository.delete(user);
-
     }
 
-    public List<RankingDTO> findRanking(){
-
+    public List<RankingDTO> findRanking() {
         List<User> users = userRepository.findTop50ByOrderByTotalScoreDesc();
-
-        if(users.isEmpty()){
+        if (users.isEmpty()) {
             throw new UserNotFoundException("NO HAY USUARIOS ACTUALMENTE EN EL RANKING");
         }
-
-        return users.stream()
-                .map(user -> {
-                    int position = users.indexOf(user) + 1;
-                    return new RankingDTO(position, user.getUsername(), user.getEmail(), user.getTotalScore());
-                })
+        return IntStream.range(0, users.size())
+                .mapToObj(i -> new RankingDTO(i + 1, users.get(i).getUsername(),
+                        users.get(i).getEmail(), users.get(i).getTotalScore()))
                 .toList();
-
     }
 
     public UserResponseDTO getProfile(String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
-
+        User user = findUserByEmailOrThrow(userEmail);
         int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(user.getId()).size();
-        System.out.println("GET PROFILE USER EMAIL: " + user.getEmail());
-        return new UserResponseDTO(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getPhone(),
-                user.getPreferences(),
-                answeredQuestions,
-                user.getTotalScore()
-        );
+        int totalQuestions = (int) questionRepository.count();
+        String roleStr = user.getRole() != null ? user.getRole().name() : "USER";
+        UserResponseDTO dto = new UserResponseDTO(
+                user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(),
+                user.getEmail(), user.getPhone(), user.getPreferences(),
+                answeredQuestions, user.getTotalScore(), roleStr);
+        dto.setTotalQuestions(totalQuestions);
+        return dto;
     }
 
     public UserResponseDTO updateUser(String userEmail, UserUpdateDTO userUpdateDTO) {
-        System.out.println("BUSCANDO USUARIO POR EMAIL");
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
+        User user = findUserByEmailOrThrow(userEmail);
 
-        if (userUpdateDTO.getFirstName() != null && !userUpdateDTO.getFirstName().isEmpty()) {
-            user.setFirstName(userUpdateDTO.getFirstName());
-
-        }
-
-        if (userUpdateDTO.getLastName() != null && !userUpdateDTO.getLastName().isEmpty()) {
-            user.setLastName(userUpdateDTO.getLastName());
-        }
-
-        if (userUpdateDTO.getUsername() != null && !userUpdateDTO.getUsername().isEmpty()
-                && !userUpdateDTO.getUsername().equals(user.getUsername())) {
-
-            String username = userUpdateDTO.getUsername();
-
-            if (username.length() < 4 || username.length() > 15) {
-                throw new IllegalArgumentException("El username debe tener entre 4 y 15 caracteres");
-            }
-
-            if (userRepository.existsByUsername(username)) {
-                throw new UserAlreadyExistsException("USERNAME YA EN USO");
-            }
-
-            user.setUsername(username);
-        }
-
-        if (userUpdateDTO.getPhone() != null && !userUpdateDTO.getPhone().isEmpty()) {
-            user.setPhone(userUpdateDTO.getPhone());
-        }
-
+        applyIfPresent(userUpdateDTO.getFirstName(), user::setFirstName);
+        applyIfPresent(userUpdateDTO.getLastName(), user::setLastName);
+        applyIfPresent(userUpdateDTO.getPhone(), user::setPhone);
         if (userUpdateDTO.getPreferences() != null && !userUpdateDTO.getPreferences().isEmpty()) {
             user.setPreferences(userUpdateDTO.getPreferences());
         }
 
-        userRepository.save(user);
+        String newUsername = userUpdateDTO.getUsername();
+        if (newUsername != null && !newUsername.isEmpty() && !newUsername.equals(user.getUsername())) {
+            if (newUsername.length() < 4 || newUsername.length() > 15) {
+                throw new IllegalArgumentException("El username debe tener entre 4 y 15 caracteres");
+            }
+            if (userRepository.existsByUsername(newUsername)) {
+                throw new UserAlreadyExistsException("USERNAME YA EN USO");
+            }
+            user.setUsername(newUsername);
+        }
 
+        userRepository.save(user);
         return getProfile(user.getEmail());
     }
 }
