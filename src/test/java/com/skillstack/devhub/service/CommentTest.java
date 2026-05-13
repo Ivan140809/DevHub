@@ -43,7 +43,6 @@ class CommentTest {
     private CommentService commentService;
 
 
-
     // CP21 - Normal: crear discusion en el foro con datos validos retorna CommentDTO no nulo
 
     @Test
@@ -351,5 +350,123 @@ class CommentTest {
             System.out.println("[CP30] ivansitol en subscribedUsernames: " + suscrito + " (esperado: true)");
             return suscrito;
         }));
+    }
+
+    // CP31 - Normal: obtener comentarios destacados retorna lista de CommentDTO
+    @Test
+    @CasoPrueba(
+            id          = "CP31",
+            descripcion = "Obtener comentarios destacados (starred)",
+            entrada     = "Dos comentarios con isStarred=true en el repositorio",
+            tipo        = "Normal",
+            esperado    = "Retorna lista de 2 CommentDTO con starred=true"
+    )
+    void getStarredCommentsWhenExistReturnslist() {
+        Comment starred1 = new Comment("Destacado 1", "Contenido 1", "general", List.of("tag"), "user1", true, 0, 0);
+        starred1.setId("star-1");
+        Comment starred2 = new Comment("Destacado 2", "Contenido 2", "general", List.of("tag"), "user2", true, 0, 0);
+        starred2.setId("star-2");
+
+        when(commentRepository.findByIsStarred(true)).thenReturn(List.of(starred1, starred2));
+
+        List<CommentDTO> result = commentService.getStarredComments();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.get(0).isStarred());
+        assertTrue(result.get(1).isStarred());
+
+        System.out.println("[CP31] Comentarios destacados obtenidos correctamente:");
+        System.out.println("  -> Cantidad: " + result.size() + " (esperado: 2)");
+        System.out.println("  -> [1] ID: " + result.get(0).getId() + " | Starred: " + result.get(0).isStarred());
+        System.out.println("  -> [2] ID: " + result.get(1).getId() + " | Starred: " + result.get(1).isStarred());
+
+        verify(commentRepository).findByIsStarred(true);
+    }
+
+    // CP32 - Normal: eliminar comentario raiz existente lo elimina del repositorio
+    @Test
+    @CasoPrueba(
+            id          = "CP32",
+            descripcion = "Eliminar comentario raiz existente",
+            entrada     = "ID=1 existente como comentario raiz",
+            tipo        = "Normal",
+            esperado    = "Se elimina el comentario del repositorio y no lanza excepcion"
+    )
+    void deleteCommentWhenRootCommentExistsDeletesIt() {
+        when(commentRepository.existsById("1")).thenReturn(true);
+
+        assertDoesNotThrow(() -> commentService.deleteComment("1"));
+
+        System.out.println("[CP32] Comentario raiz eliminado correctamente:");
+        System.out.println("  -> ID: 1");
+
+        verify(commentRepository).existsById("1");
+        verify(commentRepository).deleteById("1");
+    }
+
+    // CP33 - Normal: findCommentInTree encuentra comentario anidado dentro del arbol
+    @Test
+    @CasoPrueba(
+            id          = "CP33",
+            descripcion = "Editar comentario anidado dentro del arbol",
+            entrada     = "Comentario raiz con una reply anidada con ID=1",
+            tipo        = "Normal",
+            esperado    = "Se encuentra y edita el comentario anidado correctamente"
+    )
+    void findCommentInTreeWhenNestedCommentExistsEditsIt() {
+        Comment reply = new Comment("", "Contenido reply", "general", null, "replyuser", false, 0, 0);
+        reply.setId("1");
+
+        Comment root = new Comment("Titulo raiz", "Contenido raiz", "general", List.of("tag"), "rootuser", false, 0, 0);
+        root.setId("root-1");
+        root.addReply(reply);
+
+        when(commentRepository.findById("1")).thenReturn(Optional.empty());
+        when(commentRepository.findAll()).thenReturn(List.of(root));
+        when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CommentDTO result = commentService.editComment("1", "Contenido editado");
+
+        assertNotNull(result);
+        assertEquals("Contenido editado", result.getContent());
+
+        System.out.println("[CP33] Comentario anidado encontrado y editado correctamente:");
+        System.out.println("  -> ID reply     : 1");
+        System.out.println("  -> Nuevo contenido: " + result.getContent());
+
+        verify(commentRepository).save(root);
+    }
+
+    // CP34 - Normal: removeReplyFromTree elimina reply anidada y guarda el padre
+    @Test
+    @CasoPrueba(
+            id          = "CP34",
+            descripcion = "Eliminar reply anidada dentro del arbol de comentarios",
+            entrada     = "Comentario raiz con una reply con ID=1",
+            tipo        = "Normal",
+            esperado    = "La reply es eliminada del arbol y el padre se guarda actualizado"
+    )
+    void removeReplyFromTreeWhenReplyExistsDeletesIt() {
+        Comment reply = new Comment("", "Contenido reply", "general", null, "replyuser", false, 0, 0);
+        reply.setId("1");
+
+        Comment root = new Comment("Titulo raiz", "Contenido raiz", "general", List.of("tag"), "rootuser", false, 0, 0);
+        root.setId("root-1");
+        root.addReply(reply);
+
+        when(commentRepository.existsById("1")).thenReturn(false);
+        when(commentRepository.findAll()).thenReturn(List.of(root));
+        when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertDoesNotThrow(() -> commentService.deleteComment("1"));
+
+        assertTrue(root.getReplies().isEmpty());
+
+        System.out.println("[CP34] Reply eliminada del arbol correctamente:");
+        System.out.println("  -> ID reply eliminada: 1");
+        System.out.println("  -> Replies restantes : " + root.getReplies().size() + " (esperado: 0)");
+
+        verify(commentRepository).save(root);
     }
 }
