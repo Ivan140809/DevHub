@@ -1,0 +1,45 @@
+name: HU Metrics by Sprint
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * 1'
+
+jobs:
+  hu-metrics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtener métricas de HU
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          echo "===== MÉTRICAS DE HU ====="
+
+          totalHU=0
+          totalSprints=0
+
+          for sprint in "Sprint 1" "Sprint 2" "Sprint 3" "Sprint 4" "Sprint 5"
+          do
+            count=$(gh issue list \
+              --repo "$OWNER/$REPO" \
+              --state closed \
+              --label "HU" \
+              --label "$sprint" \
+              --limit 200 \
+              --json number \
+              | jq length)
+
+            echo "$sprint: $count HU cerradas"
+
+            totalHU=$((totalHU + count))
+            totalSprints=$((totalSprints + 1))
+          done
+
+          promedio=$(echo "scale=2; $totalHU / $totalSprints" | bc)
+
+          echo ""
+          echo "Total HU cerradas: $totalHU"
+          echo "Promedio HU por sprint: $promedio"
