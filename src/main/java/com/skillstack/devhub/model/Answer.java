@@ -25,18 +25,6 @@ public class Answer {
         return id;
     }
 
-    public String getQuestionId() {
-        return questionId;
-    }
-
-    public Duration getTimer() {
-        return timer;
-    }
-
-    public void setTimer(Duration timer) {
-        this.timer = timer;
-    }
-
     public String getUserId() {
         return userId;
     }

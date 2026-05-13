@@ -30,10 +30,6 @@ public class CommentDTO {
         this.sadFace = sadFace;
     }
 
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
     public String getId() {
         return id;
     }
@@ -70,10 +66,6 @@ public class CommentDTO {
 
     public int getSadFace() {
         return sadFace;
-    }
-
-    public List<String> getTags() {
-        return tags;
     }
 
 }

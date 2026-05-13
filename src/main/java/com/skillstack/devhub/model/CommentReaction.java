@@ -15,15 +15,7 @@ public class CommentReaction {
         return reaction;
     }
 
-    public String getCommentId() {
-        return commentId;
-    }
-
     public String getUserId() {
         return userId;
-    }
-
-    public void setReaction(Reaction reaction) {
-        this.reaction = reaction;
     }
 }

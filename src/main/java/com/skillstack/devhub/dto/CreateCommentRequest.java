@@ -11,13 +11,6 @@ public class CreateCommentRequest {
 
     public CreateCommentRequest() {}
 
-    public CreateCommentRequest(String title, String content, String category, List<String> tags) {
-        this.title = title;
-        this.content = content;
-        this.category = category;
-        this.tags = tags;
-    }
-
     public String getTitle() {
         return title;
     }
