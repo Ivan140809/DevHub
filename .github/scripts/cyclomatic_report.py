@@ -175,6 +175,10 @@ if not rows:
 now = datetime.utcnow().strftime(
     "%Y-%m-%d %H:%M UTC"
 )
+branch = os.getenv(
+     "GITHUB_REF_NAME",
+     "local"
+)
 
 html = f"""
 <!DOCTYPE html>
@@ -321,7 +325,10 @@ Ciclomática - DevHub
 
 <p class="meta">
 Generado: {now}
+&nbsp;|&nbsp;
+Rama: {branch}
 </p>
+
 
 <div class="summary">
 
