@@ -1,6 +1,5 @@
 package com.skillstack.devhub.service;
 
-
 import com.skillstack.devhub.dto.CommentDTO;
 import com.skillstack.devhub.dto.ReactionDTO;
 import com.skillstack.devhub.exception.CommentNotFoundException;
@@ -12,7 +11,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,7 +31,12 @@ public class CommentService {
         this.emailSenderService = emailSenderService;
     }
 
-    // esto sirve para reconectar observers desde BD
+    private User findUserByIdentifier(String identifier) {
+        return userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByUsername(identifier))
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + identifier));
+    }
+
     private void reattachObservers(Comment comment) {
         for (String username : comment.getSubscribedUsernames()) {
             userRepository.findByUsername(username)
@@ -44,42 +47,32 @@ public class CommentService {
         }
     }
 
-    public CommentDTO createComment(String title, String content, String category, List<String> tags, String userEmail, boolean isStarred, int happyFace, int sadFace) {
-
+    public CommentDTO createComment(String title, String content, String category, List<String> tags,
+                                    String userEmail, boolean isStarred, int happyFace, int sadFace) {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("El título no puede estar vacío");
         }
-
-        User user = userRepository.findByEmail(userEmail)
-                .or(() -> userRepository.findByUsername(userEmail))
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + userEmail));
-
+        User user = findUserByIdentifier(userEmail);
         String authorUsername = user.getUsername() != null ? user.getUsername() : userEmail;
         Comment comment = new Comment(title, content, category, tags, authorUsername, isStarred, happyFace, sadFace);
-
         user.setEmailSenderService(emailSenderService);
         comment.attach(user);
         comment.subscribe(authorUsername);
-
         commentRepository.save(comment);
-
         return comment.toComponent().toDTO();
     }
 
     public CommentDTO getCommentTree(String id) {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new CommentNotFoundException(COMMENT_ID_PREFIX + id + NOT_FOUND_SUFFIX));
-        CommentComponent commentTree = comment.toComponent();
-
-        return commentTree.toDTO();
+        return comment.toComponent().toDTO();
     }
 
-    // Permite editar el contenido de un comentario existente (raíz o respuesta embebida)
     public CommentDTO editComment(String commentId, String newContent) {
         Comment rootComment = findRootCommentById(commentId);
         Comment targetComment = findCommentInTree(rootComment, commentId);
         if (targetComment == null) {
-            throw new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO");
+            throw new CommentNotFoundException(COMMENT_ID_PREFIX + commentId + NOT_FOUND_SUFFIX);
         }
         reattachObservers(rootComment);
         targetComment.setContent(newContent);
@@ -90,33 +83,23 @@ public class CommentService {
     public CommentDTO addReply(String parentId, String content, String replyUsername, boolean isStarred) {
         Comment parent = commentRepository.findById(parentId)
                 .orElseThrow(() -> new CommentNotFoundException(COMMENT_ID_PREFIX + parentId + NOT_FOUND_SUFFIX));
-
         reattachObservers(parent);
-
-        User replier = userRepository.findByEmail(replyUsername)
-                .or(() -> userRepository.findByUsername(replyUsername))
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + replyUsername));
-
+        User replier = findUserByIdentifier(replyUsername);
         replier.setEmailSenderService(emailSenderService);
         parent.attach(replier);
         parent.subscribe(replier.getUsername());
-
         Comment reply = new Comment("", content, parent.getCategory(), null, replier.getUsername(), isStarred, 0, 0);
         reply.setId(new ObjectId().toHexString());
         parent.addReply(reply);
         commentRepository.save(parent);
-
         return parent.toComponent().toDTO();
     }
 
     public List<CommentDTO> getStarredComments() {
-
         List<Comment> starred = commentRepository.findByIsStarred(true);
-
         if (starred.isEmpty()) {
             throw new CommentNotFoundException("No se ha encontrado ningun comentario destacado");
         }
-
         return starred.stream().map(c -> c.toComponent().toDTO()).toList();
     }
 
@@ -124,93 +107,48 @@ public class CommentService {
         Comment rootComment = findRootCommentById(reactionDTO.getCommentId());
         Comment targetComment = findCommentInTree(rootComment, reactionDTO.getCommentId());
         if (targetComment == null) {
-            throw new CommentNotFoundException("COMENTARIO CON ID " + reactionDTO.getCommentId() + " NO ENCONTRADO");
+            throw new CommentNotFoundException(COMMENT_ID_PREFIX + reactionDTO.getCommentId() + NOT_FOUND_SUFFIX);
         }
 
         CommentReaction commentReaction = new CommentReaction(reactionDTO.getReaction(), reactionDTO.getCommentId(), reactionDTO.getUserId());
-        CommentReaction found = null;
         List<CommentReaction> reactions = targetComment.getReactions();
+        CommentReaction existing = null;
 
-        for(CommentReaction reaction : reactions){
-            if (reaction.getUserId().equals(commentReaction.getUserId())){
-                if (reaction.getReaction().equals(commentReaction.getReaction())){
+        for (CommentReaction reaction : reactions) {
+            if (reaction.getUserId().equals(commentReaction.getUserId())) {
+                if (reaction.getReaction().equals(commentReaction.getReaction())) {
                     return targetComment.toComponent().toDTO();
                 }
-                found = reaction;
+                existing = reaction;
                 break;
             }
         }
 
-        if (found!=null){
-            if (reactionDTO.getReaction().equals(Reaction.HAPPYFACE)) {
-                targetComment.setHappyFace(targetComment.getHappyFace() + 1);
-                targetComment.setSadFace(targetComment.getSadFace()-1);
-            } else {
-                targetComment.setSadFace(targetComment.getSadFace() + 1);
-                targetComment.setHappyFace(targetComment.getHappyFace()-1);
-            }
+        applyReaction(targetComment, reactionDTO.getReaction(), existing != null);
 
-            reactions.remove(found);
-            reactions.add(commentReaction);
-            targetComment.setReactions(reactions);
-            commentRepository.save(rootComment);
-            return targetComment.toComponent().toDTO();
-
+        if (existing != null) {
+            reactions.remove(existing);
         }
-
-        if (reactionDTO.getReaction().equals(Reaction.HAPPYFACE)) {
-            targetComment.setHappyFace(targetComment.getHappyFace() + 1);
-        } else {
-            targetComment.setSadFace(targetComment.getSadFace() + 1);
-        }
-
         reactions.add(commentReaction);
         targetComment.setReactions(reactions);
         commentRepository.save(rootComment);
         return targetComment.toComponent().toDTO();
     }
 
-    private Comment findRootCommentById(String commentId) {
-        return commentRepository.findById(commentId)
-                .orElseGet(() -> {
-                    for (Comment root : commentRepository.findAll()) {
-                        if (findCommentInTree(root, commentId) != null) {
-                            return root;
-                        }
-                    }
-                    throw new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO");
-                });
-    }
-
-    private Comment findCommentInTree(Comment comment, String commentId) {
-        if (commentId.equals(comment.getId())) {
-            return comment;
+    private void applyReaction(Comment comment, Reaction reaction, boolean switchingReaction) {
+        if (reaction == Reaction.HAPPYFACE) {
+            comment.setHappyFace(comment.getHappyFace() + 1);
+            if (switchingReaction) comment.setSadFace(comment.getSadFace() - 1);
+        } else {
+            comment.setSadFace(comment.getSadFace() + 1);
+            if (switchingReaction) comment.setHappyFace(comment.getHappyFace() - 1);
         }
-        if (comment.getReplies() == null) {
-            return null;
-        }
-        for (Comment reply : comment.getReplies()) {
-            Comment found = findCommentInTree(reply, commentId);
-            if (found != null) {
-                return found;
-            }
-        }
-        return null;
     }
 
     public List<CommentDTO> getCommentsMostReactions() {
-        List<Comment> commentList = commentRepository.findTop7ByOrderByHappyFaceDesc();
-
-        List<CommentComponent> commentComponents = new ArrayList<>();
-        for (Comment c : commentList) {
-            commentComponents.add(c.toComponent());
-        }
-        List<CommentDTO> commentDTOS = new ArrayList<>();
-
-        for (CommentComponent c : commentComponents) {
-            commentDTOS.add(c.toDTO());
-        }
-        return commentDTOS;
+        return commentRepository.findTop7ByOrderByHappyFaceDesc().stream()
+                .map(c -> c.toComponent().toDTO())
+                .toList();
     }
 
     public void deleteComment(String commentId) {
@@ -224,7 +162,29 @@ public class CommentService {
                 return;
             }
         }
-        throw new CommentNotFoundException("COMENTARIO CON ID " + commentId + " NO ENCONTRADO");
+        throw new CommentNotFoundException(COMMENT_ID_PREFIX + commentId + NOT_FOUND_SUFFIX);
+    }
+
+    private Comment findRootCommentById(String commentId) {
+        return commentRepository.findById(commentId)
+                .orElseGet(() -> {
+                    for (Comment root : commentRepository.findAll()) {
+                        if (findCommentInTree(root, commentId) != null) {
+                            return root;
+                        }
+                    }
+                    throw new CommentNotFoundException(COMMENT_ID_PREFIX + commentId + NOT_FOUND_SUFFIX);
+                });
+    }
+
+    private Comment findCommentInTree(Comment comment, String commentId) {
+        if (commentId.equals(comment.getId())) return comment;
+        if (comment.getReplies() == null) return null;
+        for (Comment reply : comment.getReplies()) {
+            Comment found = findCommentInTree(reply, commentId);
+            if (found != null) return found;
+        }
+        return null;
     }
 
     private boolean removeReplyFromTree(Comment comment, String targetId) {

@@ -16,4 +16,7 @@ public class AnswerResponseDTO {
         return correct;
     }
 
+    public int getTotalScore() {
+        return totalScore;
+    }
 }
