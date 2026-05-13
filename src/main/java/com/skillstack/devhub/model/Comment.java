@@ -79,14 +79,6 @@ public class Comment implements Subject {
         notifyObservers("El comentario de " + username + " fue editado");
     }
 
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public CommentComponent toComponent() {
 
         if (replies == null || replies.isEmpty()) {

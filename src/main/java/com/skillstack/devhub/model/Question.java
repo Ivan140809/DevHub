@@ -27,10 +27,6 @@ public class Question {
         this.options = options;
     }
 
-    public void addOption(Option option) {
-        this.options.add(option);
-    }
-
     // getters and setters
 
     public String getTitle() {

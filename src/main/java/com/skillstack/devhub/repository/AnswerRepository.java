@@ -8,6 +8,5 @@ import java.util.List;
 
 @Repository
 public interface AnswerRepository extends MongoRepository<Answer, String> {
-    List<Answer> findByUserId(String userId);
     List<String> findDistinctQuestionIdByUserId(String userId);
 }

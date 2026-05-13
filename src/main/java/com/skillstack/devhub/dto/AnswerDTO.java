@@ -10,11 +10,6 @@ public class AnswerDTO {
 
     public AnswerDTO() {}
 
-    public AnswerDTO(String questionId, String selectedOption) {
-        this.questionId = questionId;
-        this.selectedOption = selectedOption;
-    }
-
     public String getSelectedOption() {
         return selectedOption;
     }
