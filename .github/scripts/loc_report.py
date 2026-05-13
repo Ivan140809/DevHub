@@ -87,6 +87,10 @@ for file_path in glob.glob(f"{JAVA_SRC}/**/*.java", recursive=True):
         summary["total_loc"] += class_loc
 
 now = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+branch = os.getenv(
+     "GITHUB_REF_NAME",
+     "local"
+)
 
 html = f"""
 <!DOCTYPE html>
@@ -166,8 +170,13 @@ tr:hover {{
 
 <body>
 
-<h1>Reporte de Longitud de Código</h1>
-<p class="meta">Generado: {now}</p>
+<h1>Reporte de Longitud de Código - DevHub</h1>
+
+<p class="meta">
+Generado: {now}
+&nbsp;|&nbsp;
+Rama: {branch}
+</p>
 
 <div class="summary">
     <div class="card">
