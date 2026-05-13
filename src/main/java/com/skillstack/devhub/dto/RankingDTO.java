@@ -38,12 +38,4 @@ public class RankingDTO {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public int getTotalScore() {
-        return totalScore;
-    }
-
-    public void setTotalScore(int totalScore) {
-        this.totalScore = totalScore;
-    }
 }

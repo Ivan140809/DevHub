@@ -12,9 +12,6 @@ public class OptionDTO {
     @NotNull(message = "Debe indicarse si la opcion es correcta")
     private Boolean correct;
 
-    public OptionDTO() {
-    }
-
     public OptionDTO(String text, Boolean correct) {
         this.text = text;
         this.correct = correct;
@@ -22,10 +19,6 @@ public class OptionDTO {
 
     public String getText() {
         return text;
-    }
-
-    public Boolean isCorrect() {
-        return correct;
     }
 
     public Option toOption(){

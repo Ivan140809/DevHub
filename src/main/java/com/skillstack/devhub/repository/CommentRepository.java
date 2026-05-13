@@ -11,8 +11,6 @@ import java.util.Optional;
 public interface CommentRepository extends MongoRepository<Comment, String> {
 
     Optional<Comment> findById(String id);
-
-    List<Comment> findByUsername(String username);
     List<Comment> findByIsStarred(Boolean isStarred);
     List<Comment> findTop7ByOrderByHappyFaceDesc();
 }

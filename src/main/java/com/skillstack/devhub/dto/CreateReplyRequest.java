@@ -7,10 +7,6 @@ public class CreateReplyRequest {
     public CreateReplyRequest() {
     }
 
-    public CreateReplyRequest(String content) {
-        this.content = content;
-    }
-
     public String getContent() {
         return content;
     }

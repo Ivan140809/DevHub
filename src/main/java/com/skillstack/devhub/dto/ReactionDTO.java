@@ -21,10 +21,6 @@ public class ReactionDTO {
         return commentId;
     }
 
-    public void setCommentId(String commentId) {
-        this.commentId = commentId;
-    }
-
     public String getUserId() {
         return userId;
     }
