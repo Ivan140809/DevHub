@@ -26,12 +26,14 @@ import java.util.function.Predicate;
 @Service
 public class AuthenticationService {
 
+    private static final String SYMBOLS = "@#$%^&+=!";
+
     private static final List<Map.Entry<Predicate<String>, String>> PASSWORD_RULES = List.of(
-            Map.entry(p -> p.length() < 6,               "DEBE TENER POR LO MENOS 6 CARACTERES"),
-            Map.entry(p -> !p.matches(".*[A-Z].*"),      "DEBE CONTENER AL MENOS UNA MAYUSCULA"),
-            Map.entry(p -> !p.matches(".*[a-z].*"),      "DEBE CONTENER AL MENOS UNA MINUSCULA"),
-            Map.entry(p -> !p.matches(".*\\d.*"),         "DEBE CONTENER AL MENOS UN NUMERO"),
-            Map.entry(p -> !p.matches(".*[@#$%^&+=!].*"), "DEBE CONTENER AL MENOS UN SIMBOLO (@#$%^&+=!)")
+            Map.entry(p -> p.length() < 6,                                       "DEBE TENER POR LO MENOS 6 CARACTERES"),
+            Map.entry(p -> p.chars().noneMatch(Character::isUpperCase),          "DEBE CONTENER AL MENOS UNA MAYUSCULA"),
+            Map.entry(p -> p.chars().noneMatch(Character::isLowerCase),          "DEBE CONTENER AL MENOS UNA MINUSCULA"),
+            Map.entry(p -> p.chars().noneMatch(Character::isDigit),              "DEBE CONTENER AL MENOS UN NUMERO"),
+            Map.entry(p -> p.chars().noneMatch(c -> SYMBOLS.indexOf(c) >= 0),   "DEBE CONTENER AL MENOS UN SIMBOLO (@#$%^&+=!)")
     );
 
     @Value("${admin.secret}")

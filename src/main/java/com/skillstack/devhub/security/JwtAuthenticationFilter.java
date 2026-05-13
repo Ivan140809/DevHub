@@ -4,6 +4,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +17,8 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
@@ -43,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = header.substring(7);
         try {
             String email = jwtUtil.extractEmail(token);
-            System.out.println("EMAIL JWT: " + email);
+            logger.debug("EMAIL JWT: {}", email);
             if (email != null) {
                 var currentAuth = SecurityContextHolder.getContext().getAuthentication();
                 boolean shouldAuthenticate = currentAuth == null
@@ -52,19 +56,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (shouldAuthenticate) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                    System.out.println("USERDETAILS: " + userDetails.getUsername());
+                    logger.debug("USERDETAILS: {}", userDetails.getUsername());
                     UsernamePasswordAuthenticationToken auth =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails, null, userDetails.getAuthorities()
                             );
                     SecurityContextHolder.getContext().setAuthentication(auth);
-                    System.out.println("AUTH NAME: " + SecurityContextHolder.getContext().getAuthentication().getName());
-                    System.out.println("AUTHORITIES: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+                    logger.debug("AUTH NAME: {}", SecurityContextHolder.getContext().getAuthentication().getName());
+                    logger.debug("AUTHORITIES: {}", SecurityContextHolder.getContext().getAuthentication().getAuthorities());
                 }
             }
         } catch (Exception e) {
-            System.out.println("ERROR JWT FILTER: " + e.getMessage());
-             e.printStackTrace();
+            logger.error("ERROR JWT FILTER: {}", e.getMessage(), e);
             SecurityContextHolder.clearContext();
         }
 
