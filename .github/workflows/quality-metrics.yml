@@ -58,6 +58,15 @@ jobs:
         run: |
           python3 .github/scripts/loc_report.py
 
+
+      # METRICA 3
+      # Nesting
+
+      - name: Generate LOC HTML Report
+        run: |
+          python3 .github/scripts/nesting_report.py
+
+
       - name: Upload Quality Reports
         uses: actions/upload-artifact@v4
         with:
