@@ -12,6 +12,11 @@ jobs:
     name: Generate Quality Metrics Reports
     runs-on: ubuntu-latest
 
+    env:
+          MONGOURI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS}}
+
     steps:
 
       - name: Checkout code
@@ -68,16 +73,18 @@ jobs:
 
 
       #METRICA 4
-
       - name: Start backend
-        env:
-          MONGOURI: ${{ secrets.MONGO_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS}}
         run: |
           mvn spring-boot:run > spring.log 2>&1 &
           sleep 40
 
+      - name: Check backend logs
+        run: |
+          cat backend.log || true
+      - name: Verify backend
+        run: |
+          curl http://localhost:8080 || true
+      
       - name: Latency Metric HTML Report
         run: |
           python3 .github/scripts/latency_report.py
