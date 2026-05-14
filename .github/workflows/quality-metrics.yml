@@ -12,6 +12,15 @@ jobs:
     name: Generate Quality Metrics Reports
     runs-on: ubuntu-latest
 
+    env:
+          MONGOURI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS}}
+          ADMIN_SECRET: ${{secrets.ADMIN_SECRET}}
+          TWILIO_ACCOUNT_SID: ${{secrets.TWILIO_ACCOUNT_SID}}
+          TWILIO_AUTH_TOKEN: ${{secrets.TWILIO_AUTH_TOKEN}}
+          TWILIO_MESSAGING_SERVICE_SID: ${{secrets.TWILIO_MESSAGING_SERVICE_SID}}
+
     steps:
 
       - name: Checkout code
@@ -39,7 +48,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install javalang
+          pip install javalang requests
 
       # METRICA 1
       # Cyclomatic Complexity
@@ -65,6 +74,18 @@ jobs:
       - name: Generate Nesting HTML Report
         run: |
           python3 .github/scripts/nesting_report.py
+
+
+      #METRICA 4
+      - name: Start backend
+        run: |
+          mvn spring-boot:run > spring.log 2>&1 &
+          sleep 40
+
+      
+      - name: Latency Metric HTML Report
+        run: |
+          python3 .github/scripts/latency_report.py
 
 
       - name: Upload Quality Reports
