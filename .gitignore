@@ -36,3 +36,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+src/main/resources/application.properties
+.claude/
+.dockerignore
+node_modules/
+sonar-project.properties
