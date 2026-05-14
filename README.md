@@ -39,11 +39,29 @@
 
 ## 🏗 Arquitectura del Sistema
 
+El proyecto sigue una arquitectura de **monorepo fullstack** con tres servicios desacoplados orquestados por Docker Compose:
+
+```
+Cliente (Next.js :3000) → API REST (Spring Boot :8080) → MongoDB (:27017)
+```
+
 - Cliente web desarrollado en Next.js
 - API REST desarrollada en Spring Boot
-- Persistencia de datos en MongoDB
+- Persistencia de datos en MongoDB Atlas
+- Autenticación stateless mediante JWT + Spring Security
 - Contenerización completa mediante Docker
 - Orquestación de servicios con Docker Compose
+
+### Patrones de Diseño Implementados
+
+| Patrón | Módulo | Descripción |
+|--------|--------|-------------|
+| Builder | `builder/` | Construcción de objetos `Progress` |
+| Observer | `observer/` | Notificaciones de eventos del sistema |
+| Strategy | `strategy/` | Lógica de evaluación intercambiable |
+| Factory Method | `factorymethod/` | Creación de tipos de usuario |
+| Facade | `facade/` | Simplificación de subsistemas complejos |
+| Composite | `model/CommentComposite` | Árbol de comentarios y respuestas |
 
 ## 📂 Estructura del Proyecto
 
@@ -69,29 +87,38 @@ FIS_2610_3513_G1/
 │       └── data2.csv
 ├── scripts/
 │   ├── setup.sh
-│   ├── deploy.sh
-│   └── test.sh
+│   ├── setup-respuestas.sh
+│   ├── setup-reviews.sh
+│   └── setup_comments.sh
 ├── src/
-│   ├── main/                # Backend (Spring Boot)
-│   │   ├── java/
-│   │   └── resources/
-│   │       └── application.properties
-│   ├── test/
-│   └── web/                 # Frontend (Next.js + Bun)
+│   ├── main/
+│   │   ├── java/com/skillstack/devhub/
+│   │   │   ├── builder/           # Patrón Builder
+│   │   │   ├── config/            # SecurityConfig
+│   │   │   ├── controller/        # REST controllers
+│   │   │   ├── dto/               # Data Transfer Objects
+│   │   │   ├── exception/         # Excepciones personalizadas
+│   │   │   ├── facade/            # Patron Facade
+│   │   │   ├── factorymethod/     # Patron Factory Method
+│   │   │   ├── handler/           # Global exception handler
+│   │   │   ├── model/             # Entidades de dominio
+│   │   │   ├── observer/          # Patron Observer
+│   │   │   ├── repository/        # Repositorios MongoDB
+│   │   │   ├── security/          # JWT y filtros
+│   │   │   ├── service/           # Lógica de negocio
+│   │   │   └── strategy/          # Patrón Strategy
+│   │   ├── resources/
+│   │   │   └── application.properties 
+│   │   └── Dockerfile
+│   ├── test/                      # Pruebas unitarias e integración
+│   └── web/                       # Frontend Next.js + Bun
 │       ├── app/
 │       ├── public/
-│       │   ├── file.svg
-│       │   ├── globe.svg
-│       │   ├── next.svg
-│       │   ├── vercel.svg
-│       │   └── window.svg
 │       ├── package.json
 │       ├── next.config.ts
 │       ├── tsconfig.json
-│       ├── eslint.config.mjs
-│       ├── postcss.config.mjs
-│       ├── bun.lock
-├── assets/
+│       └── Dockerfile
+├── assets/                        # Logo e imágenes del proyecto
 ├── temp/
 ├── .mvn/
 ├── .gitattributes
@@ -101,8 +128,9 @@ FIS_2610_3513_G1/
 ├── pom.xml
 ├── docker-compose.yml
 ├── env.example
+├── sonar-project.properties
 ├── mvnw
-├── mvnw.cmd
+└── mvnw.cmd
 ```
 
 ## 🚀 Instalación y Ejecución
@@ -118,9 +146,25 @@ FIS_2610_3513_G1/
 ### 🔹 Clonar el repositorio
 
 ```bash
-git clone https://github.com/organizacion/proyecto.git
-cd proyecto
+git clone https://github.com/puj-course/FIS_2610_3513_G1.git
+cd FIS_2610_3513_G1
 ```
+
+### 🔹 Configurar variables de entorno
+
+```bash
+cp env.example .env
+# Edita .env con tus credenciales
+```
+
+| Variable | Descripción |
+|----------|-------------|
+| `MONGO_ROOT_USERNAME` | Usuario administrador de MongoDB |
+| `MONGO_ROOT_PASSWORD` | Contraseña de MongoDB |
+| `MONGO_URI` | URI de conexión a MongoDB Atlas |
+| `JWT_SECRET` | Clave secreta para firmar tokens JWT |
+| `DOCKER_USERNAME` | Usuario de Docker Hub (para CI/CD) |
+
 
 ### 🔹 Ejecución con Docker
 
@@ -150,45 +194,91 @@ bun run dev
 docker-compose run backend mvn test
 ```
 
+---
+
+## 🌐 API REST – Endpoints principales
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `POST` | `/auth/register` | Registro de usuario |
+| `POST` | `/auth/login` | Inicio de sesión (retorna JWT) |
+| `POST` | `/auth/forgot-password` | Solicitud de recuperación de contraseña |
+| `POST` | `/auth/reset-password` | Restablecer contraseña |
+| `GET` | `/questions` | Listar preguntas |
+| `POST` | `/questions` | Crear pregunta (admin) |
+| `GET` | `/questions/{id}` | Obtener pregunta por ID |
+| `GET` | `/users/{id}` | Obtener perfil de usuario |
+| `PUT` | `/users/{id}` | Actualizar perfil |
+| `GET` | `/statistics/ranking` | Ranking de usuarios |
+| `POST` | `/comments` | Agregar comentario |
+| `POST` | `/comments/{id}/replies` | Responder a un comentario |
+
+---
+
+## ⚙️ CI/CD y Calidad de Código
+
+Flujos automatizados en GitHub Actions:
+
+| Workflow | Descripción |
+|----------|-------------|
+| `ci.yml` | Integración continua: compila y ejecuta pruebas |
+| `cd.yml` | Despliegue continuo a producción |
+| `build.yml` | Construcción y publicación de imágenes Docker |
+| `quality-metrics.yml` | Análisis de calidad con SonarCloud |
+| `test-report.yml` | Reporte de cobertura con JaCoCo |
+| `hu-metrics.yml` | Métricas de historias de usuario |
+| `sprint-report.yml` | Reporte automático por sprint |
+| `daily-scrum.yaml` | Automatización de Daily Scrum |
+
+**SonarCloud:** [puj-course_FIS_2610_3513_G1](https://sonarcloud.io/project/overview?id=puj-course_FIS_2610_3513_G1)
+
+---
+
 ## 📚 Contexto Académico
 
 Proyecto desarrollado en el marco de la asignatura:
 
-- **Asignatura:** Fundamentos de Ingeniería de Software
-- **Docente:** Luis Gabriel Moreno Sandoval, PhD
-- **Contacto**: morenoluis@javeriana.edu.co
+| Campo | Detalle |
+|-------|---------|
+| Asignatura | Fundamentos de Ingeniería de Software |
+| Código | FIS 2610 – Grupo 3513 G1 |
+| Institución | Pontificia Universidad Javeriana |
+| Docente | Luis Gabriel Moreno Sandoval, PhD |
+| Contacto | morenoluis@javeriana.edu.co |
 
 ## 📩 Contacto
-### Equipo de desarrollo 
+### Equipo de desarrollo
 
-**Iván Santiago Lastra**  
-Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana. 
-
-📧 ivan.lastra@javeriana.edu.co  
-
-**Ana Maria Murcia Gomez**  
-Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana.
-
-📧 murcia-ana@javeriana.edu.co
-
-**Richard Manuel Castillo Pesca**  
-Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana.
-
-📧 r-castillo@javeriana.edu.co
-
-**Lorenzo Ramirez Calderon**  
-Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana.
-
+**Lorenzo Ramírez Calderón**
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana
 📧 lorenzo.ramirezc@javeriana.edu.co
 
-**Adam Kalel Ordoñez Herrera**  
-Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana. 
-
+**Adam Kalel Ordoñez Herrera**
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana
 📧 adordonez@javeriana.edu.co
 
-**Lucas Fuentes Sanchez**  
-Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana. 
+**Richard Manuel Castillo Pesca**
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana
+📧 r-castillo@javeriana.edu.co
 
+**Iván Santiago Lastra**
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana
+📧 ivan.lastra@javeriana.edu.co
+
+**Ana María Murcia Gómez**
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana
+📧 murcia-ana@javeriana.edu.co
+
+**Lucas Fuentes Sánchez**
+Estudiante de Ingeniería de Sistemas, Pontificia Universidad Javeriana
 📧 lucas.fuentes@javeriana.edu.co
+
+---
+
+## 📄 Licencia
+
+Proyecto desarrollado con fines académicos en el marco de la asignatura Fundamentos de Ingeniería de Software — Pontificia Universidad Javeriana, 2025.
+
+Ver [LICENSE](./LICENSE) para más detalles.
 
 
