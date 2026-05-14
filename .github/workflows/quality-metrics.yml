@@ -12,6 +12,11 @@ jobs:
     name: Generate Quality Metrics Reports
     runs-on: ubuntu-latest
 
+    env:
+          MONGOURI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS}}
+
     steps:
 
       - name: Checkout code
@@ -39,7 +44,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install javalang
+          pip install javalang requests
 
       # METRICA 1
       # Cyclomatic Complexity
@@ -57,6 +62,33 @@ jobs:
       - name: Generate LOC HTML Report
         run: |
           python3 .github/scripts/loc_report.py
+
+
+      # METRICA 3
+      # Nesting
+
+      - name: Generate Nesting HTML Report
+        run: |
+          python3 .github/scripts/nesting_report.py
+
+
+      #METRICA 4
+      - name: Start backend
+        run: |
+          mvn spring-boot:run > spring.log 2>&1 &
+          sleep 40
+
+      - name: Check backend logs
+        run: |
+          cat backend.log || true
+      - name: Verify backend
+        run: |
+          curl http://localhost:8080 || true
+      
+      - name: Latency Metric HTML Report
+        run: |
+          python3 .github/scripts/latency_report.py
+
 
       - name: Upload Quality Reports
         uses: actions/upload-artifact@v4
