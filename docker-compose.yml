@@ -12,7 +12,14 @@ services:
     volumes:
       - mongo-data:/data/db
     networks:
-      - devhubdb-network
+      - backend-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
 
   backend:
     image: ${DOCKER_USERNAME}/devhubdb-backend:${IMAGE_TAG:-latest}
@@ -28,9 +35,12 @@ services:
       SPRING_DATA_MONGODB_URI: ${MONGO_URI}
       JWT_SECRET: ${JWT_SECRET}
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     networks:
-      - devhubdb-network
+      - backend-network
+      - frontend-network
+    restart: unless-stopped
 
   frontend:
     image: ${DOCKER_USERNAME}/devhubdb-frontend:${IMAGE_TAG:-latest}
@@ -45,12 +55,17 @@ services:
     depends_on:
       - backend
     networks:
-      - devhubdb-network
+      - frontend-network
+    restart: unless-stopped
 
 volumes:
   mongo-data:
     driver: local
 
 networks:
-  devhubdb-network:
+  backend-network:
     driver: bridge
+    name: devhubdb-backend-net
+  frontend-network:
+    driver: bridge
+    name: devhubdb-frontend-net
