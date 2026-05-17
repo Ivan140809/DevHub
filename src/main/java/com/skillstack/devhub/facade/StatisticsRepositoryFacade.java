@@ -20,7 +20,8 @@ public class StatisticsRepositoryFacade {
     }
 
     public List<String> findAnsweredQuestionsByUser(String userId){
-        return answerRepository.findDistinctQuestionIdByUserId(userId);
+        return answerRepository.findDistinctQuestionIdByUserId(userId)
+                .stream().distinct().toList();
     }
 
     public Question findQuestionById(String questionId){
