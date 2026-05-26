@@ -144,6 +144,8 @@ export default function QuestionDetailPage() {
   }, [pregunta]);
 
   const correctaIdx = pregunta?.options.findIndex((o) => o.correct) ?? -1;
+  const displayCorrectIdx =
+    answered && isCorrect === true && selected !== null ? selected : correctaIdx;
 
   async function enviarComentario() {
     if (!comentario.trim() || !id) return;
@@ -264,7 +266,7 @@ export default function QuestionDetailPage() {
           };
     }
 
-    if (i === correctaIdx) {
+    if (i === displayCorrectIdx) {
       return {
         background: "rgba(30,160,100,.15)",
         borderColor: "rgba(80,200,130,.5)",
@@ -293,7 +295,7 @@ export default function QuestionDetailPage() {
       };
     }
 
-    if (i === correctaIdx) {
+    if (i === displayCorrectIdx) {
       return {
         borderColor: "rgba(80,200,130,.6)",
         color: "rgba(80,220,150,.9)",
@@ -672,7 +674,7 @@ export default function QuestionDetailPage() {
                       {opt.text}
                     </span>
 
-                    {answered && i === correctaIdx && (
+                    {answered && i === displayCorrectIdx && (
                       <span
                         style={{
                           fontFamily: "'Space Mono', monospace",
@@ -691,7 +693,7 @@ export default function QuestionDetailPage() {
                       </span>
                     )}
 
-                    {answered && i === selected && i !== correctaIdx && (
+                    {answered && i === selected && i !== displayCorrectIdx && (
                       <span
                         style={{
                           fontFamily: "'Space Mono', monospace",

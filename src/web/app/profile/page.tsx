@@ -518,7 +518,7 @@ export default function ProfilePage() {
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:1 }}>
                     <span style={{ fontFamily:"'Space Mono',monospace", fontSize:9, color:"rgba(100,200,255,.5)", letterSpacing:2 }}></span>
                     <span style={{ fontFamily:"'Space Mono',monospace", fontSize:17, color:"#64c8ff", letterSpacing:1 }}>
-                      {totalPreguntas > 0 ? Math.round((preguntasResueltas / totalPreguntas) * 100) : 0}%
+                      {totalPreguntas > 0 ? Math.min(100, Math.round((preguntasResueltas / totalPreguntas) * 100)) : 0}%
                     </span>
                   </div>
 
@@ -527,7 +527,7 @@ export default function ProfilePage() {
                       style={{
                         height:"100%",
                         borderRadius:999,
-                        width: `${totalPreguntas > 0 ? (preguntasResueltas / totalPreguntas) * 100 : 0}%`,
+                        width: `${totalPreguntas > 0 ? Math.min(100, (preguntasResueltas / totalPreguntas) * 100) : 0}%`,
                         background:"linear-gradient(90deg,#4080ff,#64c8ff)",
                         boxShadow:"0 0 8px rgba(100,200,255,.5)",
                         transition:"width .8s cubic-bezier(.16,1,.3,1)",
