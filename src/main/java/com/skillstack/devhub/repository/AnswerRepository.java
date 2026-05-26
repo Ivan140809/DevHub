@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface AnswerRepository extends MongoRepository<Answer, String> {
     List<String> findDistinctQuestionIdByUserId(String userId);
+    long countByUserId(String userId);
 }

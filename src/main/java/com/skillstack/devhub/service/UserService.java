@@ -69,7 +69,7 @@ public class UserService {
 
     public UserResponseDTO getProfile(String userEmail) {
         User user = findUserByEmailOrThrow(userEmail);
-        int answeredQuestions = answerRepository.findDistinctQuestionIdByUserId(user.getId()).size();
+        int answeredQuestions = (int) answerRepository.countByUserId(user.getId());
         int totalQuestions = (int) questionRepository.count();
         String roleStr = user.getRole() != null ? user.getRole().name() : "USER";
         UserResponseDTO dto = new UserResponseDTO(

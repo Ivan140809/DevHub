@@ -503,13 +503,10 @@ export default function ProfilePage() {
                   </div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontFamily:"'Space Mono',monospace", fontSize:10, fontWeight:700, letterSpacing:2.5, textTransform:"uppercase", color:"#64c8ff", marginBottom:6, opacity:.8 }}>
-                      Preguntas resueltas
+                      Respuestas dadas
                     </div>
                     <div style={{ fontSize:22, fontWeight:900, color:"#ddd0ff", lineHeight:1 }}>
                       {preguntasResueltas}
-                      <span style={{ fontSize:14, fontWeight:400, color:"rgba(160,200,255,.4)", marginLeft:6 }}>
-                        / {totalPreguntas}
-                      </span>
                     </div>
                   </div>
                 </div>
