@@ -78,8 +78,7 @@ public class UserAuthTest {
         when(userRepository.findByEmail("test@test.com"))
                 .thenReturn(Optional.of(user));
 
-        when(answerRepository.findDistinctQuestionIdByUserId(any()))
-                .thenReturn(List.of("q1", "q2"));
+        when(answerRepository.countByUserId(any())).thenReturn(2L);
 
         // Act
         UserResponseDTO result = userService.updateUser("test@test.com", dto);
@@ -114,8 +113,7 @@ public class UserAuthTest {
         when(userRepository.findByEmail("test@test.com"))
                 .thenReturn(Optional.of(user));
 
-        when(answerRepository.findDistinctQuestionIdByUserId(any()))
-                .thenReturn(List.of("q1", "q2"));
+        when(answerRepository.countByUserId(any())).thenReturn(2L);
 
         // Act
         UserResponseDTO result = userService.updateUser("test@test.com", dto);
@@ -149,8 +147,7 @@ public class UserAuthTest {
         when(userRepository.findByEmail("test@test.com"))
                 .thenReturn(Optional.of(user));
 
-        when(answerRepository.findDistinctQuestionIdByUserId(any()))
-                .thenReturn(List.of("q1", "q2", "q3"));
+        when(answerRepository.countByUserId(any())).thenReturn(3L);
 
         // Act
         UserResponseDTO result = userService.getProfile("test@test.com");
@@ -235,8 +232,7 @@ public class UserAuthTest {
         when(userRepository.existsByUsername(dto.getUsername()))
                 .thenReturn(false);
 
-        when(answerRepository.findDistinctQuestionIdByUserId(any()))
-                .thenReturn(List.of());
+        when(answerRepository.countByUserId(any())).thenReturn(0L);
 
         // Act
         UserResponseDTO result = userService.updateUser("test@test.com", dto);
