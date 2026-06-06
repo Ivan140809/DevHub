@@ -26,7 +26,7 @@ jobs:
         run: mvn clean verify
 
       - name: SonarCloud Scan
-        if: github.event_name == 'push'
+        if: ${{ github.event_name == 'push' && secrets.SONAR_TOKEN != '' && vars.SONAR_PROJECT_KEY != '' && vars.SONAR_ORGANIZATION != '' }}
         continue-on-error: true
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -34,8 +34,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=puj-course_FIS_2610_3513_G1
-            -Dsonar.organization=puj-course
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
             -Dsonar.sources=src/main/java
             -Dsonar.tests=src/test/java
             -Dsonar.java.binaries=target/classes
