@@ -1,18 +1,18 @@
 package com.skillstack.devhub.model;
 
+import java.time.Duration;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.Duration;
 
 @Document(collection="answers")
 public class Answer {
     @Id
     private String id;
-    private String questionId;
-    private String selectedOption;
+    private final String questionId;
+    private final String selectedOption;
     private String userId;
-    private Duration timer;
+    private final Duration timer;
 
     public Answer(String questionId, String selectedOption, String userId, Duration timer) {
         this.questionId = questionId;
@@ -23,6 +23,18 @@ public class Answer {
 
     public String getId() {
         return id;
+    }
+
+    public String getQuestionId() {
+        return questionId;
+    }
+
+    public String getSelectedOption() {
+        return selectedOption;
+    }
+
+    public Duration getTimer() {
+        return timer;
     }
 
     public String getUserId() {

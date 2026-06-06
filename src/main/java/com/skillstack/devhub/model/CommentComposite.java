@@ -1,13 +1,13 @@
 package com.skillstack.devhub.model;
 
-import com.skillstack.devhub.dto.CommentDTO;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import com.skillstack.devhub.dto.CommentDTO;
+
 public class CommentComposite extends CommentComponent{
 
-    private List<CommentComponent> replies = new ArrayList<>();
+    private final List<CommentComponent> replies = new ArrayList<>();
 
     public CommentComposite(String id, String title, String content, String category, List<String> tags, String username, String createdAt, boolean isStarred, int happyFace, int sadFace){
         super(id, title, content, category, tags, username, createdAt, isStarred, happyFace, sadFace);

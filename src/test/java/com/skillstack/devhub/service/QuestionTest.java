@@ -1,33 +1,48 @@
 package com.skillstack.devhub.service;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+
 import com.skillstack.devhub.CasoPrueba;
 import com.skillstack.devhub.CasoPruebaExtension;
-import com.skillstack.devhub.dto.*;
+import com.skillstack.devhub.dto.AnswerDTO;
+import com.skillstack.devhub.dto.AnswerResponseDTO;
+import com.skillstack.devhub.dto.OptionDTO;
+import com.skillstack.devhub.dto.QuestionDTO;
+import com.skillstack.devhub.dto.ReviewDTO;
 import com.skillstack.devhub.exception.QuestionAlreadyExistsException;
 import com.skillstack.devhub.exception.QuestionNotFoundException;
-import com.skillstack.devhub.model.*;
+import com.skillstack.devhub.model.Category;
+import com.skillstack.devhub.model.Difficulty;
+import com.skillstack.devhub.model.Option;
+import com.skillstack.devhub.model.Question;
+import com.skillstack.devhub.model.Review;
+import com.skillstack.devhub.model.Role;
+import com.skillstack.devhub.model.User;
 import com.skillstack.devhub.repository.AnswerRepository;
 import com.skillstack.devhub.repository.QuestionRepository;
 import com.skillstack.devhub.repository.ReviewRepository;
 import com.skillstack.devhub.repository.UserRepository;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @ExtendWith({MockitoExtension.class, CasoPruebaExtension.class})
 class QuestionTest {
@@ -41,6 +56,7 @@ class QuestionTest {
     @Mock
     private ReviewRepository reviewRepository;
 
+    @SuppressWarnings("unused")
     @Mock
     private AnswerRepository answerRepository;
 
@@ -271,8 +287,10 @@ class QuestionTest {
 
         when(questionRepository.findByTitle("Patrón creacional")).thenReturn(Optional.of(new Question()));
 
-        assertThrows(QuestionAlreadyExistsException.class, ()-> questionService.addQuestion(questionDTO),
+        QuestionAlreadyExistsException exception = assertThrows(QuestionAlreadyExistsException.class,
+                () -> questionService.addQuestion(questionDTO),
                 "Debe lanzar QuestionAlreadyExistsException si la pregunta ya existe");
+        assertNotNull(exception);
         verify(questionRepository, never()).save(any(Question.class));
 
         System.out.println("CP16 — Excepción lanzada: QuestionAlreadyExistsException");
@@ -290,8 +308,10 @@ class QuestionTest {
     void findQuestion_whenIdDoesNotExists(){
         when(questionRepository.findById("1")).thenReturn(Optional.empty());
 
-        assertThrows(QuestionNotFoundException.class, ()->questionService.getQuestionById("1"),
+        QuestionNotFoundException exception = assertThrows(QuestionNotFoundException.class,
+                () -> questionService.getQuestionById("1"),
                 "Debe lanzar QuestionNotFoundException si el id no se encuentra");
+        assertNotNull(exception);
         verify(questionRepository, times(1)).findById("1");
 
         System.out.println("CP17 — Excepción lanzada: QuestionNotFoundException");

@@ -1,10 +1,10 @@
 package com.skillstack.devhub.builder;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.skillstack.devhub.model.Progress;
 import com.skillstack.devhub.service.StatisticsService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ProgressBuilder implements ProgressBuilderInterface{

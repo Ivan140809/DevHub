@@ -4,6 +4,13 @@
 
 # DEVHUB 💻
 
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-16.1.6-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Status](https://img.shields.io/badge/Estado-Finalizado-brightgreen?style=for-the-badge)
+
 > "Entrena con propósito, destaca con confianza."
 > 
 ## 📖 Descripción
@@ -29,8 +36,8 @@
 
 ## 🛠 Tecnologías Utilizadas
 
-- **Frontend:** Next.js 16 + Bun
-- **Backend:** Java 17 – Spring Boot
+- **Frontend:** Next.js 16.1.6 + React 19.2.3 + TypeScript 5.9.3
+- **Backend:** Java 17 + Spring Boot 3.2.5
 - **Base de Datos:** MongoDB
 - **Contenerización:** Docker + Docker Compose
 - **CI/CD:** GitHub Actions
@@ -111,7 +118,7 @@ FIS_2610_3513_G1/
 │   │   │   └── application.properties 
 │   │   └── Dockerfile
 │   ├── test/                      # Pruebas unitarias e integración
-│   └── web/                       # Frontend Next.js + Bun
+│   └── web/                       # Frontend Next.js + npm
 │       ├── app/
 │       ├── public/
 │       ├── package.json
@@ -139,9 +146,9 @@ FIS_2610_3513_G1/
 
 - Docker y Docker Compose
 - Git
-- Java 17+
-- Next.js instalado
-- Bun (para desarrollo local frontend)
+- Java 17
+- Node.js + npm
+- Next.js 16.1.6
 
 ### 🔹 Clonar el repositorio
 
@@ -185,7 +192,9 @@ mvn test
 ```
 **Frontend:**
 ```bash
-bun run dev
+cd src/web
+npm install
+npm run dev
 ```
 
 

@@ -1,9 +1,9 @@
 package com.skillstack.devhub.model;
 
+import java.time.LocalDate;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.LocalDate;
 
 
 @Document(collection = "reviews")
@@ -50,6 +50,14 @@ public class Review {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+
+    public String getQuestionId() {
+        return questionId;
+    }
+
+    public LocalDate getDate() {
+        return date;
     }
 
     public String getUserId() {
